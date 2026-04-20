@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace ThstiServer.Controllers
 {
@@ -14,23 +15,25 @@ namespace ThstiServer.Controllers
     public class HeroSlidesController : ControllerBase
     {
         private readonly ThstiDbContext _context;
+        private readonly ThstiServer.Services.ITranslationService _translationService;
 
-        public HeroSlidesController(ThstiDbContext context)
+        public HeroSlidesController(ThstiDbContext context, ThstiServer.Services.ITranslationService translationService)
         {
             _context = context;
+            _translationService = translationService;
         }
 
         [HttpGet("public")]
         public async Task<IActionResult> GetPublicHeroSlides()
         {
             var slides = await _context.HeroSlides
-                .Where(s => s.IsActive)
+                .Where(s => s.IsActive && s.ReviewStatus == "Published" && !s.IsArchived)
                 .OrderBy(s => s.DisplayOrder)
                 .ToListAsync();
             return Ok(slides);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllHeroSlides()
         {
@@ -40,7 +43,7 @@ namespace ThstiServer.Controllers
             return Ok(slides);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> CreateHeroSlide([FromBody] HeroSlideRequest req)
         {
@@ -53,10 +56,28 @@ namespace ThstiServer.Controllers
                     foreach (var video in activeVideos) video.IsActiveVideo = false;
                 }
 
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "VIEWER";
+                var status = req.ReviewStatus ?? "Draft";
+                // Executives cannot straight publish
+                if (userRole == "EXECUTIVE" && status == "Published")
+                {
+                    status = "PendingReview";
+                }
+
+                var titleHi = req.TitleHi;
+                if (string.IsNullOrWhiteSpace(titleHi) && !string.IsNullOrWhiteSpace(req.Title))
+                    titleHi = await _translationService.TranslateToHindiAsync(req.Title);
+                    
+                var subtitleHi = req.SubtitleHi;
+                if (string.IsNullOrWhiteSpace(subtitleHi) && !string.IsNullOrWhiteSpace(req.Subtitle))
+                    subtitleHi = await _translationService.TranslateToHindiAsync(req.Subtitle);
+
                 var slide = new HeroSlide
                 {
                     Title = req.Title,
+                    TitleHi = titleHi,
                     Subtitle = req.Subtitle,
+                    SubtitleHi = subtitleHi,
                     Type = req.Type ?? "IMAGE",
                     MediaUrl = req.MediaUrl,
                     PosterUrl = req.PosterUrl,
@@ -66,6 +87,8 @@ namespace ThstiServer.Controllers
                     OpenInNewTab = req.OpenInNewTab,
                     RouteUrl = req.RouteUrl,
                     ShowText = req.ShowText,
+                    ReviewStatus = status,
+                    Remarks = req.Remarks,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -83,7 +106,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateHeroSlide(int id, [FromBody] HeroSlideRequest req)
         {
@@ -99,17 +122,39 @@ namespace ThstiServer.Controllers
                     foreach (var video in activeVideos) video.IsActiveVideo = false;
                 }
 
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "VIEWER";
+                var status = req.ReviewStatus ?? slide.ReviewStatus;
+                
+                // Executives cannot bypass workflow
+                if (userRole == "EXECUTIVE" && status == "Published" && slide.ReviewStatus != "Published")
+                {
+                    status = "PendingReview";
+                }
+
+                var titleHi = req.TitleHi;
+                if (string.IsNullOrWhiteSpace(titleHi) && !string.IsNullOrWhiteSpace(req.Title))
+                    titleHi = await _translationService.TranslateToHindiAsync(req.Title);
+                    
+                var subtitleHi = req.SubtitleHi;
+                if (string.IsNullOrWhiteSpace(subtitleHi) && !string.IsNullOrWhiteSpace(req.Subtitle))
+                    subtitleHi = await _translationService.TranslateToHindiAsync(req.Subtitle);
+
                 slide.Title = req.Title;
+                slide.TitleHi = titleHi;
                 slide.Subtitle = req.Subtitle;
+                slide.SubtitleHi = subtitleHi;
                 slide.Type = req.Type ?? "IMAGE";
                 slide.MediaUrl = req.MediaUrl;
                 slide.PosterUrl = req.PosterUrl;
                 slide.DisplayOrder = req.DisplayOrder;
                 slide.IsActive = req.IsActive;
+                slide.IsArchived = req.IsArchived;
                 slide.IsActiveVideo = req.IsActiveVideo;
                 slide.OpenInNewTab = req.OpenInNewTab;
                 slide.RouteUrl = req.RouteUrl;
                 slide.ShowText = req.ShowText;
+                slide.ReviewStatus = status;
+                slide.Remarks = req.Remarks ?? slide.Remarks;
                 slide.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
@@ -124,7 +169,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteHeroSlide(int id)
         {
@@ -136,7 +181,7 @@ namespace ThstiServer.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpPatch("{id:int}/toggle-active")]
         public async Task<IActionResult> ToggleHeroSlideActive(int id)
         {
@@ -150,7 +195,7 @@ namespace ThstiServer.Controllers
             return Ok(slide);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpPatch("reorder")]
         public async Task<IActionResult> UpdateHeroSlideOrder([FromBody] ReorderRequest req)
         {

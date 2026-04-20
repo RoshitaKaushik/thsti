@@ -35,7 +35,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Gallery item)
         {
@@ -45,7 +45,7 @@ namespace ThstiServer.Controllers
             return StatusCode(201, item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] Gallery updatedItem)
         {
@@ -59,7 +59,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

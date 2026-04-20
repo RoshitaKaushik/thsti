@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
@@ -74,4 +74,6 @@ public partial class Faculty
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public bool IsArchived { get; set; } = false;
 }

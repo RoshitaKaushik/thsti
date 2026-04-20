@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
+import SectionSettings from '../components/SectionSettings';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -8,10 +9,13 @@ import toast from 'react-hot-toast';
 
 export default function HeroSlides() {
     const [slides, setSlides] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingSlide, setEditingSlide] = useState(null);
     const [mediaList, setMediaList] = useState([]);
+    
+    // Auth State
+    const currentUser = JSON.parse(localStorage.getItem('thsti_admin_user') || '{}');
+    const isExecutive = currentUser?.role === 'EXECUTIVE';
 
     // Advanced Media States
     const [mediaOpt, setMediaOpt] = useState('LIBRARY'); // LIBRARY, UPLOAD, URL
@@ -33,7 +37,9 @@ export default function HeroSlides() {
         isActive: true,
         openInNewTab: false,
         routeUrl: '',
-        showText: true
+        showText: true,
+        reviewStatus: 'Draft',
+        remarks: ''
     });
 
     useEffect(() => {
@@ -41,15 +47,14 @@ export default function HeroSlides() {
         fetchMedia();
     }, []);
 
+    const [filterState, setFilterState] = useState('ALL');
+
     const fetchSlides = async () => {
         try {
-            setLoading(true);
             const res = await api.get('/hero-slides/all');
             setSlides(res.data);
-        } catch (error) {
+        } catch {
             toast.error("Failed to fetch slides");
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -57,8 +62,8 @@ export default function HeroSlides() {
         try {
             const res = await api.get('/media');
             setMediaList(res.data);
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -76,7 +81,7 @@ export default function HeroSlides() {
                 items: updatedItems.map(item => ({ id: item.id, order: item.displayOrder }))
             });
             toast.success("Order saved");
-        } catch (error) {
+        } catch {
             toast.error("Failed to save order");
             fetchSlides();
         }
@@ -138,26 +143,31 @@ export default function HeroSlides() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this slide?")) return;
+    const handleArchiveToggle = async (slide) => {
         try {
-            await api.delete(`/hero-slides/${id}`);
-            toast.success("Slide deleted");
+            const payload = { ...slide, isArchived: !slide.isArchived };
+            await api.put(`/hero-slides/${slide.id}`, payload);
+            toast.success(`Slide ${slide.isArchived ? 'unarchived' : 'archived'} successfully`);
             fetchSlides();
-        } catch (error) {
-            toast.error("Failed to delete slide");
+        } catch {
+            toast.error("Failed to modify slide archival status");
         }
     };
 
     const toggleStatus = async (id) => {
         try {
             await api.patch(`/hero-slides/${id}/toggle-active`);
-            toast.success("Status updated");
             fetchSlides();
-        } catch (error) {
-            toast.error("Failed to update status");
+        } catch {
+            toast.error("Failed to toggle status");
         }
     };
+
+    const filteredSlides = slides.filter(item => {
+        if (filterState === 'ACTIVE') return !item.isArchived;
+        if (filterState === 'ARCHIVED') return item.isArchived;
+        return true;
+    });
 
     const openModal = (slide = null) => {
         if (slide) {
@@ -172,7 +182,9 @@ export default function HeroSlides() {
                 isActive: slide.isActive ?? true,
                 openInNewTab: slide.openInNewTab || false,
                 routeUrl: slide.routeUrl || '',
-                showText: slide.showText ?? true
+                showText: slide.showText ?? true,
+                reviewStatus: slide.reviewStatus || 'Draft',
+                remarks: slide.remarks || ''
             });
             const isMediaLibrary = mediaList.some(m => m.url === slide.mediaUrl);
             setMediaOpt(slide.mediaUrl && !isMediaLibrary ? 'URL' : 'LIBRARY');
@@ -187,7 +199,7 @@ export default function HeroSlides() {
             setEditingSlide(null);
             setFormData({
                 title: '', subtitle: '', type: 'IMAGE', mediaUrl: '', posterUrl: '',
-                isActiveVideo: false, isActive: true, openInNewTab: false, routeUrl: '', showText: true
+                isActiveVideo: false, isActive: true, openInNewTab: false, routeUrl: '', showText: true, reviewStatus: 'Draft', remarks: ''
             });
             setMediaOpt('LIBRARY');
             setMediaCustomUrl('');
@@ -213,6 +225,18 @@ export default function HeroSlides() {
                 </button>
             }
         >
+            <SectionSettings type="HERO" defaultTitle="Top Hero Slider" />
+            <div className="mb-4 flex justify-end">
+                <select 
+                    value={filterState} 
+                    onChange={(e) => setFilterState(e.target.value)}
+                    className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="ALL">All Items</option>
+                    <option value="ACTIVE">Active (Live)</option>
+                    <option value="ARCHIVED">🗄️ Archived</option>
+                </select>
+            </div>
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="slidesList">
@@ -226,17 +250,19 @@ export default function HeroSlides() {
                                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Media</th>
                                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Primary Video</th>
                                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Workflow</th>
+                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Archived</th>
                                             <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {slides.map((slide, index) => (
+                                        {filteredSlides.map((slide, index) => (
                                             <Draggable key={slide.id.toString()} draggableId={slide.id.toString()} index={index}>
                                                 {(provided, snapshot) => (
                                                     <tr
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
-                                                        className={`${snapshot.isDragging ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors`}
+                                                        className={`${snapshot.isDragging ? 'bg-blue-50' : 'hover:bg-gray-50'} transition-colors ${slide.isArchived ? 'opacity-60 grayscale' : ''}`}
                                                     >
                                                         <td className="px-4 py-4 text-gray-400">
                                                             <div {...provided.dragHandleProps} className="cursor-grab hover:text-gray-600">
@@ -263,13 +289,25 @@ export default function HeroSlides() {
                                                                 {slide.isActive ? 'Active' : 'Inactive'}
                                                             </button>
                                                         </td>
+                                                        <td className="px-4 py-4">
+                                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                                ${slide.reviewStatus === 'Published' ? 'bg-blue-100 text-blue-800' : 
+                                                                  slide.reviewStatus === 'PendingReview' ? 'bg-yellow-100 text-yellow-800' : 
+                                                                  slide.reviewStatus === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}
+                                                            `}>
+                                                                {slide.reviewStatus || 'Draft'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-4">
+                                                            {slide.isArchived ? <span className="text-amber-600 font-bold text-xs">🗄️ ARCHIVED</span> : <span className="text-green-600 font-medium text-xs">Visible</span>}
+                                                        </td>
                                                         <td className="px-4 py-4 text-right text-sm">
-                                                            <div className="flex justify-end gap-2">
-                                                                <button onClick={() => openModal(slide)} className="text-gray-400 hover:text-blue-600">
-                                                                    <Edit2 size={16} />
+                                                            <div className="flex justify-end gap-3">
+                                                                <button onClick={() => openModal(slide)} title="Edit Slide" className="text-gray-400 hover:text-primary">
+                                                                    <Edit2 size={18} />
                                                                 </button>
-                                                                <button onClick={() => handleDelete(slide.id)} className="text-gray-400 hover:text-red-600">
-                                                                    <Trash2 size={16} />
+                                                                <button onClick={() => handleArchiveToggle(slide)} title={slide.isArchived ? "Unarchive" : "Archive"} className="text-gray-400 hover:text-amber-600">
+                                                                    {slide.isArchived ? <span className="text-lg">👁️</span> : <span className="text-lg">🗄️</span>}
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -444,6 +482,28 @@ export default function HeroSlides() {
                         </label>
                     </div>
 
+                    {!isExecutive && (
+                        <div className="mt-4 p-3 bg-gray-50 border rounded-md">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Workflow Status</label>
+                            <select
+                                value={formData.reviewStatus || 'Draft'}
+                                onChange={(e) => setFormData({ ...formData, reviewStatus: e.target.value })}
+                                className="w-full border border-gray-300 rounded-md p-2"
+                            >
+                                <option value="Draft">Draft</option>
+                                <option value="PendingReview">Pending Review</option>
+                                <option value="Published">Published</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                    )}
+                    {isExecutive && formData.reviewStatus === 'Rejected' && (
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p className="text-sm text-red-700 font-bold">This slide was rejected by the manager.</p>
+                            {formData.remarks && <p className="text-sm text-red-600 mt-1">Remarks: {formData.remarks}</p>}
+                        </div>
+                    )}
+
                     <div className="flex justify-end pt-4 border-t">
                         <button
                             type="button"
@@ -458,7 +518,7 @@ export default function HeroSlides() {
                             disabled={isSaving}
                             className={`px-4 py-2 bg-[var(--primary)] text-white rounded shadow hover:bg-red-800 flex items-center gap-2 ${isSaving ? 'opacity-50 cursor-wait' : ''}`}
                         >
-                            {isSaving ? 'Uploading & Saving...' : (editingSlide ? 'Update Slide' : 'Create Slide')}
+                            {isSaving ? 'Saving...' : (isExecutive ? (editingSlide ? 'Update Draft' : 'Submit for Review') : (editingSlide ? 'Update Slide' : 'Publish Slide'))}
                         </button>
                     </div>
                 </form>

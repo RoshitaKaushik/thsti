@@ -87,14 +87,14 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{type}")]
         public async Task<IActionResult> UpdateHomeSection(string type, [FromBody] HomeSectionRequest req)
         {
             try
             {
                 var typeStr = type.ToUpper();
-                string[] validTypes = { "HERO", "ABOUT", "SERVICES", "NEWS", "GALLERY", "CONTACT", "LIFE_AT_THSTI" };
+                string[] validTypes = { "ABOUT", "SERVICES", "CONTACT", "STATISTICS", "QUICK_LINKS", "HERO", "MARQUEE", "RESEARCH_CENTERS", "LIFE_AT_THSTI", "NEWS_EVENTS", "TABS_SECTION", "INTL_COLLAB", "PARTNERS" };
                 if (!validTypes.Contains(typeStr))
                 {
                     return BadRequest(new { error = "Invalid section type" });

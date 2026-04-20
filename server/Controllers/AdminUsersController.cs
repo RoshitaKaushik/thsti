@@ -11,7 +11,7 @@ namespace ThstiServer.Controllers
 {
     [ApiController]
     [Route("api/admin/users")]
-    [Authorize(Roles = "SUPER_ADMIN")]
+    [Authorize(Roles = "ADMIN")]
     public class AdminUsersController : ControllerBase
     {
         private readonly ThstiDbContext _context;
@@ -22,12 +22,25 @@ namespace ThstiServer.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int limit = 15, [FromQuery] string search = "")
         {
-            var users = await _context.Users
+            var query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(u => u.Email.Contains(search) || u.Name.Contains(search) || u.Username.Contains(search));
+            }
+
+            int total = await query.CountAsync();
+
+            var users = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * limit)
+                .Take(limit)
                 .Select(u => new { u.Id, u.Email, u.Name, u.Username, u.Role, u.IsActive, u.CreatedAt })
                 .ToListAsync();
-            return Ok(users);
+
+            return Ok(new { data = users, total = total });
         }
 
         [HttpPost]

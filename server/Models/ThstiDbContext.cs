@@ -15,6 +15,8 @@ public partial class ThstiDbContext : DbContext
     {
     }
 
+    public virtual DbSet<AdminModule> AdminModules { get; set; }
+
     public virtual DbSet<AuthAuditLog> AuthAuditLogs { get; set; }
 
     public virtual DbSet<ContactSubmission> ContactSubmissions { get; set; }
@@ -65,20 +67,38 @@ public partial class ThstiDbContext : DbContext
 
     public virtual DbSet<ResearchFacility> ResearchFacilities { get; set; }
 
+    public virtual DbSet<Tender> Tenders { get; set; }
+
     public virtual DbSet<TranslationLanguage> TranslationLanguages { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Database=thsti;Username=postgres;Password=root");
+        => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=thsti_dev;Integrated Security=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder
-            .HasPostgresEnum("AuditEvent", new[] { "LOGIN_SUCCESS", "LOGIN_FAIL", "LOGIN_LOCKED", "LOGOUT", "TOKEN_REFRESH", "PASSWORD_CHANGE", "ROLE_CHANGE", "USER_CREATED", "USER_UPDATED", "USER_DEACTIVATED", "PASSWORD_RESET_ADMIN", "PASSWORD_CHANGED_SELF" })
-            .HasPostgresEnum("HomeSectionType", new[] { "HERO", "ABOUT", "SERVICES", "NEWS", "GALLERY", "CONTACT", "LIFE_AT_THSTI" })
-            .HasPostgresEnum("Role", new[] { "SUPER_ADMIN", "EDITOR", "VIEWER", "ADMIN" });
+
+
+        modelBuilder.Entity<AdminModule>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("AdminModule");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Path).HasColumnName("path");
+            entity.Property(e => e.IconName).HasColumnName("iconName");
+            entity.Property(e => e.Order).HasDefaultValue(0).HasColumnName("order");
+            entity.Property(e => e.ParentId).HasColumnName("parentId");
+            entity.Property(e => e.AllowedRoles).HasDefaultValue("ADMIN").HasColumnName("allowedRoles");
+            entity.Property(e => e.IsActive).HasDefaultValue(true).HasColumnName("isActive");
+
+            entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
+                .HasForeignKey(d => d.ParentId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
 
         modelBuilder.Entity<AuthAuditLog>(entity =>
         {
@@ -93,7 +113,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.Email).HasColumnName("email");
             entity.Property(e => e.Ip).HasColumnName("ip");
@@ -103,7 +123,7 @@ public partial class ThstiDbContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.AuthAuditLogs)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("AuthAuditLog_userId_fkey");
         });
 
@@ -116,7 +136,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.Email).HasColumnName("email");
             entity.Property(e => e.IsResolved)
@@ -143,7 +163,7 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("citationsCount");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.CvUrl).HasColumnName("cvUrl");
             entity.Property(e => e.Department).HasColumnName("department");
@@ -182,14 +202,14 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("publicationsCount");
             entity.Property(e => e.ResearchAreas)
-                .HasColumnType("jsonb")
+                
                 .HasColumnName("researchAreas");
             entity.Property(e => e.ResearchContent).HasColumnName("researchContent");
             entity.Property(e => e.ResearchFocus).HasColumnName("researchFocus");
             entity.Property(e => e.ResearchGateUrl).HasColumnName("researchGateUrl");
             entity.Property(e => e.Slug).HasColumnName("slug");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -205,7 +225,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Column).HasColumnName("column");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -215,7 +235,7 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("isActive");
             entity.Property(e => e.Label).HasColumnName("label");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
             entity.Property(e => e.Url).HasColumnName("url");
         });
@@ -230,14 +250,14 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.CategoryId).HasColumnName("categoryId");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.ImageUrl).HasColumnName("imageUrl");
             entity.Property(e => e.Title).HasColumnName("title");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Galleries)
                 .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("Gallery_categoryId_fkey");
         });
 
@@ -257,14 +277,14 @@ public partial class ThstiDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("GlobalSettings_pkey");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
             entity.Property(e => e.Address).HasColumnName("address");
             entity.Property(e => e.ContactEmail).HasColumnName("contactEmail");
             entity.Property(e => e.ContactPhone).HasColumnName("contactPhone");
             entity.Property(e => e.CopyrightText).HasColumnName("copyrightText");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.FacebookUrl).HasColumnName("facebookUrl");
             entity.Property(e => e.IsSearchEnabled)
@@ -277,24 +297,24 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("preFooterViewAllActive");
             entity.Property(e => e.PreFooterViewAllText)
-                .HasDefaultValueSql("'VIEW ALL'::text")
+                .HasDefaultValueSql("'VIEW ALL'")
                 .HasColumnName("preFooterViewAllText");
             entity.Property(e => e.PreFooterViewAllUrl)
-                .HasDefaultValueSql("'#'::text")
+                .HasDefaultValueSql("'#'")
                 .HasColumnName("preFooterViewAllUrl");
             entity.Property(e => e.SiteName).HasColumnName("siteName");
             entity.Property(e => e.TwitterUrl).HasColumnName("twitterUrl");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
             entity.Property(e => e.VirtualTourActive)
                 .HasDefaultValue(true)
                 .HasColumnName("virtualTourActive");
             entity.Property(e => e.VirtualTourText)
-                .HasDefaultValueSql("'VIRTUAL TOUR'::text")
+                .HasDefaultValueSql("'VIRTUAL TOUR'")
                 .HasColumnName("virtualTourText");
             entity.Property(e => e.VirtualTourUrl)
-                .HasDefaultValueSql("'#'::text")
+                .HasDefaultValueSql("'#'")
                 .HasColumnName("virtualTourUrl");
             entity.Property(e => e.WorkingHours).HasColumnName("workingHours");
         });
@@ -310,7 +330,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -333,10 +353,10 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Subtitle).HasColumnName("subtitle");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.Type)
-                .HasDefaultValueSql("'IMAGE'::text")
+                .HasDefaultValueSql("'IMAGE'")
                 .HasColumnName("type");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -358,12 +378,12 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(true)
                 .HasColumnName("isActive");
             entity.Property(e => e.Metadata)
-                .HasColumnType("jsonb")
+                
                 .HasColumnName("metadata");
             entity.Property(e => e.Subtitle).HasColumnName("subtitle");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -376,7 +396,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -388,7 +408,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Link).HasColumnName("link");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -406,7 +426,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Category).HasColumnName("category");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.DisplayOrder)
@@ -420,14 +440,14 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(false)
                 .HasColumnName("isExternal");
             entity.Property(e => e.Metadata)
-                .HasColumnType("jsonb")
+                
                 .HasColumnName("metadata");
             entity.Property(e => e.OpenInNewTab)
                 .HasDefaultValue(false)
                 .HasColumnName("openInNewTab");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -442,7 +462,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -455,7 +475,7 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("openInNewTab");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
             entity.Property(e => e.Url).HasColumnName("url");
         });
@@ -468,7 +488,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.AltText).HasColumnName("altText");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.Filename).HasColumnName("filename");
             entity.Property(e => e.MimeType).HasColumnName("mimeType");
@@ -490,7 +510,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
@@ -506,7 +526,7 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("isVisible");
             entity.Property(e => e.Label).HasColumnName("label");
             entity.Property(e => e.Location)
-                .HasDefaultValueSql("'HEADER'::text")
+                .HasDefaultValueSql("'HEADER'")
                 .HasColumnName("location");
             entity.Property(e => e.Order)
                 .HasDefaultValue(0)
@@ -517,12 +537,12 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(false)
                 .HasColumnName("targetBlank");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
 
             entity.HasOne(d => d.Parent).WithMany(p => p.InverseParent)
                 .HasForeignKey(d => d.ParentId)
-                .OnDelete(DeleteBehavior.SetNull)
+                .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("Menu_parentId_fkey");
         });
 
@@ -538,7 +558,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.ImageUrl).HasColumnName("imageUrl");
             entity.Property(e => e.IsActive)
@@ -549,13 +569,13 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("isFeatured");
             entity.Property(e => e.PublishDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("publishDate");
             entity.Property(e => e.Slug).HasColumnName("slug");
             entity.Property(e => e.Summary).HasColumnName("summary");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -571,7 +591,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.ButtonText).HasColumnName("buttonText");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -588,15 +608,15 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("openInNewTab");
             entity.Property(e => e.PublishDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("publishDate");
             entity.Property(e => e.Summary).HasColumnName("summary");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.Type)
-                .HasDefaultValueSql("'Announcements'::text")
+                .HasDefaultValueSql("'Announcements'")
                 .HasColumnName("type");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
             entity.Property(e => e.Url).HasColumnName("url");
         });
@@ -612,7 +632,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -637,7 +657,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
@@ -648,7 +668,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Slug).HasColumnName("slug");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -667,15 +687,15 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.ExpiresAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("expiresAt");
             entity.Property(e => e.RequestedIp).HasColumnName("requestedIp");
             entity.Property(e => e.TokenHash).HasColumnName("tokenHash");
             entity.Property(e => e.UsedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("usedAt");
             entity.Property(e => e.UserAgent).HasColumnName("userAgent");
             entity.Property(e => e.UserId).HasColumnName("userId");
@@ -696,7 +716,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -710,7 +730,7 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("openInNewTab");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
             entity.Property(e => e.Url).HasColumnName("url");
         });
@@ -737,7 +757,7 @@ public partial class ThstiDbContext : DbContext
                 .HasColumnName("migration_name");
             entity.Property(e => e.RolledBackAt).HasColumnName("rolled_back_at");
             entity.Property(e => e.StartedAt)
-                .HasDefaultValueSql("now()")
+                .HasDefaultValueSql("GETDATE()")
                 .HasColumnName("started_at");
         });
 
@@ -754,7 +774,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -774,7 +794,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Slug).HasColumnName("slug");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -793,13 +813,13 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.ExpiresAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("expiresAt");
             entity.Property(e => e.RevokedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("revokedAt");
             entity.Property(e => e.TokenHash).HasColumnName("tokenHash");
             entity.Property(e => e.UserId).HasColumnName("userId");
@@ -823,7 +843,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -843,7 +863,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Slug).HasColumnName("slug");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -861,7 +881,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Content).HasColumnName("content");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.DisplayOrder)
                 .HasDefaultValue(0)
@@ -881,7 +901,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Slug).HasColumnName("slug");
             entity.Property(e => e.Title).HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -897,7 +917,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Code).HasColumnName("code");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
@@ -907,7 +927,7 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(0)
                 .HasColumnName("order");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
         });
 
@@ -926,7 +946,7 @@ public partial class ThstiDbContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("createdAt");
             entity.Property(e => e.Email).HasColumnName("email");
             entity.Property(e => e.FailedLoginAttempts)
@@ -942,19 +962,19 @@ public partial class ThstiDbContext : DbContext
                 .HasDefaultValue(false)
                 .HasColumnName("isLocked");
             entity.Property(e => e.LastLoginAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("lastLoginAt");
             entity.Property(e => e.LockedUntil)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("lockedUntil");
             entity.Property(e => e.Mobile).HasColumnName("mobile");
             entity.Property(e => e.Name).HasColumnName("name");
             entity.Property(e => e.Password).HasColumnName("password");
             entity.Property(e => e.PasswordUpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("passwordUpdatedAt");
             entity.Property(e => e.UpdatedAt)
-                .HasColumnType("timestamp(3) without time zone")
+                
                 .HasColumnName("updatedAt");
             entity.Property(e => e.Username).HasColumnName("username");
             entity.Property(e => e.Role).HasColumnName("role").HasConversion<string>();

@@ -3,6 +3,7 @@ import { ASSETS_BASE_URL } from '../config/env';
 import { Plus, Edit2, Trash2, Save, MoveUp, MoveDown, Check, X, Image as ImageIcon } from 'lucide-react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
+import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
 
 export default function InternationalCollaboration() {
@@ -159,6 +160,7 @@ export default function InternationalCollaboration() {
 
     return (
         <AdminPageLayout title="Int'l Collaboration" actionButtons={actionButtons}>
+            <SectionSettings type="INTL_COLLAB" defaultTitle="International Collaboration" />
             <div className="admin-card overflow-hidden flex flex-col flex-1 min-h-0 bg-white shadow-sm border border-border-light">
                 <div className="overflow-auto flex-1 p-6">
                     {items.length === 0 ? (

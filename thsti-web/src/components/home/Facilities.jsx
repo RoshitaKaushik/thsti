@@ -1,28 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/env';
+import api from '../../api/axios';
 
 const Facilities = () => {
     const [facilities, setFacilities] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    
+    const [sectionData, setSectionData] = useState(null);
 
     useEffect(() => {
         const fetchFacilities = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/research-facilities`);
-                if (response.ok) {
-                    const data = await response.json();
+                const [facilitiesRes, sectionsRes] = await Promise.all([
+                    api.get('/research-facilities'),
+                    api.get('/home-sections')
+                ]);
+                
+                if (facilitiesRes.data) {
+                    const data = facilitiesRes.data;
                     if (data.items && data.items.length > 0) {
                         setFacilities(data.items);
-                        return;
+                    } else if (Array.isArray(data)) {
+                        setFacilities(data);
                     }
+                }
+                
+                if (sectionsRes.data) {
+                    const sections = sectionsRes.data;
+                    const servicesSection = sections.find(s => s.sectionType === 'SERVICES');
+                    setSectionData(servicesSection || null);
                 }
             } catch (error) {
                 console.error("Failed to fetch research facilities:", error);
-            } finally {
-                setLoading(false);
             }
             
         };
@@ -58,7 +66,66 @@ const Facilities = () => {
         }
     };
 
-    if (facilities.length === 0) return null;
+    if (facilities.length === 0) {
+        return (
+            <section className="what-we-offer pt-5 pb-0 what-we-offer-second">
+                <div className="auto-container">
+                    <div className="row clearfix">
+                        {/* Text Column */}
+                        <div className="text-column col-lg-12 col-md-12 col-sm-12 ">
+                            <div className="sec-title sec-title-box">
+                                <div className="auto-container clearfix">
+                                    <h2>{sectionData?.title || 'Research Facilities'}</h2>
+                                </div>
+                            </div>
+                            <div className="row clearfix">
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/19.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Medical Research Center</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/18.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Translational Research Facility</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/20.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Bio Foundry</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/11.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Bioassay Laboratory</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="what-we-offer pt-5 pb-0 what-we-offer-second">
@@ -68,7 +135,7 @@ const Facilities = () => {
                     <div className="text-column col-lg-12 col-md-12 col-sm-12 ">
                         <div className="sec-title sec-title-box">
                             <div className="auto-container clearfix">
-                                <h2>Research Facilities</h2>
+                                <h2>{sectionData?.title || 'Research Facilities'}</h2>
                             </div>
                         </div>
 

@@ -49,7 +49,7 @@ namespace ThstiServer.Controllers
             return Ok(page);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR,VIEWER")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet]
         public async Task<IActionResult> GetPages()
         {
@@ -59,7 +59,7 @@ namespace ThstiServer.Controllers
             return Ok(pages);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> CreatePage([FromBody] PageRequest req)
         {
@@ -91,7 +91,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdatePage(int id, [FromBody] PageRequest req)
         {
@@ -121,7 +121,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeletePage(int id)
         {

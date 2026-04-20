@@ -23,6 +23,16 @@ namespace ThstiServer.Controllers
         public async Task<IActionResult> GetAll()
         {
             var items = await _context.ResearchFacilities
+                .Where(x => x.IsActive)
+                .OrderBy(x => x.DisplayOrder).ToListAsync();
+            return Ok(new { items });
+        }
+
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpGet("admin")]
+        public async Task<IActionResult> GetAllAdmin()
+        {
+            var items = await _context.ResearchFacilities
                 .OrderBy(x => x.DisplayOrder).ToListAsync();
             return Ok(items);
         }
@@ -35,7 +45,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ResearchFacility item)
         {
@@ -46,7 +56,7 @@ namespace ThstiServer.Controllers
             return StatusCode(201, item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] ResearchFacility updatedItem)
         {
@@ -61,7 +71,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -73,6 +83,25 @@ namespace ThstiServer.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpPatch("{id:int}/toggle-active")]
+        public async Task<IActionResult> ToggleActive(int id)
+        {
+            var item = await _context.ResearchFacilities.FindAsync(id);
+            if (item == null) return NotFound(new { error = "Not found" });
+
+            try
+            {
+                item.IsActive = !item.IsActive;
+                await _context.SaveChangesAsync();
+                return Ok(item);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { error = "Failed to toggle status" });
+            }
+        }
+
         [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {
@@ -81,7 +110,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("reorder")]
         public async Task<IActionResult> Reorder([FromBody] ThstiServer.DTOs.GenericReorderRequest req)
         {

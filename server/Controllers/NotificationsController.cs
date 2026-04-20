@@ -44,7 +44,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("api/notifications/all")]
         public async Task<IActionResult> GetAllNotifications([FromQuery] string? type)
         {
@@ -70,7 +70,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost("api/notifications")]
         public async Task<IActionResult> CreateNotification([FromBody] NotificationRequest req)
         {
@@ -104,7 +104,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("api/notifications/{id}")]
         public async Task<IActionResult> UpdateNotification(int id, [FromBody] NotificationRequest req)
         {
@@ -138,7 +138,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("api/notifications/{id}")]
         public async Task<IActionResult> DeleteNotification(int id)
         {
@@ -158,7 +158,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("api/notifications/{id}/toggle-active")]
         public async Task<IActionResult> ToggleNotificationActive(int id)
         {

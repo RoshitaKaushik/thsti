@@ -35,7 +35,7 @@ namespace ThstiServer.Controllers
             });
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllResearchCenters()
         {
@@ -54,7 +54,7 @@ namespace ThstiServer.Controllers
             return Ok(center);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> CreateResearchCenter([FromBody] ResearchCenterRequest req)
         {
@@ -95,7 +95,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateResearchCenter(int id, [FromBody] ResearchCenterRequest req)
         {
@@ -134,7 +134,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("{id:int}/toggle-active")]
         public async Task<IActionResult> ToggleResearchCenterActive(int id)
         {
@@ -153,7 +153,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("reorder")]
         public async Task<IActionResult> ReorderResearchCenters([FromBody] GenericReorderRequest req)
         {

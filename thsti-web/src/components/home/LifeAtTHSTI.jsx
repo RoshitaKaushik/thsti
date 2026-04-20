@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../../config/env';
+import api from '../../api/axios';
 
 const LifeAtTHSTI = () => {
     const [items, setItems] = useState([]);
@@ -10,18 +11,18 @@ const LifeAtTHSTI = () => {
         const fetchItems = async () => {
             try {
                 const [itemsRes, sectionsRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/life-at-thsti`),
-                    fetch(`${API_BASE_URL}/home-sections`)
+                    api.get('/life-at-thsti'),
+                    api.get('/home-sections')
                 ]);
                 
-                if (itemsRes.ok) {
-                    const data = await itemsRes.json();
-                    setItems(data.items || []);
+                if (itemsRes.data) {
+                    const data = itemsRes.data;
+                    setItems(data.items || (Array.isArray(data) ? data : []));
                 }
                 
-                if (sectionsRes.ok) {
-                    const sections = await sectionsRes.json();
-                    const lifeSection = sections.find(s => s.sectionType === 'LIFE_AT_THSTI');
+                if (sectionsRes.data) {
+                    const sections = sectionsRes.data;
+                    const lifeSection = Array.isArray(sections) ? sections.find(s => s.sectionType === 'LIFE_AT_THSTI') : null;
                     setSectionData(lifeSection || null);
                 }
             } catch (error) {
@@ -37,12 +38,14 @@ const LifeAtTHSTI = () => {
     const getImageUrl = (url) => {
         if (!url) return '';
         if (url.startsWith('http') || url.startsWith('data:')) return url;
+        // Exception: if the url is pointing to the local template images folder, use local path
+        if (url.startsWith('images/')) return `/${url}`;
         const base = import.meta.env.VITE_ASSETS_BASE_URL || 'http://localhost:5000';
         const clean = url.startsWith('/') ? url.slice(1) : url;
         return `${base}/${clean}`;
     };
 
-    if (items.length === 0 && !loading) return null;
+    // if (items.length === 0 && !loading) return null;
 
     // Use fetched items or fallback to original template text if data is missing right now
     const item1 = items[0] || {

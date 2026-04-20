@@ -25,6 +25,17 @@ namespace ThstiServer.Controllers
         public async Task<IActionResult> GetAllFaculty()
         {
             var faculty = await _context.Faculties
+                .Where(f => f.IsActive && !f.IsArchived)
+                .OrderBy(f => f.DisplayOrder)
+                .ToListAsync();
+            return Ok(faculty);
+        }
+
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllFacultyAdmin()
+        {
+            var faculty = await _context.Faculties
                 .OrderBy(f => f.DisplayOrder)
                 .ToListAsync();
             return Ok(faculty);
@@ -39,7 +50,7 @@ namespace ThstiServer.Controllers
             return Ok(faculty);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> CreateFaculty([FromBody] FacultyRequest req)
         {
@@ -105,7 +116,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateFaculty(int id, [FromBody] FacultyRequest req)
         {
@@ -172,7 +183,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteFaculty(int id)
         {

@@ -5,17 +5,16 @@ using System.Text;
 using ThstiServer.Models;
 using System;
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "supersecret_thsticms_key_at_least_32_chars_long!!";
-var connString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Host=localhost;Database=thsti;Username=postgres;Password=root";
+var connString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost\\SQLEXPRESS;Database=thsti_dev;Integrated Security=True;TrustServerCertificate=True;";
 
 builder.Services.AddDbContext<ThstiDbContext>(options =>
-    options.UseNpgsql(connString));
+    options.UseSqlServer(connString));
 
 builder.Services.AddScoped<ThstiServer.Utils.Mailer>();
+builder.Services.AddHostedService<ThstiServer.Services.ArchivalHostedService>();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -55,6 +54,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ThstiServer.Services.ICloudStorageService, ThstiServer.Services.MockNicCloudStorageService>();
+builder.Services.AddScoped<ThstiServer.Services.ITranslationService, ThstiServer.Services.GoogleTranslationFallbackService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -65,12 +69,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 
+app.UseMiddleware<ThstiServer.Middleware.IpWhitelistMiddleware>();
+app.UseMiddleware<ThstiServer.Middleware.EncryptionMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 var uploadDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "uploads"));
 if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
 
+// Retain uploads endpoint merely for backwards compatibility of already seeded artifacts
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadDir),
@@ -82,6 +90,27 @@ app.UseStaticFiles(new StaticFileOptions
     }
 });
 
+// Configure Mock NIC Cloud Vault Virtual Drive mapping
+var mockCloudDir = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "..", "mock_cloud_storage"));
+if (!Directory.Exists(mockCloudDir)) Directory.CreateDirectory(mockCloudDir);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(mockCloudDir),
+    RequestPath = "/cloud-vault",
+    OnPrepareResponse = ctx =>
+    {
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+        ctx.Context.Response.Headers.Append("Cross-Origin-Resource-Policy", "cross-origin");
+    }
+});
+
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ThstiDbContext>();
+    ThstiServer.Services.DbSeeder.Seed(context);
+}
 
 app.Run();

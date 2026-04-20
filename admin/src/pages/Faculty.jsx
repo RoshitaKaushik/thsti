@@ -7,6 +7,7 @@ import AdminModal from '../components/AdminModal';
 
 export default function Faculty() {
     const [faculty, setFaculty] = useState([]);
+    const [filterState, setFilterState] = useState('ALL'); // ALL, ACTIVE, DRAFT, ARCHIVED
     const [loading, setLoading] = useState(true);
     const [editingFaculty, setEditingFaculty] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function Faculty() {
         publicationsCount: 0, citationsCount: 0, hIndex: 0, patentsCount: 0, projectsCount: 0,
         overviewContent: '', educationContent: '', researchContent: '', publicationsContent: '',
         booksContent: '', patentsContent: '', awardsContent: '',
-        imageUrl: '', displayOrder: 0, isActive: true
+        imageUrl: '', displayOrder: 0, isActive: true, isArchived: false
     };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -122,28 +123,58 @@ export default function Faculty() {
         }
     };
 
+    const handleArchiveToggle = async (item) => {
+        if (window.confirm(`Are you sure you want to ${item.isArchived ? 'unarchive' : 'archive'} this faculty member?`)) {
+            try {
+                await api.put(`/faculty/${item.id}`, { ...item, isArchived: !item.isArchived });
+                fetchFaculty();
+            } catch (err) {
+                alert('Failed to toggle archive state');
+            }
+        }
+    };
+
+    const filteredFaculty = faculty.filter(item => {
+        if (filterState === 'ACTIVE') return item.isActive && !item.isArchived;
+        if (filterState === 'INACTIVE') return !item.isActive && !item.isArchived;
+        if (filterState === 'ARCHIVED') return item.isArchived;
+        return true;
+    });
+
     if (loading) return <div>Loading...</div>;
 
     const actionButtons = (
-        <button onClick={handleOpenNew} className="admin-btn-primary flex items-center gap-2 px-4 py-2 text-sm">
-            <Plus size={16} /> Add Faculty
-        </button>
+        <div className="flex items-center gap-4">
+            <select 
+                className="admin-input py-2 text-sm w-40" 
+                value={filterState} 
+                onChange={(e) => setFilterState(e.target.value)}
+            >
+                <option value="ALL">All Items</option>
+                <option value="ACTIVE">Active (Live)</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="ARCHIVED">Archived 🗄️</option>
+            </select>
+            <button onClick={handleOpenNew} className="admin-btn-primary flex items-center gap-2 px-4 py-2 text-sm">
+                <Plus size={16} /> Add Faculty
+            </button>
+        </div>
     );
 
     return (
         <AdminPageLayout title="Faculty Members" actionButtons={actionButtons}>
             <div className="admin-card overflow-hidden flex flex-col flex-1 min-h-0 bg-white shadow-sm border border-border-light">
                 <div className="overflow-auto flex-1 p-6">
-                    {faculty.length === 0 ? (
+                    {filteredFaculty.length === 0 ? (
                         <div className="text-center text-text-muted italic py-12 border-2 border-dashed border-border-light rounded-lg">
                             <GraduationCap size={48} className="mx-auto text-gray-300 mb-4" />
-                            <p>No faculty members found.</p>
+                            <p>No faculty members match this filter.</p>
                             <button onClick={handleOpenNew} className="mt-4 text-primary font-bold hover:underline">Add first faculty member</button>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {faculty.map(item => (
-                                <div key={item.id} className="admin-card p-5 border border-border-light shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col relative">
+                            {filteredFaculty.map(item => (
+                                <div key={item.id} className={`admin-card p-5 border border-border-light shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col relative ${item.isArchived ? 'opacity-70 grayscale' : ''}`}>
                                     <div className="flex items-center gap-4 border-b border-gray-100 pb-4 mb-4">
                                         <div className="h-16 w-16 bg-gray-100 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
                                             {item.imageUrl ? (
@@ -168,6 +199,9 @@ export default function Faculty() {
                                             {item.isActive ? 'ACTIVE' : 'INACTIVE'}
                                         </span>
                                         <div className="flex items-center gap-2">
+                                            <button onClick={() => handleArchiveToggle(item)} title={item.isArchived ? "Unarchive" : "Archive"} className="p-1.5 text-text-muted hover:text-amber-600 bg-gray-50 border border-border-light rounded shadow-sm transition-colors">
+                                                {item.isArchived ? '👁️' : '🗄️'}
+                                            </button>
                                             <button onClick={() => startEdit(item)} title="Edit" className="p-1.5 text-text-muted hover:text-accent bg-gray-50 border border-border-light rounded shadow-sm transition-colors">
                                                 <Edit2 size={14} />
                                             </button>

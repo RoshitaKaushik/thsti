@@ -8,8 +8,13 @@ export default {
         extend: {
             colors: {
                 primary: 'var(--primary)',
+                'primary-dark': 'var(--primary-dark)',
+                'primary-light': 'var(--primary-light)',
                 secondary: 'var(--secondary)',
+                'secondary-dark': 'var(--secondary-dark)',
+                'secondary-light': 'var(--secondary-light)',
                 accent: 'var(--accent)',
+                'accent-hover': 'var(--accent-hover)',
                 'bg-body': 'var(--bg-body)',
                 'bg-light': 'var(--bg-light)',
                 'text-main': 'var(--text-main)',
@@ -18,8 +23,12 @@ export default {
                 'border-light': 'var(--border-light)'
             },
             fontFamily: {
-                sans: ['"Familjen Grotesk"', 'sans-serif'],
+                sans: ['"Familjen Grotesk"', 'system-ui', 'sans-serif'],
                 btn: ['"Lato"', 'sans-serif']
+            },
+            boxShadow: {
+                'soft': 'var(--shadow-soft)',
+                'float': 'var(--shadow-float)',
             }
         },
     },

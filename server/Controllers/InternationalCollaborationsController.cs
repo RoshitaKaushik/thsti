@@ -37,7 +37,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("api/international-collaboration")]
         public async Task<IActionResult> GetAllCollaborations()
         {
@@ -55,7 +55,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost("api/international-collaboration")]
         public async Task<IActionResult> CreateCollaboration([FromBody] InternationalCollaborationRequest req)
         {
@@ -83,7 +83,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("api/international-collaboration/{id}")]
         public async Task<IActionResult> UpdateCollaboration(int id, [FromBody] InternationalCollaborationRequest req)
         {
@@ -109,7 +109,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("api/international-collaboration/{id}")]
         public async Task<IActionResult> DeleteCollaboration(int id)
         {
@@ -129,7 +129,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("api/international-collaboration/{id}/toggle-active")]
         public async Task<IActionResult> ToggleCollaborationActive(int id)
         {

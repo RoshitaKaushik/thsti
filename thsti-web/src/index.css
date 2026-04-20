@@ -1,3 +1,12 @@
+/* @tailwind base; Disabled to preserve Bootstrap default margins/paddings from design9 template layout */
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-maroon: #9E2A2B;
+  --brand-navy: #002147;
+}
+
 /* Global styles will be imported here */
 
 /* =========================================
@@ -100,4 +109,11 @@
     .whats-new-strip marquee a {
         font-size: 0.85rem;
     }
+}
+@keyframes kenBurnsZoom {
+    0% { transform: scale(1.0); }
+    100% { transform: scale(1.1); }
+}
+.swiper-slide-active .image-layer {
+    animation: kenBurnsZoom 12s linear forwards !important;
 }

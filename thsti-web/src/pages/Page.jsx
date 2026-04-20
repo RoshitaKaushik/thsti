@@ -3,12 +3,21 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { ASSETS_BASE_URL } from '../config/env';
 import FacultyGrid from '../components/faculty/FacultyGrid';
+import { useSeo } from '../hooks/useSeo';
 
 const Page = () => {
     const { slug } = useParams();
     const [pageData, setPageData] = useState(null);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
+
+    // Dynamically update document head tags when pageData loads
+    useSeo({
+        title: pageData?.title,
+        metaTitle: pageData?.metaTitle,
+        metaDescription: pageData?.metaDescription,
+        ogImage: pageData?.ogImage ? ASSETS_BASE_URL + pageData.ogImage : null
+    });
 
     useEffect(() => {
         window.scrollTo(0, 0);

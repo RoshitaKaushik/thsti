@@ -177,11 +177,13 @@ const FacultyGrid = () => {
                         </div>
                     ) : (
                         displayedFaculty.map((member) => (
-                            <div key={member.id} className="team-block-two col-lg-3 col-md-6 col-sm-12 wow fadeInLeft" data-wow-delay="0ms">
-                                <div className="inner-box border shadow-sm h-100 d-flex flex-column bg-white">
-                                    <div className="image-box position-relative">
-                                        <figure className="image m-0" style={{ height: '300px', backgroundColor: '#f4f4f4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <Link to={`/faculty/${member.slug}`} className="w-100 h-100">
+                            <div key={member.id} className="col-lg-3 col-md-6 col-sm-12 mb-4">
+                                <div className="faculty-card-premium h-100 d-flex flex-column bg-white position-relative">
+                                    <div className="premium-gradient-bar"></div>
+                                    
+                                    <div className="image-box position-relative" style={{ display: 'flex', justifyContent: 'center', paddingTop: '35px' }}>
+                                        <figure className="image m-0 position-relative rounded-circle overflow-hidden shadow-sm" style={{ width: '150px', height: '150px', border: '5px solid #fff', zIndex: 2 }}>
+                                            <Link to={`/faculty/${member.slug}`} className="w-100 h-100 d-block">
                                                 {member.imageUrl ? (
                                                     <img 
                                                         src={`${ASSETS_BASE_URL}${member.imageUrl}`} 
@@ -189,36 +191,34 @@ const FacultyGrid = () => {
                                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                     />
                                                 ) : (
-                                                    <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-muted">
-                                                        <i className="fa fa-user" style={{ fontSize: '80px' }}></i>
+                                                    <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center fallback-monogram">
+                                                        <span>{member.name ? member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}</span>
                                                     </div>
                                                 )}
                                             </Link>
                                         </figure>
-                                        <div className="overlay-box">
-                                            <ul className="contact-list">
-                                                {member.phone && (
-                                                    <li><i className="icon icon-call-in"></i> <a href={`tel:${member.phone}`}>{member.phone}</a></li>
-                                                )}
-                                                {member.email && (
-                                                    <li><i className="icon icon-envelope-open"></i> <a href={`mailto:${member.email}`}>{member.email}</a></li>
-                                                )}
-                                                {member.location && (
-                                                    <li><i className="icon icon-pointer"></i> <span>{member.location}</span></li>
-                                                )}
-                                            </ul>
-                                        </div>
                                     </div>
-                                    <div className="lower-content p-4 text-center mt-auto">
-                                        <h3 className="name mb-1"><Link to={`/faculty/${member.slug}`}>{member.name}</Link></h3>
-                                        {member.designation && <span className="designation text-primary font-weight-bold d-block mb-3">{member.designation}</span>}
-                                        {member.department && <p className="mb-0 text-muted small">{member.department}</p>}
+                                    
+                                    <div className="lower-content px-4 pb-4 pt-3 text-center mt-auto flex-grow-1 d-flex flex-column">
+                                        <h3 className="name mb-1">
+                                            <Link to={`/faculty/${member.slug}`}>{member.name}</Link>
+                                        </h3>
+                                        {member.designation && <span className="designation d-block mb-2">{member.designation}</span>}
+                                        {member.department && <p className="mb-0 department-text"><i className="fa fa-building-o mr-1"></i> {member.department}</p>}
                                         
-                                        {/* Social Links if available */}
-                                        <ul className="social-links mt-3 list-unstyled d-flex justify-content-center gap-2">
-                                            {member.linkedinUrl && <li><a href={member.linkedinUrl} target="_blank" rel="noreferrer"><i className="fab fa-linkedin-in"></i></a></li>}
-                                            {member.googleScholarUrl && <li><a href={member.googleScholarUrl} target="_blank" rel="noreferrer"><i className="fab fa-google"></i></a></li>}
-                                            {member.researchGateUrl && <li><a href={member.researchGateUrl} target="_blank" rel="noreferrer"><i class="fab fa-researchgate"></i></a></li>}
+                                        <div className="contact-info mt-auto pt-3 border-top border-light mt-4">
+                                            {member.email && (
+                                                <a href={`mailto:${member.email}`} className="text-muted d-block small mb-1 text-truncate" title={member.email}>
+                                                    <i className="fa fa-envelope mr-2"></i> {member.email}
+                                                </a>
+                                            )}
+                                        </div>
+
+                                        {/* Social Links via FontAwesome */}
+                                        <ul className="social-links mt-3 list-unstyled d-flex justify-content-center gap-2 mb-0">
+                                            {member.linkedinUrl && <li><a href={member.linkedinUrl} target="_blank" rel="noreferrer"><i className="fa fa-linkedin"></i></a></li>}
+                                            {member.googleScholarUrl && <li><a href={member.googleScholarUrl} target="_blank" rel="noreferrer"><i className="fa fa-google"></i></a></li>}
+                                            {member.researchGateUrl && <li><a href={member.researchGateUrl} target="_blank" rel="noreferrer"><i className="fa fa-flask"></i></a></li>}
                                         </ul>
                                     </div>
                                 </div>
@@ -275,64 +275,69 @@ const FacultyGrid = () => {
                 text-align: center;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             }
-            .team-block-two .inner-box {
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            .faculty-card-premium {
+                border-radius: 12px;
+                box-shadow: 0 5px 25px rgba(0, 0, 0, 0.04);
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                overflow: hidden;
             }
-            .team-block-two .inner-box:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+            .faculty-card-premium:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 35px rgba(11, 45, 85, 0.12);
             }
-            .team-block-two .overlay-box {
-                position: absolute;
-                bottom: 0;
-                left: 0;
+            .premium-gradient-bar {
+                height: 5px;
                 width: 100%;
-                background: rgba(0, 0, 0, 0.7);
-                padding: 15px;
-                transform: translateY(100%);
-                transition: transform 0.3s ease;
-                opacity: 0;
+                background: linear-gradient(90deg, #0b2d55 0%, #ab1f24 100%);
             }
-            .team-block-two .inner-box:hover .overlay-box {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            .team-block-two .contact-list {
-                list-style: none;
-                margin: 0;
-                padding: 0;
-            }
-            .team-block-two .contact-list li {
-                color: #fff;
-                font-size: 13px;
-                margin-bottom: 5px;
-                display:flex;
-                align-items:center;
-                gap:8px;
-            }
-            .team-block-two .contact-list li a {
-                color: #fff;
-                text-decoration: none;
-            }
-            .team-block-two .contact-list li a:hover {
-                color: #e5cc98;
-            }
-            .team-block-two .name a {
+            .fallback-monogram {
+                background: linear-gradient(135deg, #e4f0fa 0%, #c4e0f5 100%);
                 color: #0b2d55;
-                font-size: 18px;
+                font-size: 50px;
+                font-weight: 700;
+                letter-spacing: 2px;
+            }
+            .faculty-card-premium .name a {
+                color: #0b2d55;
+                font-size: 20px;
                 text-decoration: none;
+                font-weight: 800;
+                letter-spacing: 0.2px;
+            }
+            .faculty-card-premium .name a:hover {
+                color: #ab1f24;
+            }
+            .faculty-card-premium .designation {
+                color: #ab1f24;
+                font-size: 13px;
                 font-weight: 700;
                 text-transform: uppercase;
+                letter-spacing: 0.8px;
             }
-            .team-block-two .name a:hover {
-                color: #ab1f24;
-            }
-            .team-block-two .social-links a {
+            .faculty-card-premium .department-text {
                 color: #666;
-                transition: color 0.3s ease;
+                font-size: 14px;
+                font-weight: 500;
             }
-            .team-block-two .social-links a:hover {
-                color: #ab1f24;
+            .faculty-card-premium .social-links a {
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: #f4f6f9;
+                color: #0b2d55;
+                transition: all 0.3s ease;
+                font-size: 15px;
+            }
+            .faculty-card-premium .social-links a:hover {
+                background: #0b2d55;
+                color: #fff;
+                transform: translateY(-3px);
+            }
+            .border-light {
+                border-color: #f0f0f0 !important;
             }
             `}</style>
         </section>

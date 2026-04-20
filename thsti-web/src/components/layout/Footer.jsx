@@ -6,6 +6,8 @@ import PreFooterStrip from './PreFooterStrip';
 const Footer = () => {
     const [settings, setSettings] = useState(null);
     const [footerLinks, setFooterLinks] = useState([]);
+    const [contactSection, setContactSection] = useState(null);
+    const [quickLinksSection, setQuickLinksSection] = useState(null);
 
     useEffect(() => {
         api.get('/settings')
@@ -15,6 +17,16 @@ const Footer = () => {
         api.get('/footer-links')
             .then(res => setFooterLinks(res.data))
             .catch(err => console.error("CMS Footer Links Fetch Error:", err));
+
+        api.get('/home-sections')
+            .then(res => {
+                const data = res.data;
+                if (data && Array.isArray(data)) {
+                    setContactSection(data.find(s => s.sectionType === 'CONTACT'));
+                    setQuickLinksSection(data.find(s => s.sectionType === 'QUICK_LINKS'));
+                }
+            })
+            .catch(err => console.error("CMS Home Sections Fetch Error:", err));
     }, []);
 
     const importantLinks = footerLinks.filter(l => l.column === 'IMPORTANT');
@@ -53,7 +65,7 @@ const Footer = () => {
                                     {/* Footer Column */}
                                     <div className="footer-column col-lg-6 col-md-6 col-sm-12">
                                         <div className="footer-widget services-widget">
-                                            <h2>Important Links</h2>
+                                            <h2>{quickLinksSection?.title || 'Important Links'}</h2>
                                             <ul className="footer-service-list">
                                                 {importantLinks.length > 0 ? (
                                                     importantLinks.map(link => (
@@ -92,7 +104,7 @@ const Footer = () => {
                                     {/* Footer Column */}
                                     <div className="footer-column col-lg-6 col-md-6 col-sm-12">
                                         <div className="footer-widget contact-widget">
-                                            <h2>Contact</h2>
+                                            <h2>{contactSection?.title || 'Contact'}</h2>
                                             <div className="number">{settings?.contactPhone || '0129-2876300/350'}</div>
                                             <ul>
                                                 <li>{settings?.address ? settings.address.split('\n').map((line, i) => <React.Fragment key={i}>{line}<br /></React.Fragment>) : 'NCR Biotech Science Cluster, 3rd Milestone, Faridabad – Gurugram Expressway, PO box #04,'}</li>

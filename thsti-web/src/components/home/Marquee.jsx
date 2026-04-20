@@ -4,8 +4,7 @@ import api from '../../api/axios';
 const Marquee = () => {
     const [items, setItems] = useState([]);
     const [isPaused, setIsPaused] = useState(false);
-    const [bottomOffset, setBottomOffset] = useState(0);
-    const stripRef = useRef(null);
+    const marqueeRef = useRef(null);
 
     useEffect(() => {
         api.get('/marquee')
@@ -15,49 +14,56 @@ const Marquee = () => {
             .catch(err => console.error('Marquee fetch error:', err));
     }, []);
 
-    // The What's New strip stays strictly at bottom: 0 and never hides.
-    useEffect(() => {
-        setBottomOffset(0);
-    }, [items]);
+    // Fallback data mapping to the exact design9 template
+    const displayItems = items.length > 0 ? items : [
+        { id: 1, title: "CAR-T Cell Therapy Symposia & Workshop", url: "#" },
+        { id: 2, title: "Vigilance Awareness Week- 2024 (“ सत्यनिष्ठा की संस्कृति से राष्ट्र की समृद्धि”/“Culture of Integrity for Nation's Prosperity”). Click here to take the pledge and be a part of this movement.", url: "#" },
+        { id: 3, title: "Link for Online Vendor Registration Portal for WORKS related matter.", url: "#" },
+        { id: 4, title: "Online Vendor Registration Portal - Reopened.", url: "#" }
+    ];
 
-    if (!items || items.length === 0) return null;
+    const togglePause = () => {
+        if (marqueeRef.current) {
+            if (isPaused) {
+                marqueeRef.current.start();
+            } else {
+                marqueeRef.current.stop();
+            }
+            setIsPaused(!isPaused);
+        }
+    };
 
     return (
-        <div
-            ref={stripRef}
-            className="whats-new-strip d-flex align-items-center"
-            style={{ bottom: bottomOffset }}
-        >
+        <div className="banner-img-footer-box d-flex align-items-center">
             <div className="annoucement-box me-5 d-flex align-items-center justify-content-center">
-                <h2 className="h3 mb-0"><strong>What's New</strong></h2>
+               <h2 className="h3"><strong>What's New</strong></h2>
             </div>
             <div className="marquee-container w-100 position-relative overflow-hidden">
-                <div className="marquee">
-                    <marquee
-                        behavior="scroll"
-                        direction="left"
-                        scrollamount="5"
-                        onMouseOver={(e) => { e.target.stop(); setIsPaused(true); }}
-                        onMouseOut={(e) => { e.target.start(); setIsPaused(false); }}
-                    >
-                        {items.map((item) => (
-                            <a
-                                key={item.id}
-                                className="h3 pointer"
-                                href={item.url || '#'}
-                                target={item.openInNewTab ? '_blank' : '_self'}
-                                rel="noreferrer"
-                            >
-                                {item.title}
-                            </a>
-                        ))}
-                    </marquee>
-                </div>
+               <div className="marquee" style={{ paddingLeft: '16px' }}>
+                  <marquee 
+                    ref={marqueeRef}
+                    behavior="scroll" 
+                    direction="left" 
+                    onMouseOver={(e) => { e.target.stop(); setIsPaused(true); }} 
+                    onMouseOut={(e) => { e.target.start(); setIsPaused(false); }}
+                  >
+                     {displayItems.map((item) => (
+                        <a 
+                            key={item.id} 
+                            className="h3 pointer" 
+                            href={item.url || '#'}
+                            target={item.openInNewTab ? '_blank' : '_self'}
+                        >
+                            {item.title}{' '}
+                        </a>
+                     ))}
+                  </marquee>
+               </div>
             </div>
-            <button
-                className="play-pause-btn ms-2"
-                aria-label={isPaused ? 'Play' : 'Pause'}
-                onClick={() => setIsPaused(p => !p)}
+            <button 
+                className="play-pause-btn ms-5" 
+                aria-label={isPaused ? "Play" : "Pause"}
+                onClick={togglePause}
             >
                 <span className="material-symbols-outlined bhashini-skip-translation">
                     <i className={`fa ${isPaused ? 'fa-play' : 'fa-pause'}`} aria-hidden="true"></i>

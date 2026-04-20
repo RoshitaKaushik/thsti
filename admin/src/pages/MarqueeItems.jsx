@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
+import SectionSettings from '../components/SectionSettings';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -18,7 +19,7 @@ export default function MarqueeItems() {
     const fetchItems = async () => {
         try {
             setLoading(true);
-            const res = await api.get('/marquee/all');
+            const res = await api.get('/marquee');
             setItems(res.data);
         } catch { toast.error('Failed to fetch marquee items'); }
         finally { setLoading(false); }
@@ -82,6 +83,7 @@ export default function MarqueeItems() {
                 </button>
             }
         >
+            <SectionSettings type="MARQUEE" defaultTitle="What's New" />
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 {loading ? (
                     <div className="p-8 text-center text-gray-500">Loading...</div>

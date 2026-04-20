@@ -11,15 +11,15 @@ namespace ThstiServer.Controllers
     public class MediaController : ControllerBase
     {
         private readonly ThstiDbContext _context;
-        private readonly IWebHostEnvironment _env;
+        private readonly ThstiServer.Services.ICloudStorageService _cloudStorage;
 
-        public MediaController(ThstiDbContext context, IWebHostEnvironment env)
+        public MediaController(ThstiDbContext context, ThstiServer.Services.ICloudStorageService cloudStorage)
         {
             _context = context;
-            _env = env;
+            _cloudStorage = cloudStorage;
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost("upload")]
         public async Task<IActionResult> UploadMedia([FromForm] IFormFile file, [FromForm] string? altText)
         {
@@ -28,25 +28,13 @@ namespace ThstiServer.Controllers
 
             try
             {
-                var uploadDir = Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", "uploads"));
-                
-                if (!Directory.Exists(uploadDir))
-                    Directory.CreateDirectory(uploadDir);
-
-                var ext = Path.GetExtension(file.FileName);
-                var fileName = $"{Guid.NewGuid()}{ext}";
-                var filePath = Path.Combine(uploadDir, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
+                var cloudVaultUrl = await _cloudStorage.UploadFileAsync(file, "thsti-vault");
 
                 var media = new Medium
                 {
                     Filename = file.FileName,
-                    Url = $"/uploads/{fileName}",
-                    StoragePath = filePath,
+                    Url = cloudVaultUrl,
+                    StoragePath = "CLOUD_VAULT",
                     MimeType = file.ContentType,
                     Size = (int)file.Length,
                     AltText = altText,
@@ -71,7 +59,7 @@ namespace ThstiServer.Controllers
             return Ok(media);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteMedia(int id)
         {
@@ -80,12 +68,9 @@ namespace ThstiServer.Controllers
 
             try
             {
-                if (System.IO.File.Exists(media.StoragePath))
-                {
-                    System.IO.File.Delete(media.StoragePath);
-                }
+                await _cloudStorage.DeleteFileAsync(media.Url, "thsti-vault");
             }
-            catch { /* Ignore */ }
+            catch { /* Ignore cloud cleanup errors so DB unbinds */ }
 
             _context.Media.Remove(media);
             await _context.SaveChangesAsync();

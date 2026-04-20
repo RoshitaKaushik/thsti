@@ -180,5 +180,66 @@ namespace ThstiServer.Controllers
                 return StatusCode(500, new { error = "Failed to seed design reference in .NET", details = ex.Message });
             }
         }
+
+        [AllowAnonymous]
+        [HttpPost("phase45")]
+        public async Task<IActionResult> SeedPhase45FrontendData()
+        {
+            try
+            {
+                // 1. Seed Hero Slides
+                var slides = new List<HeroSlide>
+                {
+                    new HeroSlide { Title = "16th Foundation Day Celebrations", Subtitle = "Translational Health Science and Technology Institute", MediaUrl = "https://thsti.res.in/public/slider/1752813878banner.png", Type = "IMAGE", DisplayOrder = 1, IsActive = true, ShowText = false, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new HeroSlide { Title = "General Slider", Subtitle = "Heart of India's Biotech Revolution", MediaUrl = "https://thsti.res.in/public/slider/1766032829banner.jpg", Type = "IMAGE", DisplayOrder = 2, IsActive = true, ShowText = false, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
+                    new HeroSlide { Title = "IISF-2025 Curtain Raiser", Subtitle = "Science for society", MediaUrl = "https://thsti.res.in/public/slider/1765947193banner.jpg", Type = "IMAGE", DisplayOrder = 3, IsActive = true, ShowText = false, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow }
+                };
+
+                foreach(var slide in slides)
+                {
+                    if(!await _context.HeroSlides.AnyAsync(s => s.Title == slide.Title))
+                    {
+                        _context.HeroSlides.Add(slide);
+                    }
+                }
+
+                // 2. Seed HomeSection (ABOUT)
+                var existingAbout = await _context.HomeSections.FirstOrDefaultAsync(s => s.SectionType == "ABOUT");
+                string thstiDesc = "THSTI (Translational Health Science and Technology Institute) is an Indian autonomous research institute under the Dept of Biotechnology, focused on translating scientific discoveries into health solutions, integrating medicine, tech, and engineering for innovations in areas like maternal health, infectious diseases (TB, HIV, viruses), and antimicrobials, aiming for accessible, cost-effective healthcare.";
+                var countersMetadata = new[] 
+                {
+                    new { key = 1, value = 1600, label = "Students", suffix = "+" },
+                    new { key = 2, value = 245, label = "Faculty & Scientists", suffix = "+" },
+                    new { key = 3, value = 5500, label = "Executive Education\nProgramme Participants", suffix = "+" },
+                    new { key = 4, value = 47890, label = "Executive Education\nProgramme Days", suffix = "+" }
+                };
+
+                if(existingAbout != null)
+                {
+                    existingAbout.Title = "Translational Health Science and Technology Institute (THSTI)";
+                    existingAbout.Description = thstiDesc;
+                    existingAbout.Metadata = JsonSerializer.Serialize(new { counters = countersMetadata });
+                }
+                else
+                {
+                    _context.HomeSections.Add(new HomeSection
+                    {
+                        SectionType = "ABOUT",
+                        Title = "Translational Health Science and Technology Institute (THSTI)",
+                        Subtitle = "",
+                        Description = thstiDesc,
+                        IsActive = true,
+                        Metadata = JsonSerializer.Serialize(new { counters = countersMetadata })
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Phase 4.5 Seeding Complete! UI Data Migrated to DB." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Phase 4.5 Seeding failed", details = ex.Message });
+            }
+        }
     }
 }

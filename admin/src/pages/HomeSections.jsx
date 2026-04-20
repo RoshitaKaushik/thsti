@@ -1,21 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { PUBLIC_SITE_URL } from '../config/env';
-import { Edit2, Save, X, Trash2, Plus, Image as ImageIcon } from 'lucide-react';
+import { Save, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
-import AdminModal from '../components/AdminModal';
-
-const SECTION_TYPES = ['HERO', 'ABOUT', 'SERVICES', 'NEWS', 'GALLERY', 'CONTACT', 'LIFE_AT_THSTI'];
 
 export default function HomeSections() {
-    const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [editingSection, setEditingSection] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef(null);
 
-    // Form state
     const [formData, setFormData] = useState({
         title: '',
         subtitle: '',
@@ -24,7 +19,6 @@ export default function HomeSections() {
         ctaText: '',
         ctaLink: '',
         isActive: true,
-        metadata: ''
     });
 
     const defaultCounters = [
@@ -36,65 +30,48 @@ export default function HomeSections() {
     const [counters, setCounters] = useState(defaultCounters);
     const [allowSlider, setAllowSlider] = useState(true);
 
-    const fetchSections = async () => {
+    const fetchAboutSection = async () => {
         try {
             const res = await api.get('/home-sections');
-            setSections(res.data);
+            const about = res.data.find(s => s.sectionType === 'ABOUT');
+            if (about) {
+                setFormData({
+                    title: about.title || '',
+                    subtitle: about.subtitle || '',
+                    description: about.description || '',
+                    imageUrl: about.imageUrl || '',
+                    ctaText: about.ctaText || '',
+                    ctaLink: about.ctaLink || '',
+                    isActive: about.isActive
+                });
+
+                if (about.metadata) {
+                    if (Array.isArray(about.metadata)) {
+                        setCounters(about.metadata);
+                        setAllowSlider(false);
+                    } else if (about.metadata.counters) {
+                        setCounters(about.metadata.counters);
+                        setAllowSlider(about.metadata.allowSlider ?? false);
+                    } else {
+                        setCounters(defaultCounters);
+                        setAllowSlider(false);
+                    }
+                } else {
+                    setCounters(defaultCounters);
+                    setAllowSlider(false);
+                }
+            }
         } catch (err) {
-            console.error('Failed to fetch home sections', err);
+            console.error('Failed to fetch ABOUT section', err);
+            toast.error('Failed to load Intro Section');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchSections();
+        fetchAboutSection();
     }, []);
-
-    const startEdit = (type) => {
-        const existing = sections.find(s => s.sectionType === type);
-        setEditingSection(type);
-        if (existing) {
-            setFormData({
-                title: existing.title || '',
-                subtitle: existing.subtitle || '',
-                description: existing.description || '',
-                imageUrl: existing.imageUrl || '',
-                ctaText: existing.ctaText || '',
-                ctaLink: existing.ctaLink || '',
-                isActive: existing.isActive,
-                metadata: existing.metadata ? (type !== 'ABOUT' ? JSON.stringify(existing.metadata, null, 2) : '') : ''
-            });
-
-            if (type === 'ABOUT' && existing.metadata) {
-                if (Array.isArray(existing.metadata)) {
-                    setCounters(existing.metadata);
-                    setAllowSlider(false);
-                } else if (existing.metadata.counters) {
-                    setCounters(existing.metadata.counters);
-                    setAllowSlider(existing.metadata.allowSlider ?? false);
-                } else {
-                    setCounters(defaultCounters);
-                    setAllowSlider(false);
-                }
-            } else {
-                setCounters(defaultCounters);
-                setAllowSlider(false);
-            }
-        } else {
-            setFormData({
-                title: '', subtitle: '', description: '', imageUrl: '', ctaText: '', ctaLink: '', isActive: true, metadata: ''
-            });
-            setCounters(defaultCounters);
-            setAllowSlider(true);
-        }
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setEditingSection(null);
-        setIsModalOpen(false);
-    };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -136,8 +113,9 @@ export default function HomeSections() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
+            toast.success('Image uploaded successfully');
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to upload image');
+            toast.error(err.response?.data?.error || 'Failed to upload image');
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -146,175 +124,155 @@ export default function HomeSections() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSaving(true);
         try {
-            let parsedMetadata = null;
-            if (editingSection === 'ABOUT') {
-                parsedMetadata = { allowSlider, counters };
-            } else if (formData.metadata.trim()) {
-                try {
-                    parsedMetadata = JSON.parse(formData.metadata);
-                } catch (e) {
-                    alert('Invalid JSON in Metadata field');
-                    return;
-                }
-            }
-
             const payload = {
                 ...formData,
-                metadata: parsedMetadata
+                metadata: { allowSlider, counters }
             };
 
-            await api.put(`/home-sections/${editingSection}`, payload);
-            handleCloseModal();
-            fetchSections();
+            await api.put(`/home-sections/ABOUT`, payload);
+            toast.success('Successfully saved changes!');
+            fetchAboutSection();
         } catch (err) {
-            alert(err.response?.data?.error || 'Failed to save section');
+            toast.error(err.response?.data?.error || 'Failed to save section');
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    if (loading) return <div>Loading home sections...</div>;
+    if (loading) return <div className="p-8 text-gray-500 font-bold">Loading Homepage Intro Data...</div>;
+
+    const actionButtons = (
+        <a href={`${PUBLIC_SITE_URL}/#about-intro`} target="_blank" rel="noopener noreferrer" className="admin-btn-secondary flex items-center justify-center gap-2 py-2 text-sm bg-white border border-gray-300">
+            Preview on Live Site
+        </a>
+    );
 
     return (
-        <AdminPageLayout title="Home Sections Management">
-            <div className="admin-card min-h-0 bg-transparent shadow-none border-none p-0 flex-1 overflow-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-6">
-                    {SECTION_TYPES.map(type => {
-                        const existing = sections.find(s => s.sectionType === type);
-                        return (
-                            <div key={type} className="admin-card p-6 bg-white border border-border-light flex flex-col items-center justify-center h-48 text-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-border-light group-hover:bg-primary transition-colors"></div>
-                                <h3 className="text-xl font-bold text-secondary mb-2 uppercase tracking-widest">{type}</h3>
-                                {existing ? (
-                                    <span className={`px-3 py-1 text-xs font-bold rounded-full mb-4 ${existing.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                        {existing.isActive ? 'ACTIVE' : 'DRAFT'}
-                                    </span>
-                                ) : (
-                                    <span className="px-3 py-1 text-xs font-bold rounded-full mb-4 bg-gray-100 text-gray-500 border border-gray-200">NOT CONFIGURED</span>
-                                )}
-                                <button onClick={() => startEdit(type)} className="admin-btn-secondary flex items-center gap-2 mt-auto text-sm px-6">
-                                    <Edit2 size={16} /> Configure
-                                </button>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+        <AdminPageLayout title="Homepage Intro (About)" subtitle="Manage the static introduction paragraph and the statistical counters." actionButtons={actionButtons}>
+            <div className="admin-card bg-white shadow-sm border border-border-light p-6 overflow-y-auto">
+                <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto pb-10">
+                    
+                    <div className="bg-gradient-to-r from-rose-50 to-white border border-rose-100 rounded-xl p-5 mb-8 flex items-center gap-4 shadow-sm">
+                        <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-xl ring-4 ring-white shadow">i</div>
+                        <div>
+                            <h3 className="text-secondary font-bold text-lg leading-tight">THSTI Intro Block</h3>
+                            <p className="text-sm text-text-muted mt-0.5">Control the primary "About Us" messaging that immediately follows the Hero banner.</p>
+                        </div>
+                    </div>
 
-            <AdminModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                title={`Editing ${editingSection} Section`}
-                size="lg"
-            >
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Title</label>
-                            <input type="text" name="title" className="admin-input" value={formData.title} onChange={handleChange} />
-                        </div>
-                        <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Subtitle</label>
-                            <input type="text" name="subtitle" className="admin-input" value={formData.subtitle} onChange={handleChange} />
-                        </div>
-                        <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Description (Markdown / HTML)</label>
-                            <textarea name="description" className="admin-input h-32" value={formData.description} onChange={handleChange} />
+                            <label className="block text-xs font-bold text-stone-600 uppercase tracking-widest mb-1.5">Heading</label>
+                            <input type="text" name="title" className="admin-input font-bold text-lg" value={formData.title} onChange={handleChange} required />
                         </div>
 
-                        {/* Image Upload Row */}
                         <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Background / Main Image</label>
+                            <label className="block text-xs font-bold text-stone-600 uppercase tracking-widest mb-1.5">Subtitle (Optional Colored Text)</label>
+                            <input type="text" name="subtitle" className="admin-input" value={formData.subtitle} onChange={handleChange} placeholder="e.g. Advancing Science" />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-xs font-bold text-stone-600 uppercase tracking-widest mb-1.5">Main Content Paragraphs (HTML / Text)</label>
+                            <textarea name="description" className="admin-input h-40 text-sm leading-relaxed" value={formData.description} onChange={handleChange} placeholder="Enter the introductory text here..." />
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="md:col-span-2 bg-stone-50 border border-stone-200 rounded-lg p-5">
+                            <label className="block text-sm font-bold text-secondary mb-2 flex items-center gap-2">
+                                <ImageIcon size={18} className="text-stone-400" />
+                                Side Featured Image
+                            </label>
+                            <p className="text-xs text-stone-500 mb-4">Upload the main image displayed alongside the introductory text.</p>
+                            
                             <div className="flex gap-4 items-center">
-                                <input type="text" name="imageUrl" className="admin-input flex-1 bg-gray-50" value={formData.imageUrl} readOnly placeholder="Upload an image to generate URL..." />
+                                <input type="text" name="imageUrl" className="admin-input flex-1 bg-white font-mono text-xs" value={formData.imageUrl} readOnly placeholder="Upload an image..." />
                                 <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/png, image/jpeg, image/webp" />
-                                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="admin-btn-secondary flex items-center gap-2 whitespace-nowrap">
+                                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="admin-btn-secondary flex items-center gap-2 whitespace-nowrap bg-white">
                                     <ImageIcon size={16} />
-                                    {uploading ? 'Uploading...' : 'Upload Image'}
+                                    {uploading ? 'Uploading...' : 'Upload New Image'}
                                 </button>
                             </div>
                             {formData.imageUrl && (
-                                <div className="mt-2 text-sm text-green-600 font-bold flex items-center gap-1">
-                                    ✓ Image attached ({formData.imageUrl.split('/').pop()})
+                                <div className="mt-4 flex items-center gap-3">
+                                    <img src={formData.imageUrl.startsWith('http') ? formData.imageUrl : `${PUBLIC_SITE_URL}${formData.imageUrl}`} alt="Featured" className="h-16 w-16 object-cover rounded shadow-sm border border-stone-300" onError={(e) => e.target.style.display = 'none'} />
+                                    <span className="text-xs text-green-600 font-bold bg-green-50 px-2 py-1 rounded">✓ Live Image Active</span>
                                 </div>
                             )}
                         </div>
 
-                        <div>
-                            <label className="block text-text-main font-bold mb-1">CTA Button Text</label>
-                            <input type="text" name="ctaText" className="admin-input" value={formData.ctaText} onChange={handleChange} />
+                        {/* CTA */}
+                        <div className="md:col-span-1">
+                            <label className="block text-xs font-bold text-stone-600 uppercase tracking-widest mb-1.5">Action Button Text</label>
+                            <input type="text" name="ctaText" className="admin-input" value={formData.ctaText} onChange={handleChange} placeholder="e.g. Read More" />
                         </div>
-                        <div>
-                            <label className="block text-text-main font-bold mb-1">CTA Link URL</label>
-                            <input type="text" name="ctaLink" className="admin-input" value={formData.ctaLink} onChange={handleChange} />
+                        <div className="md:col-span-1">
+                            <label className="block text-xs font-bold text-stone-600 uppercase tracking-widest mb-1.5">Action Button Link URL</label>
+                            <input type="text" name="ctaLink" className="admin-input" value={formData.ctaLink} onChange={handleChange} placeholder="e.g. /about" />
                         </div>
 
-                        {editingSection !== 'ABOUT' && (
-                            <div className="md:col-span-2">
-                                <label className="block text-text-main font-bold mb-1">
-                                    Metadata (JSON) <span className="text-xs text-text-muted font-normal block">Use this for nested items like service cards or metrics. Must be valid JSON array/object.</span>
-                                </label>
-                                <textarea name="metadata" className="admin-input font-mono text-sm h-32" value={formData.metadata} onChange={handleChange} placeholder='[{"title": "Card 1", "icon": "fa-user"}]' />
-                            </div>
-                        )}
-
-                        {editingSection === 'ABOUT' && (
-                            <div className="md:col-span-2 border-t border-border-light pt-4 mt-2">
-                                <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-text-main font-bold">Counters Configuration</label>
-                                    <button type="button" onClick={addCounter} className="text-primary hover:text-green-700 flex items-center gap-1 text-sm font-bold bg-green-50 px-2 py-1 rounded">
-                                        <Plus size={16} /> Add Counter
-                                    </button>
+                        {/* Counters */}
+                        <div className="md:col-span-2 border-t border-border-light pt-6 mt-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h4 className="text-lg font-bold text-secondary">Statistical Counters</h4>
+                                    <p className="text-sm text-text-muted mt-1">The animated numbers displayed below the text.</p>
                                 </div>
-                                <div className="space-y-3">
-                                    {counters.map((counter, idx) => (
-                                        <div key={idx} className="grid grid-cols-12 gap-2 items-center bg-gray-50 p-2 border border-border-light rounded relative group">
-                                            <div className="col-span-12 md:col-span-3 flex items-center">
-                                                <button type="button" onClick={() => removeCounter(idx)} className="text-red-400 hover:text-red-600 mr-2" title="Remove Counter">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                                <input type="text" className="admin-input text-xs font-mono font-bold uppercase text-gray-500 py-1.5" value={counter.key} onChange={(e) => handleCounterChange(idx, 'key', e.target.value.toUpperCase().replace(/\s/g, '_'))} placeholder="KEY" />
+                                <button type="button" onClick={addCounter} className="text-accent hover:text-rose-700 flex items-center gap-1 text-sm font-bold bg-rose-50 px-3 py-1.5 rounded transition-colors border border-rose-100">
+                                    <Plus size={16} /> Add Custom Counter
+                                </button>
+                            </div>
+                            
+                            <div className="space-y-3 bg-stone-50 p-4 border border-stone-200 rounded-lg">
+                                {counters.length === 0 ? (
+                                    <div className="text-sm text-stone-500 italic text-center py-4">No counters configured.</div>
+                                ) : (
+                                    counters.map((counter, idx) => (
+                                        <div key={idx} className="flex flex-col sm:flex-row gap-3 items-center bg-white p-3 border border-stone-200 rounded shadow-sm relative group">
+                                            
+                                            <div className="flex-1 w-full">
+                                                <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wide block mb-1">Display Label</label>
+                                                <input type="text" className="admin-input text-sm py-1.5" value={counter.label} onChange={(e) => handleCounterChange(idx, 'label', e.target.value)} placeholder="e.g. STUDENTS" />
                                             </div>
-                                            <div className="col-span-12 md:col-span-5">
-                                                <input type="text" className="admin-input text-sm py-1.5" value={counter.label} onChange={(e) => handleCounterChange(idx, 'label', e.target.value)} placeholder="Label (e.g. STUDENTS)" />
+
+                                            <div className="w-full sm:w-24">
+                                                <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wide block mb-1">Number</label>
+                                                <input type="number" min="0" className="admin-input text-sm py-1.5 font-mono text-center" value={counter.value} onChange={(e) => handleCounterChange(idx, 'value', e.target.value)} placeholder="0" />
                                             </div>
-                                            <div className="col-span-6 md:col-span-2">
-                                                <input type="number" min="0" className="admin-input text-sm py-1.5" value={counter.value} onChange={(e) => handleCounterChange(idx, 'value', e.target.value)} placeholder="0" />
+
+                                            <div className="w-full sm:w-20">
+                                                <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wide block mb-1">Suffix</label>
+                                                <input type="text" className="admin-input text-sm py-1.5 text-center bg-stone-50 font-bold" value={counter.suffix} onChange={(e) => handleCounterChange(idx, 'suffix', e.target.value)} placeholder="e.g. +" />
                                             </div>
-                                            <div className="col-span-6 md:col-span-2">
-                                                <input type="text" className="admin-input text-sm py-1.5" value={counter.suffix} onChange={(e) => handleCounterChange(idx, 'suffix', e.target.value)} placeholder="Suffix (e.g. +)" />
-                                            </div>
+
+                                            <button type="button" onClick={() => removeCounter(idx)} className="mt-4 sm:mt-0 p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors self-end sm:self-center tooltip" title="Remove Counter">
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
-                                    ))}
-                                </div>
+                                    ))
+                                )}
                             </div>
-                        )}
-
-                        <div className="md:col-span-2 flex items-center mt-2">
-                            <label className="flex items-center gap-3 cursor-pointer bg-bg-light p-3 rounded border border-border-light hover:bg-gray-100 pr-4 w-full">
-                                <input type="checkbox" name="isActive" className="w-5 h-5 text-primary rounded border-gray-300 focus:ring-primary" checked={formData.isActive} onChange={handleChange} />
-                                <span className="font-bold text-text-dark text-sm">Publish Section (Active)</span>
-                            </label>
                         </div>
+
                     </div>
 
-                    <div className="pt-4 border-t border-border-light flex justify-between items-center mt-6">
-                        <span className="text-sm text-text-muted italic">Warning: Zod Metadata validation is strictly enforced on save.</span>
-                        <div className="flex gap-4">
-                            {editingSection === 'ABOUT' && (
-                                <a href={`${PUBLIC_SITE_URL}/#about-intro`} target="_blank" rel="noopener noreferrer" className="admin-btn-secondary flex items-center justify-center gap-2 py-2">
-                                    Preview
-                                </a>
-                            )}
-                            <button type="submit" className="admin-btn-primary flex items-center justify-center gap-2 min-w-[150px] py-2">
-                                <Save size={18} /> Save Section
-                            </button>
-                            <button type="button" onClick={handleCloseModal} className="px-6 py-2 border border-border-light text-text-dark font-bold hover:bg-gray-100 rounded transition-colors uppercase tracking-wide">
-                                Cancel
-                            </button>
-                        </div>
+                    <div className="flex items-center justify-between border-t border-border-light pt-6 mt-8">
+                        <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-stone-50 transition-colors">
+                            <div className="relative">
+                                <input type="checkbox" name="isActive" className="sr-only" checked={formData.isActive} onChange={handleChange} />
+                                <div className={`block w-14 h-8 rounded-full transition-colors ${formData.isActive ? 'bg-green-500' : 'bg-stone-300'}`}></div>
+                                <div className={`absolute left-1.5 top-1.5 bg-white w-5 h-5 rounded-full transition-transform ${formData.isActive ? 'translate-x-6' : ''}`}></div>
+                            </div>
+                            <span className="font-bold text-secondary text-sm">Publish Intro to Homepage</span>
+                        </label>
+
+                        <button type="submit" disabled={isSaving} className={`admin-btn-primary flex items-center justify-center gap-2 px-8 py-2.5 text-base shadow-md hover:shadow-lg transition-all ${isSaving ? 'opacity-70 cursor-wait' : ''}`}>
+                            <Save size={20} /> {isSaving ? 'Saving...' : 'Save Intro Settings'}
+                        </button>
                     </div>
                 </form>
-            </AdminModal>
+            </div>
         </AdminPageLayout>
     );
 }

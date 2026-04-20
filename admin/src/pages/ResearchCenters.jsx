@@ -5,6 +5,7 @@ import { ASSETS_BASE_URL } from '../config/env';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
+import SectionSettings from '../components/SectionSettings';
 
 export default function ResearchCenters() {
     const [centers, setCenters] = useState([]);
@@ -167,17 +168,18 @@ export default function ResearchCenters() {
                 </button>
             }
         >
+            <SectionSettings type="RESEARCH_CENTERS" defaultTitle="Research Centers" />
             <div className="admin-card overflow-x-auto">
-                <table className="admin-table">
-                    <thead>
+                <table className="w-full text-sm">
+                    <thead className="bg-bg-light border-b border-border-light text-left text-sm text-secondary">
                         <tr>
-                            <th className="w-16">Reorder</th>
-                            <th className="w-16">S.No</th>
-                            <th className="w-16">Image</th>
-                            <th>Title</th>
-                            <th>Excerpt</th>
-                            <th className="text-center">Status</th>
-                            <th className="text-right">Actions</th>
+                            <th className="p-4 w-16">Reorder</th>
+                            <th className="p-4 w-16">S.No</th>
+                            <th className="p-4 w-16">Image</th>
+                            <th className="p-4">Title</th>
+                            <th className="p-4">Excerpt</th>
+                            <th className="p-4 text-center">Status</th>
+                            <th className="p-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>

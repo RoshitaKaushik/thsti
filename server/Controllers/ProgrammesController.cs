@@ -20,6 +20,7 @@ namespace ThstiServer.Controllers
         }
 
         [HttpGet]
+        [HttpGet("admin")]
         public async Task<IActionResult> GetAll()
         {
             var items = await _context.Programmes
@@ -35,7 +36,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Programme item)
         {
@@ -46,7 +47,7 @@ namespace ThstiServer.Controllers
             return StatusCode(201, item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] Programme updatedItem)
         {
@@ -61,7 +62,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -81,7 +82,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("reorder")]
         public async Task<IActionResult> Reorder([FromBody] ThstiServer.DTOs.GenericReorderRequest req)
         {

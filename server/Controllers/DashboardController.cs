@@ -18,8 +18,8 @@ namespace ThstiServer.Controllers
             _context = context;
         }
 
-        [HttpGet("stats")]
-        public async Task<IActionResult> GetStats()
+        [HttpGet("summary")]
+        public async Task<IActionResult> GetSummary()
         {
             var usersCount = await _context.Users.CountAsync();
             var facultyCount = await _context.Faculties.CountAsync();

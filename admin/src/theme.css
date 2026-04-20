@@ -1,86 +1,100 @@
 :root {
     /* Brand Colors Extracted from THSTI public site */
-    --primary: #9d302b;
-    --secondary: #001e57;
-    --accent: #df6512;
+    --primary: #9E2A2B;
+    --primary-dark: #7a1d1e;
+    --secondary: #002147;
+    --secondary-dark: #00132b;
+    --secondary-light: #1a3c61;
+    --accent: #F47B20;
     --bg-body: #ffffff;
-    --bg-light: #f3f5f9;
+    --bg-light: #f4f6f9;
 
     /* Text Colors */
-    --text-main: #555555;
-    --text-muted: #787878;
-    --text-dark: #222222;
+    --text-main: #333333;
+    --text-muted: #666666;
+    --text-dark: #111111;
 
     /* UI Metrics */
-    --radius-btn: 3px;
-    --radius-card: 5px;
-    --border-light: #e5e7eb;
+    --radius-btn: 4px;
+    --radius-card: 6px;
+    --border-light: #d1d5db;
+
+    /* Professional Shadows */
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 body {
-    font-family: "Familjen Grotesk", sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     color: var(--text-main);
     background-color: var(--bg-light);
     font-size: 14px;
     line-height: 1.6em;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Button Overrides */
+/* Base Overrides for a clean government UI */
 .admin-btn-primary {
     background-color: var(--primary);
-    color: #fff;
-    font-family: 'Lato', sans-serif;
+    color: #ffffff;
+    font-family: system-ui, -apple-system, sans-serif;
     border-radius: var(--radius-btn);
-    padding: 10px 30px;
-    font-weight: 800;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
+    padding: 10px 24px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s ease;
+    border: none;
+    white-space: nowrap;
 }
 
 .admin-btn-primary:hover {
-    background-color: var(--secondary);
+    background-color: var(--primary-dark);
 }
 
 .admin-btn-accent {
-    background-color: var(--accent);
-    color: #fff;
-    font-family: 'Lato', sans-serif;
+    background-color: var(--secondary);
+    color: #ffffff;
+    font-family: system-ui, -apple-system, sans-serif;
     border-radius: var(--radius-btn);
-    padding: 13px 33px;
-    font-weight: 700;
-    text-transform: uppercase;
-    transition: all 0.3s ease;
+    padding: 10px 24px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s ease;
+    border: none;
+    white-space: nowrap;
 }
 
 .admin-btn-accent:hover {
-    background-color: var(--text-dark);
+    background-color: var(--secondary-dark);
 }
 
 .admin-card {
     background-color: var(--bg-body);
     border-radius: var(--radius-card);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-card);
+    border: 1px solid #e5e7eb;
 }
 
 .admin-input {
     border: 1px solid var(--border-light);
     border-radius: var(--radius-btn);
-    padding: 8px 12px;
+    padding: 10px 14px;
     font-family: inherit;
-    color: var(--text-main);
+    color: var(--text-dark);
     width: 100%;
+    transition: border-color 0.2s ease;
+    background-color: #ffffff;
 }
 
 .admin-input:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 1px var(--secondary);
 }
 
-/* Custom Webkit Scrollbar for Sidebar/Internal panes */
+/* Clean Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -88,10 +102,24 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    background-color: #cbd5e1;
+    border-radius: 4px;
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: #94a3b8;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 4px;
+}
+.sidebar-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.3);
 }

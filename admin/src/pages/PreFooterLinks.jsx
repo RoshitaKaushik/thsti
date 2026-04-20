@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
+import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Edit2, Trash2, GripVertical, Check, X, Image as ImageIcon } from 'lucide-react';
@@ -30,7 +31,7 @@ export default function PreFooterLinks() {
     const fetchLinks = async () => {
         try {
             setLoading(true);
-            const res = await api.get('/pre-footer-links/all');
+            const res = await api.get('/pre-footer-links');
             setLinks(res.data);
         } catch (error) {
             toast.error("Failed to fetch pre-footer links");
@@ -138,6 +139,7 @@ export default function PreFooterLinks() {
                 </button>
             }
         >
+            <SectionSettings type="QUICK_LINKS" defaultTitle="Quick Links" />
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="linksList">

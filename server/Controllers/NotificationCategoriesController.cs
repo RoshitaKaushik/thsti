@@ -36,7 +36,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("api/notifications/categories")]
         public async Task<IActionResult> GetAllCategoriesAdmin()
         {
@@ -53,7 +53,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost("api/notifications/categories")]
         public async Task<IActionResult> CreateCategory([FromBody] NotificationCategoryRequest req)
         {
@@ -79,7 +79,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("api/notifications/categories/{id}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] NotificationCategoryRequest req)
         {
@@ -101,7 +101,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("api/notifications/categories/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
@@ -121,7 +121,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("api/notifications/categories/{id}/toggle")]
         public async Task<IActionResult> ToggleCategoryActive(int id)
         {

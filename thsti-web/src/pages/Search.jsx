@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { API_BASE_URL } from '../config/env';
+import api from '../api/axios';
 
 const Search = () => {
     const [searchParams] = useSearchParams();
@@ -15,10 +15,9 @@ const Search = () => {
         }
         
         setLoading(true);
-        fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`)
-            .then(res => res.json())
-            .then(data => {
-                setResults(data);
+        api.get(`/search?q=${encodeURIComponent(query)}`)
+            .then(res => {
+                setResults(res.data);
             })
             .catch(err => console.error(err))
             .finally(() => setLoading(false));

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
@@ -8,8 +8,10 @@ public partial class HeroSlide
     public int Id { get; set; }
 
     public string? Title { get; set; }
+    public string? TitleHi { get; set; }
 
     public string? Subtitle { get; set; }
+    public string? SubtitleHi { get; set; }
 
     public string Type { get; set; } = null!;
 
@@ -31,5 +33,11 @@ public partial class HeroSlide
 
     public DateTime UpdatedAt { get; set; }
 
+    public string ReviewStatus { get; set; } = "Published"; // Draft, PendingReview, Published, Rejected
+
+    public string? Remarks { get; set; }
+
     public bool ShowText { get; set; }
+
+    public bool IsArchived { get; set; } = false;
 }

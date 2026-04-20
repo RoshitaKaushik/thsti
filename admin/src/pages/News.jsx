@@ -3,24 +3,35 @@ import { PUBLIC_SITE_URL } from '../config/env';
 import { Plus, Edit2, Trash2, Save, Newspaper, ExternalLink, Eye, Star } from 'lucide-react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
+import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
 
 export default function News() {
     const [news, setNews] = useState([]);
+    const [filterState, setFilterState] = useState('ALL'); // ALL, ACTIVE, DRAFT, ARCHIVED
     const [loading, setLoading] = useState(true);
     const [editingNews, setEditingNews] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [imageFile, setImageFile] = useState(null);
 
+    // Auth State
+    const currentUser = JSON.parse(localStorage.getItem('thsti_admin_user') || '{}');
+    const isExecutive = currentUser?.role === 'EXECUTIVE';
+
     const [formData, setFormData] = useState({
         title: '',
+        titleHi: '',
         slug: '',
         summary: '',
         content: '',
+        contentHi: '',
         imageUrl: '',
         publishDate: new Date().toISOString().split('T')[0],
         isActive: true,
-        isFeatured: false
+        isFeatured: false,
+        reviewStatus: 'Draft',
+        remarks: '',
+        isArchived: false
     });
 
     const fetchNews = async () => {
@@ -69,13 +80,18 @@ export default function News() {
         setImageFile(null);
         setFormData({
             title: item.title,
+            titleHi: item.titleHi || '',
             slug: item.slug,
             summary: item.summary || '',
             content: item.content,
+            contentHi: item.contentHi || '',
             imageUrl: item.imageUrl || '',
             publishDate: new Date(item.publishDate).toISOString().split('T')[0],
             isActive: item.isActive,
-            isFeatured: !!item.isFeatured
+            isFeatured: !!item.isFeatured,
+            reviewStatus: item.reviewStatus || 'Draft',
+            remarks: item.remarks || '',
+            isArchived: !!item.isArchived
         });
         setIsModalOpen(true);
     };
@@ -84,8 +100,8 @@ export default function News() {
         setEditingNews(null);
         setImageFile(null);
         setFormData({
-            title: '', slug: '', summary: '', content: '', imageUrl: '',
-            publishDate: new Date().toISOString().split('T')[0], isActive: true, isFeatured: false
+            title: '', titleHi: '', slug: '', summary: '', content: '', contentHi: '',
+            publishDate: new Date().toISOString().split('T')[0], isActive: true, isFeatured: false, reviewStatus: 'Draft', remarks: ''
         });
         setIsModalOpen(true);
     };
@@ -140,28 +156,59 @@ export default function News() {
         }
     };
 
+    const handleArchiveToggle = async (item) => {
+        if (confirm(`Are you sure you want to ${item.isArchived ? 'unarchive' : 'archive'} this news item?`)) {
+            try {
+                await api.put(`/news/${item.id}`, { ...item, isArchived: !item.isArchived });
+                fetchNews();
+            } catch (err) {
+                alert('Failed to toggle archive state');
+            }
+        }
+    };
+
+    const filteredNews = news.filter(item => {
+        if (filterState === 'ACTIVE') return item.isActive && !item.isArchived;
+        if (filterState === 'DRAFT') return !item.isActive && !item.isArchived;
+        if (filterState === 'ARCHIVED') return item.isArchived;
+        return true;
+    });
+
     if (loading) return <div>Loading news...</div>;
 
     const actionButtons = (
-        <button onClick={handleOpenNew} className="admin-btn-primary flex items-center gap-2 px-4 py-2 text-sm">
-            <Plus size={16} /> New Event
-        </button>
+        <div className="flex items-center gap-4">
+            <select 
+                className="admin-input py-2 text-sm w-40" 
+                value={filterState} 
+                onChange={(e) => setFilterState(e.target.value)}
+            >
+                <option value="ALL">All Items</option>
+                <option value="ACTIVE">Active (Live)</option>
+                <option value="DRAFT">Drafts</option>
+                <option value="ARCHIVED">Archived 🗄️</option>
+            </select>
+            <button onClick={handleOpenNew} className="admin-btn-primary flex items-center gap-2 px-4 py-2 text-sm">
+                <Plus size={16} /> New Event
+            </button>
+        </div>
     );
 
     return (
         <AdminPageLayout title="News Manager" actionButtons={actionButtons}>
+            <SectionSettings type="NEWS_EVENTS" defaultTitle="Events & News" />
             <div className="admin-card overflow-hidden flex flex-col flex-1 min-h-0 bg-white shadow-sm border border-border-light">
                 <div className="overflow-auto flex-1 p-6">
-                    {news.length === 0 ? (
+                    {filteredNews.length === 0 ? (
                         <div className="text-center text-text-muted italic py-12 border-2 border-dashed border-border-light rounded-lg">
                             <Newspaper size={48} className="mx-auto text-gray-300 mb-4" />
-                            <p>No news items found.</p>
+                            <p>No news items match this filter.</p>
                             <button onClick={handleOpenNew} className="mt-4 text-primary font-bold hover:underline">Create your first news item</button>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {news.map(item => (
-                                <div key={item.id} className="admin-card p-5 border border-border-light shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col relative">
+                            {filteredNews.map(item => (
+                                <div key={item.id} className={`admin-card p-5 border border-border-light shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col relative ${item.isArchived ? 'opacity-70 grayscale' : ''}`}>
                                     {item.isFeatured && (
                                         <div className="absolute top-2 right-2 bg-[var(--primary)] text-white p-1 rounded-full shadow-sm" title="Featured Event (Shows as main item)">
                                             <Star size={14} />
@@ -181,13 +228,25 @@ export default function News() {
                                             {new Date(item.publishDate).toLocaleDateString()}
                                         </span>
                                         <span className={`px-2 py-1 font-bold rounded-full ${item.isActive ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
-                                            {item.isActive ? 'PUBLISHED' : 'DRAFT'}
+                                            {item.isActive ? 'VISIBLE' : 'HIDDEN'}
+                                        </span>
+                                        <span className={`px-2 py-1 ml-2 font-bold rounded-full 
+                                            ${item.reviewStatus === 'Published' ? 'bg-blue-100 text-blue-800' : 
+                                              item.reviewStatus === 'PendingReview' ? 'bg-yellow-100 text-yellow-800' : 
+                                              item.reviewStatus === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}
+                                        `}>
+                                            {item.reviewStatus || 'Draft'}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-border-light">
-                                        <a href={`${PUBLIC_SITE_URL}/news/${item.slug}`} target="_blank" rel="noreferrer" title="Preview Public Page" className="p-2 text-text-muted hover:text-accent bg-gray-50 border border-border-light rounded shadow-sm transition-colors">
-                                            <ExternalLink size={16} />
-                                        </a>
+                                        {!item.isArchived && (
+                                            <a href={`${PUBLIC_SITE_URL}/news/${item.slug}`} target="_blank" rel="noreferrer" title="Preview Public Page" className="p-2 text-text-muted hover:text-accent bg-gray-50 border border-border-light rounded shadow-sm transition-colors">
+                                                <ExternalLink size={16} />
+                                            </a>
+                                        )}
+                                        <button onClick={() => handleArchiveToggle(item)} title={item.isArchived ? "Unarchive" : "Archive"} className="p-2 text-text-muted hover:text-amber-600 bg-gray-50 border border-border-light rounded shadow-sm transition-colors">
+                                            {item.isArchived ? <Eye size={16} /> : <div className="text-lg leading-4">🗄️</div>}
+                                        </button>
                                         <button onClick={() => startEdit(item)} title="Edit News" className="p-2 text-text-muted hover:text-accent bg-gray-50 border border-border-light rounded shadow-sm transition-colors">
                                             <Edit2 size={16} />
                                         </button>
@@ -210,9 +269,13 @@ export default function News() {
             >
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Article Title *</label>
+                        <div className="md:col-span-1">
+                            <label className="block text-text-main font-bold mb-1">Article Title (English) *</label>
                             <input type="text" name="title" className="admin-input" value={formData.title} onChange={handleChange} required />
+                        </div>
+                        <div className="md:col-span-1">
+                            <label className="block text-text-main font-bold mb-1">Article Title (Hindi)</label>
+                            <input type="text" name="titleHi" className="admin-input" placeholder="Leave blank to auto-translate" value={formData.titleHi} onChange={handleChange} />
                         </div>
                         <div>
                             <label className="block text-text-main font-bold mb-1">URL Slug *</label>
@@ -251,9 +314,15 @@ export default function News() {
                         <textarea name="summary" className="admin-input h-20" value={formData.summary} onChange={handleChange} placeholder="Appears on homepage news cards" />
                     </div>
 
-                    <div>
-                        <label className="block text-text-main font-bold mb-1">Full Content (HTML) *</label>
-                        <textarea name="content" className="admin-input h-48 font-mono text-sm" value={formData.content} onChange={handleChange} required />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-text-main font-bold mb-1">Full Content (HTML) (English) *</label>
+                            <textarea name="content" className="admin-input h-48 font-mono text-sm" value={formData.content} onChange={handleChange} required />
+                        </div>
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-text-main font-bold mb-1">Full Content (HTML) (Hindi)</label>
+                            <textarea name="contentHi" className="admin-input h-48 font-mono text-sm" placeholder="Leave blank for automatic Machine Translation" value={formData.contentHi} onChange={handleChange} />
+                        </div>
                     </div>
 
                     <div className="flex items-center justify-between border-t border-border-light pt-4 mt-6">
@@ -267,9 +336,32 @@ export default function News() {
                                 <span className="font-bold text-yellow-800 text-sm flex items-center gap-1"><Star size={14} /> Mark as Main Featured News</span>
                             </label>
                         </div>
+                        
+                        {!isExecutive && (
+                            <div className="flex flex-col gap-2">
+                                <label className="block text-sm font-medium text-text-muted mb-1">Workflow Status</label>
+                                <select
+                                    value={formData.reviewStatus || 'Draft'}
+                                    onChange={(e) => setFormData({ ...formData, reviewStatus: e.target.value })}
+                                    className="admin-input h-10 w-48"
+                                >
+                                    <option value="Draft">Draft</option>
+                                    <option value="PendingReview">Pending Review</option>
+                                    <option value="Published">Published</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+                        )}
+                        {isExecutive && formData.reviewStatus === 'Rejected' && (
+                            <div className="flex flex-col gap-2 p-2 bg-red-50 border border-red-200 rounded max-w-xs">
+                                <p className="text-xs text-red-700 font-bold">Manager Rejected</p>
+                                {formData.remarks && <p className="text-xs text-red-600 truncate" title={formData.remarks}>{formData.remarks}</p>}
+                            </div>
+                        )}
+
                         <div className="flex gap-4">
                             <button type="submit" className="admin-btn-primary flex items-center justify-center gap-2 min-w-[150px] py-2">
-                                <Save size={18} /> {editingNews ? 'Save Changes' : 'Create Event'}
+                                <Save size={18} /> {isExecutive ? (editingNews ? 'Update Draft' : 'Submit for Review') : (editingNews ? 'Save Changes' : 'Publish News')}
                             </button>
                             <button type="button" onClick={handleCloseModal} className="px-6 py-2 border border-border-light text-text-dark font-bold hover:bg-gray-100 rounded transition-colors uppercase tracking-wide">
                                 Cancel

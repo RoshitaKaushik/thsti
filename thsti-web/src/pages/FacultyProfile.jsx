@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { API_BASE_URL } from '../config/env';
+import api from '../api/axios';
 
 export default function FacultyProfile() {
     const { slug } = useParams();
@@ -15,7 +14,7 @@ export default function FacultyProfile() {
                 // Since our backend doesn't have getFacultyBySlug right now, but rather getById,
                 // Oh wait! I didn't add getFacultyBySlug. I'll need to fetch all and filter or update backend.
                 // Assuming backend will be updated to fetch by slug or ID. 
-                const res = await axios.get(`${API_BASE_URL}/faculty`); 
+                const res = await api.get(`/faculty`); 
                 const data = res.data;
                 const found = data.find(f => f.slug === slug || f.id.toString() === slug);
                 if(found) setFaculty(found);

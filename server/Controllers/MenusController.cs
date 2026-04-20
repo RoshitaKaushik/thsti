@@ -41,7 +41,7 @@ namespace ThstiServer.Controllers
             return Ok(menus);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR,VIEWER")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllMenus(int page = 1, int limit = 10, string sort = "order", string direction = "asc", string search = "")
         {
@@ -86,7 +86,7 @@ namespace ThstiServer.Controllers
             });
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> CreateMenu([FromBody] MenuRequest req)
         {
@@ -116,7 +116,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateMenu(int id, [FromBody] MenuRequest req)
         {
@@ -145,7 +145,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteMenu(int id)
         {
@@ -157,7 +157,7 @@ namespace ThstiServer.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("reorder")]
         public async Task<IActionResult> ReorderMenus([FromBody] MenuReorderRequest req)
         {
@@ -183,7 +183,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR,VIEWER")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("export")]
         public async Task<IActionResult> ExportMenus()
         {
@@ -253,7 +253,7 @@ namespace ThstiServer.Controllers
             }
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost("import")]
         public async Task<IActionResult> ImportMenus(IFormFile file)
         {
@@ -338,7 +338,7 @@ namespace ThstiServer.Controllers
             }
         }
         
-        [Authorize(Roles = "SUPER_ADMIN")]
+        [Authorize(Roles = "ADMIN")]
         [HttpPost("seed-defaults")]
         public async Task<IActionResult> SeedDefaultMenus()
         {

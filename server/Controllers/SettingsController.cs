@@ -28,7 +28,6 @@ namespace ThstiServer.Controllers
             {
                 settings = new GlobalSetting
                 {
-                    Id = 1,
                     SiteName = "THSTI CMS",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
@@ -40,7 +39,7 @@ namespace ThstiServer.Controllers
             return Ok(settings);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut]
         public async Task<IActionResult> UpdateSettings([FromBody] SettingsRequest req)
         {
@@ -52,7 +51,6 @@ namespace ThstiServer.Controllers
                 {
                     settings = new GlobalSetting
                     {
-                        Id = 1,
                         CreatedAt = DateTime.UtcNow
                     };
                     _context.GlobalSettings.Add(settings);

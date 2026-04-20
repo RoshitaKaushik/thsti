@@ -12,8 +12,9 @@ export default function Profile() {
     useEffect(() => {
         api.get('/me')
             .then(res => {
-                setProfile(res.data.data);
-                setForm({ name: res.data.data.name || '', mobile: res.data.data.mobile || '' });
+                const profileObj = res.data;
+                setProfile(profileObj);
+                setForm({ name: profileObj.name || '', mobile: profileObj.mobile || '' });
             })
             .catch(() => toast.error('Failed to load profile.'));
     }, []);
@@ -25,7 +26,7 @@ export default function Profile() {
         setLoading(true);
         try {
             const res = await api.put('/me/profile', form);
-            setProfile(p => ({ ...p, ...res.data.data }));
+            setProfile(p => ({ ...p, ...res.data }));
             toast.success('Profile updated.');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to update profile.');

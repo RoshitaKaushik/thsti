@@ -35,7 +35,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] FooterLink item)
         {
@@ -46,7 +46,7 @@ namespace ThstiServer.Controllers
             return StatusCode(201, item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] FooterLink updatedItem)
         {
@@ -61,7 +61,7 @@ namespace ThstiServer.Controllers
             return Ok(item);
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -73,7 +73,7 @@ namespace ThstiServer.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "SUPER_ADMIN,EDITOR")]
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("reorder")]
         public async Task<IActionResult> Reorder([FromBody] ThstiServer.DTOs.GenericReorderRequest req)
         {

@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/env';
+import api from '../../api/axios';
 
 const ResearchCentersSection = () => {
     const [centers, setCenters] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    
-
     useEffect(() => {
         const fetchCenters = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/research-centers`);
-                if (response.ok) {
-                    const data = await response.json();
+                const response = await api.get('/research-centers');
+                if (response.data) {
+                    const data = response.data;
                     if (data.items && data.items.length > 0) {
                         setCenters(data.items);
+                        return;
+                    } else if (Array.isArray(data)) {
+                        setCenters(data);
                         return;
                     }
                 }
@@ -24,7 +26,6 @@ const ResearchCentersSection = () => {
             } finally {
                 setLoading(false);
             }
-            
         };
 
         fetchCenters();
@@ -59,7 +60,66 @@ const ResearchCentersSection = () => {
         }
     };
 
-    if (centers.length === 0) return null;
+    if (centers.length === 0) {
+        return (
+            <section className="what-we-offer pt-5 pb-0 what-we-offer-first" style={{ background: '#f3f5f9' }}>
+                <div className="auto-container">
+                    <div className="row clearfix">
+                        {/* Text Column */}
+                        <div className="text-column col-lg-12 col-md-12 col-sm-12 ">
+                            <div className="sec-title sec-title-box">
+                                <div className="auto-container clearfix">
+                                    <h2>Research Centers</h2>
+                                </div>
+                            </div>
+                            <div className="row clearfix">
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-1.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Maternal and Child Health</a></h3>
+                                            <div className="text">Pregnancy (fetal life) and the first two years of life are the most critical periods that shape a person's health...</div>
+                                            <a href="details.html" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-2.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Virus Research, Therapeutics and Vaccines</a></h3>
+                                            <div className="text">The centre is dedicated to understand how the tools, technologies platforms and knowledge can be harnessed to...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-3.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Tuberculosis Research</a></h3>
+                                            <div className="text">Center for Tuberculosis Research has pioneered in designing the CRISPRi tool for conditional silencing of genes...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-4.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Microbial Research</a></h3>
+                                            <div className="text">The Centre for Microbial Research (CMR) was created as a niche Centre of THSTI to explore the interactions...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="what-we-offer pt-5 pb-0 what-we-offer-first" style={{}}>

@@ -5,6 +5,7 @@ import { Pencil, Trash2, Plus, GripVertical, ExternalLink } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { toast } from 'react-hot-toast';
 import api from '../api/axios';
+import SectionSettings from '../components/SectionSettings';
 
 export default function Programmes() {
     const [programmes, setProgrammes] = useState([]);
@@ -206,6 +207,7 @@ export default function Programmes() {
                 </button>
             }
         >
+            <SectionSettings type="STATISTICS" defaultTitle="Explore our Programmes" />
             <div className="bg-white rounded-lg shadow overflow-hidden">
                 <DragDropContext onDragEnd={handleOnDragEnd}>
                     <Droppable droppableId="programmes">

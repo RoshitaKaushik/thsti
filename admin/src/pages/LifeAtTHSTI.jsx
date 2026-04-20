@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import AdminPageLayout from '../components/AdminPageLayout';
+import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
 import { Pencil, Trash2, Plus, GripVertical, Check, X } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -248,6 +249,7 @@ export default function LifeAtTHSTI() {
             subtitle="Manage dynamic cards for the 'Life on The THSTI' section"
             actionButtons={actionButtons}
         >
+            <SectionSettings type="LIFE_AT_THSTI" defaultTitle="Life @ THSTI" />
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-start">
                     <span className="block sm:inline">{error}</span>

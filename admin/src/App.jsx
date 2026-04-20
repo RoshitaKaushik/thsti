@@ -27,6 +27,9 @@ import MarqueeItems from './pages/MarqueeItems';
 import Notifications from './pages/Notifications';
 import LifeAtTHSTI from './pages/LifeAtTHSTI';
 import InternationalCollaboration from './pages/InternationalCollaboration';
+import Tenders from './pages/Tenders';
+import ContactSubmissions from './pages/ContactSubmissions';
+import RolesPermissions from './pages/RolesPermissions';
 
 function App() {
   return (
@@ -58,9 +61,12 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
           <Route path="life-at-thsti" element={<LifeAtTHSTI />} />
           <Route path="international-collaboration" element={<InternationalCollaboration />} />
+          <Route path="tenders" element={<Tenders />} />
+          <Route path="contact-submissions" element={<ContactSubmissions />} />
           <Route path="users" element={<Users />} />
           <Route path="profile" element={<Profile />} />
           <Route path="change-password" element={<ChangePassword />} />
+          <Route path="roles-permissions" element={<RolesPermissions />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

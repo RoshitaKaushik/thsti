@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/env';
+import api from '../../api/axios';
 
 const Header = () => {
     const [dynamicMenus, setDynamicMenus] = useState([]);
@@ -16,23 +17,21 @@ const Header = () => {
 
     useEffect(() => {
         // Fetch Settings block
-        fetch(`${API_BASE_URL}/settings`)
-            .then(res => res.json())
-            .then(data => {
-                if (data) setGlobalSettings(data);
+        api.get('/settings')
+            .then(res => {
+                if (res.data) setGlobalSettings(res.data);
             })
             .catch(err => console.error("Global Settings Fetch Error:", err));
 
-        fetch(`${API_BASE_URL}/menus?location=HEADER`)
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) setDynamicMenus(data);
+        api.get('/menus?location=HEADER')
+            .then(res => {
+                if (Array.isArray(res.data)) setDynamicMenus(res.data);
             })
             .catch(err => console.error("CMS Menu Fetch Error:", err));
 
-        fetch(`${API_BASE_URL}/translation-languages`)
-            .then(res => res.json())
-            .then(data => {
+        api.get('/translation-languages')
+            .then(res => {
+                const data = res.data;
                 if (Array.isArray(data) && data.length > 0) {
                     setLanguages(data);
                     localStorage.setItem('thsti_translation_languages', JSON.stringify(data));
@@ -46,6 +45,91 @@ const Header = () => {
             .catch(err => console.error("Languages Fetch Error:", err));
     }, []);
     const renderMenus = () => {
+        if (!dynamicMenus || dynamicMenus.length === 0) {
+            return (
+                <>
+                    <li className="current"><Link to="/">Home</Link></li>
+                    <li className="dropdown">
+                        <a href="javascript:void(0);" className="dropdown-toggle">About </a>
+                        <ul>
+                            <li><Link to="/Info/missio-an-vision">Mission and Vision</Link></li>
+                            <li><Link to="/DirectorMessage">Director's Message</Link></li>
+                            <li><Link to="/FormerDirector">Former Directors</Link></li>
+                            <li className="dropdown">
+                                <Link to="/#">Governance and Committees</Link>
+                                <ul>
+                                    <li><Link to="/Info/societ-committee">Society</Link></li>
+                                    <li><Link to="/Info/governin-body">Governing Body</Link></li>
+                                    <li><Link to="/Committee">THSTI Committees</Link></li>
+                                    <li><Link to="/finance-committee">Finance Committee</Link></li>
+                                    <li><Link to="/scientific-advisory-committee">Research Advisory Panel &amp; Scientific Advisory Committee (RAP-SAC)</Link></li>
+                                </ul>
+                            </li>
+                            <li><Link to="/AnnualReports">Annual Reports</Link></li>
+                            <li><Link to="/Info/db-thst-mou">DBT-THSTI MoU</Link></li>
+                            <li><Link to="/Documentary">Documentary</Link></li>
+                        </ul>
+                    </li>
+                    <li className="dropdown">
+                        <a href="javascript:void(0);" className="dropdown-toggle">Research and Innovation </a>
+                        <ul>
+                            <li><Link to="/TheMatic">Research Centers</Link></li>
+                            <li><Link to="/publications">Publications</Link></li>
+                            <li><Link to="/copyrights-and-licensing">THSTI COPYRIGHT</Link></li>
+                            <li><Link to="/patents-and-licensing">THSTI TECHNOLOGIES AND LICENSING OPPORTUNITY</Link></li>
+                            <li><Link to="/Info/technologie-develope-an-transferred">Technologies developed and transferred</Link></li>
+                            <li><Link to="/external-relations-institutional-development">External Relations &amp; Institutional Development (ERID)</Link></li>
+                        </ul>
+                    </li>
+                    <li className="dropdown">
+                        <a href="javascript:void(0);" className="dropdown-toggle">People </a>
+                        <ul>
+                            <li><Link to="/faculty-and-scientists">Faculty &amp; Scientists</Link></li>
+                            <li><Link to="/research-fellow">Researchers</Link></li>
+                            <li><Link to="/people-administrative">Administrative</Link></li>
+                            <li><Link to="/people-technical">Technical</Link></li>
+                            <li><Link to="/people-consultants">Consultants</Link></li>
+                        </ul>
+                    </li>
+                    <li className="dropdown">
+                        <a href="javascript:void(0);" className="dropdown-toggle">Academics </a>
+                        <ul>
+                            <li className="dropdown">
+                                <Link to="/phd-programme">Ph. D. Program</Link>
+                                <ul>
+                                    <li><a href="https://thsti.res.in/public/upload/news/1763726730img.pdf" target="_blank" rel="noreferrer">PH.D. ADMISSION</a></li>
+                                    <li><Link to="/phd-students">Ph.D. Students</Link></li>
+                                </ul>
+                            </li>
+                            <li><a href="https://msc.thsti.in/" target="_blank" rel="noreferrer">M.Sc. Clinical Research</a></li>
+                            <li><Link to="/research-details/16/sib">SIB</Link></li>
+                            <li><Link to="/Info/placement">PLACEMENT</Link></li>
+                            <li><Link to="/short-term-training-program">Short Term Training Program</Link></li>
+                        </ul>
+                    </li>
+                    <li className="dropdown">
+                        <a href="javascript:void(0);" className="dropdown-toggle">Careers </a>
+                        <ul>
+                            <li><Link to="/Jobs">Jobs</Link></li>
+                            <li><Link to="/notification-shortlist">Shortlisted</Link></li>
+                            <li><Link to="/Info/syllabus">Syllabus</Link></li>
+                            <li><Link to="/notification-results">Result</Link></li>
+                        </ul>
+                    </li>
+                    <li className="dropdown">
+                        <a href="javascript:void(0);" className="dropdown-toggle">Notifications </a>
+                        <ul>
+                            <li><Link to="/calender">Calendar</Link></li>
+                            <li><Link to="/Event">Event</Link></li>
+                            <li><Link to="/Tender">Tender</Link></li>
+                            <li><Link to="/News">News</Link></li>
+                            <li><Link to="/Info/blac-liste-company">BLACK LISTED COMPANY</Link></li>
+                        </ul>
+                    </li>
+                </>
+            );
+        }
+
         return dynamicMenus.map(menu => {
             if (menu.isMegaMenu && menu.subMenus && menu.subMenus.length > 0) {
                 return (
@@ -288,7 +372,7 @@ const Header = () => {
                                     </button>
                                 </div>
 
-                                <div className="collapse navbar-collapse clearfix" id="navbarSupportedContent">
+                                <div className="navbar-collapse clearfix" id="navbarSupportedContent">
                                     <ul className="navigation clearfix">
                                         {/* DYNAMIC CMS MENUS RENDERED HERE */}
                                         {renderMenus()}
