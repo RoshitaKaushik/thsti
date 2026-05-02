@@ -87,8 +87,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TenderReq req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] TenderReq req)
         {
             var item = await _context.Tenders.FindAsync(id);
             if (item == null) return NotFound();
@@ -121,8 +121,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.Tenders.FindAsync(id);
             if (item == null) return NotFound();
@@ -146,3 +146,4 @@ namespace ThstiServer.Controllers
         public bool IsArchived { get; set; }
     }
 }
+

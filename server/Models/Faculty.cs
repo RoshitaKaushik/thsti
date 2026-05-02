@@ -5,7 +5,7 @@ namespace ThstiServer.Models;
 
 public partial class Faculty
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Slug { get; set; } = null!;
 
@@ -75,5 +75,11 @@ public partial class Faculty
 
     public DateTime UpdatedAt { get; set; }
 
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
+
     public bool IsArchived { get; set; } = false;
 }
+
+

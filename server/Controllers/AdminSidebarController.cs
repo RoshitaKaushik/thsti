@@ -82,7 +82,7 @@ namespace ThstiServer.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "ADMIN")]
-        public async Task<IActionResult> UpdateModuleRoles(int id, [FromBody] UpdateRolesRequest req)
+        public async Task<IActionResult> UpdateModuleRoles(long id, [FromBody] UpdateRolesRequest req)
         {
             var module = await _context.AdminModules.FindAsync(id);
             if (module == null) return NotFound();
@@ -100,3 +100,4 @@ namespace ThstiServer.Controllers
         public bool IsActive { get; set; }
     }
 }
+

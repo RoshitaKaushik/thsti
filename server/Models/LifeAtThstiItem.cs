@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
 
 public partial class LifeAtThstiItem
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Title { get; set; } = null!;
 
@@ -31,5 +31,11 @@ public partial class LifeAtThstiItem
 
     public DateTime UpdatedAt { get; set; }
 
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
+
     public string? Metadata { get; set; }
 }
+
+

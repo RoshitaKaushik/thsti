@@ -37,7 +37,8 @@ namespace ThstiServer.Middleware
             }
 
             // 1. Intercept Request (Decrypt POST/PUT data)
-            if ((context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put) && context.Request.ContentLength > 0)
+            bool isJsonRequest = context.Request.ContentType != null && context.Request.ContentType.Contains("application/json", StringComparison.OrdinalIgnoreCase);
+            if (isJsonRequest && (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put) && context.Request.ContentLength > 0)
             {
                 context.Request.EnableBuffering();
                 using var reader = new StreamReader(context.Request.Body, Encoding.UTF8, leaveOpen: true);

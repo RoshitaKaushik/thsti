@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAccessibility } from '../AccessibilityContext';
 
 const Accessibility = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { increaseFont, decreaseFont, resetFont, enableHighContrast, disableHighContrast, toggleReadableFont } = useAccessibility();
   return (
     <>
       {/* Sidebar Content */}
@@ -224,48 +227,43 @@ const Accessibility = () => {
     {/* Scroll to top */}
 
       {/* Accessibility Tools Button */}
-<div className="accessibility-tools-area">
+  <div className={`accessibility-tools-area ${isOpen ? 'open' : ''}`}>
+    <div className="main-access-icon">
+      <a href="#" id="accessibility-btn" aria-label="Accessibility Tools" onClick={(e) => { e.preventDefault(); setIsOpen(!isOpen); }}>
+        <i className="fa fa-universal-access" aria-hidden="true"></i><h6>Accessibility Tools</h6>
+      </a>
+    </div>
 
-
-
-
-  <div className="main-access-icon">
-    <a href="#" id="accessibility-btn" aria-label="Accessibility Tools">
-      <i className="fa fa-universal-access" aria-hidden="true"></i><h6>Accessibility Tools</h6>
-    </a>
+    <div className="access-optns-sec">
+      <ul>
+        <li>
+          <a href="#" onClick={(e) => { e.preventDefault(); increaseFont(); }}>
+            <i className="fa fa-search-plus"></i> Increase Text
+          </a>
+        </li>
+        <li>
+          <a href="#" onClick={(e) => { e.preventDefault(); toggleReadableFont(); }}>
+            <i className="fa fa-font"></i> Readable Font
+          </a>
+        </li>
+        <li>
+          <a href="#" onClick={(e) => { e.preventDefault(); decreaseFont(); }}>
+            <i className="fa fa-search-minus"></i> Decrease Text
+          </a>
+        </li>
+        <li>
+          <a href="#" onClick={(e) => { e.preventDefault(); enableHighContrast(); }}>
+            <i className="fa fa-moon"></i> High Contrast
+          </a>
+        </li>
+        <li>
+          <a href="#" onClick={(e) => { e.preventDefault(); disableHighContrast(); }}>
+            <i className="fa fa-cog"></i> Normal Contrast
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
-
-  <div className="access-optns-sec">
-    
-    <ul>
-      <li>
-        <a href="#" onClick={() => window.fontIncrease && window.fontIncrease()}>
-          <i className="fa fa-search-plus"></i> Increase Text
-        </a>
-      </li>
-      <li>
-        <a href="#" onClick={() => window.fontReadable && window.fontReadable()}>
-          <i className="fa fa-font"></i> Readable Font
-        </a>
-      </li>
-      <li>
-        <a href="#" onClick={() => window.fontDecrease && window.fontDecrease()}>
-          <i className="fa fa-search-minus"></i> Decrease Text
-        </a>
-      </li>
-      <li>
-        <a href="#" onClick={() => window.enableContrast && window.enableContrast()}>
-          <i className="fa fa-moon"></i> High Contrast
-        </a>
-      </li>
-      <li>
-        <a href="#" onClick={() => window.disableContrast && window.disableContrast()}>
-          <i className="fa fa-sun"></i> Normal Contrast
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>
 
 
 

@@ -4,7 +4,7 @@ namespace ThstiServer.DTOs
 {
     public class GenericReorderItem
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int DisplayOrder { get; set; }
     }
 
@@ -13,3 +13,4 @@ namespace ThstiServer.DTOs
         public List<GenericReorderItem> Orders { get; set; } = new();
     }
 }
+

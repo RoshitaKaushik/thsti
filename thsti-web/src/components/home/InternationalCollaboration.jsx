@@ -15,10 +15,69 @@ const InternationalCollaboration = () => {
     // If we want exactly 3 items to look like the design, we slice.
     const itemsToShow = collaborations.slice(0, 3);
     
-    if (itemsToShow.length === 0) return null;
-
     // Use predefined wow delays to match the animation design
     const wowDelays = ['0ms', '300ms', '600ms'];
+
+    const resolveImageUrl = (url) => {
+        if (!url) return "images/resource/news-1.jpg";
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        if (url.startsWith('/images/')) return url.substring(1);
+        if (url.startsWith('images/')) return url;
+        return `${ASSETS_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+    };
+
+    if (itemsToShow.length === 0) {
+        return (
+            <section className="news-section alternate">
+                <div className="auto-container">
+                    <div className="sec-title centered wow fadeInDown" data-wow-delay="0ms" data-wow-duration="1500ms">
+                        <h2>International Collaboration</h2>
+                    </div>
+                    <div className="row clearfix">
+                        {/* News Block */}
+                        <div className="news-block col-lg-4 col-md-6 col-sm-12">
+                            <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
+                                <div className="image">
+                                    <a href="#"><img src="images/resource/news-1.jpg" alt="" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
+                                </div>
+                                <div className="lower-content">
+                                    <h3><a href="#">Quality Industrial Products & Services</a></h3>
+                                    <a className="arrow" href="#"><span className="icon flaticon-next"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                        {/* News Block */}
+                        <div className="news-block col-lg-4 col-md-6 col-sm-12">
+                            <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                <div className="image">
+                                    <a href="#"><img src="images/resource/news-2.jpg" alt="" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
+                                </div>
+                                <div className="lower-content">
+                                    <h3><a href="#">Quality Industrial Products & Services</a></h3>
+                                    <a className="arrow" href="#"><span className="icon flaticon-next"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                        {/* News Block */}
+                        <div className="news-block col-lg-4 col-md-6 col-sm-12">
+                            <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                <div className="image">
+                                    <a href="#"><img src="images/resource/news-3.jpg" alt="" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
+                                </div>
+                                <div className="lower-content">
+                                    <h3><a href="#">Quality Industrial Products & Services</a></h3>
+                                    <a className="arrow" href="#"><span className="icon flaticon-next"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="text-center">
+                        <a href="#" className="theme-btn btn-style-new">View All <i className="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="news-section alternate">
@@ -33,36 +92,30 @@ const InternationalCollaboration = () => {
                                 <div className="image">
                                     {item.link ? (
                                         <a href={item.link} target="_blank" rel="noreferrer">
-                                            <img src={item.imageUrl ? `${ASSETS_BASE_URL}${item.imageUrl}` : "images/resource/news-1.jpg"} alt={item.title} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
+                                            <img src={resolveImageUrl(item.imageUrl)} alt={item.title} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
                                         </a>
                                     ) : (
-                                        <img src={item.imageUrl ? `${ASSETS_BASE_URL}${item.imageUrl}` : "images/resource/news-1.jpg"} alt={item.title} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
+                                        <img src={resolveImageUrl(item.imageUrl)} alt={item.title} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
                                     )}
                                 </div>
                                 <div className="lower-content">
                                     <h3>
-                                        {item.link ? (
-                                            <a href={item.link} target="_blank" rel="noreferrer">{item.title}</a>
-                                        ) : (
-                                            <span>{item.title}</span>
-                                        )}
-                                    </h3>
-                                    {item.link && (
-                                        <a className="arrow" href={item.link} target="_blank" rel="noreferrer">
-                                            <span className="icon flaticon-next"></span>
+                                        <a href={item.link || '#'} target={item.link ? "_blank" : "_self"} rel={item.link ? "noreferrer" : ""}>
+                                            {item.title}
                                         </a>
-                                    )}
+                                    </h3>
+                                    <a className="arrow" href={item.link || '#'} target={item.link ? "_blank" : "_self"} rel={item.link ? "noreferrer" : ""}>
+                                        <span className="icon flaticon-next"></span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {collaborations.length > 3 && (
-                    <div className="text-center">
-                        <a href="/international-collaboration" className="theme-btn btn-style-new">View All <i className="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                )}
+                <div className="text-center">
+                    <a href="/international-collaboration" className="theme-btn btn-style-new">View All <i className="fa-solid fa-arrow-right"></i></a>
+                </div>
             </div>
         </section>
     );

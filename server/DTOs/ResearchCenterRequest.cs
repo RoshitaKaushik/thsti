@@ -12,10 +12,13 @@ namespace ThstiServer.DTOs
         [MinLength(2)]
         public string Slug { get; set; } = null!;
 
-        [MaxLength(400)]
+        [MaxLength(2000)]
         public string? Excerpt { get; set; }
 
         public string? Content { get; set; }
+        public string? OverviewContent { get; set; }
+        public string? CareersContent { get; set; }
+        public string? AdmissionsContent { get; set; }
         public string? ImageUrl { get; set; }
         public string? RouteUrl { get; set; }
         public bool IsExternal { get; set; }

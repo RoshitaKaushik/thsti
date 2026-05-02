@@ -5,7 +5,7 @@ namespace ThstiServer.Models;
 
 public partial class HomeSection
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string SectionType { get; set; } = null!;
 
@@ -26,4 +26,10 @@ public partial class HomeSection
     public string? Metadata { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
 }
+
+

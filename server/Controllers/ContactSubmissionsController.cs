@@ -30,8 +30,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Resolve(int id, [FromBody] ResolveReq req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Resolve(long id, [FromBody] ResolveReq req)
         {
             var item = await _context.ContactSubmissions.FindAsync(id);
             if (item == null) return NotFound();
@@ -43,8 +43,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.ContactSubmissions.FindAsync(id);
             if (item == null) return NotFound();
@@ -85,3 +85,4 @@ namespace ThstiServer.Controllers
         public bool IsResolved { get; set; }
     }
 }
+

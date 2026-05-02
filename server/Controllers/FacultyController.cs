@@ -41,8 +41,8 @@ namespace ThstiServer.Controllers
             return Ok(faculty);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetFacultyById(int id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetFacultyById(long id)
         {
             var faculty = await _context.Faculties.FindAsync(id);
             if (faculty == null) return NotFound(new { error = "Faculty not found" });
@@ -117,8 +117,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateFaculty(int id, [FromBody] FacultyRequest req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdateFaculty(long id, [FromBody] FacultyRequest req)
         {
             var faculty = await _context.Faculties.FindAsync(id);
             if (faculty == null) return NotFound(new { error = "Faculty not found" });
@@ -184,8 +184,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteFaculty(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DeleteFaculty(long id)
         {
             var faculty = await _context.Faculties.FindAsync(id);
             if (faculty == null) return NotFound();
@@ -205,3 +205,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

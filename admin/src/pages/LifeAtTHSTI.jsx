@@ -3,6 +3,7 @@ import AdminLayout from '../layouts/AdminLayout';
 import AdminPageLayout from '../components/AdminPageLayout';
 import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
+import MediaSelector from '../components/MediaSelector';
 import { Pencil, Trash2, Plus, GripVertical, Check, X } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { toast } from 'react-hot-toast';
@@ -32,7 +33,6 @@ export default function LifeAtTHSTI() {
         }
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
 
     const fetchItems = useCallback(async () => {
@@ -115,35 +115,6 @@ export default function LifeAtTHSTI() {
                 ...prev,
                 [name]: type === 'checkbox' ? checked : value
             }));
-        }
-    };
-
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const validExt = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (!validExt.includes(file.type)) {
-            toast.error('Only JPG, JPEG, and PNG files are allowed.');
-            e.target.value = '';
-            return;
-        }
-
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-
-        setUploading(true);
-        try {
-            const res = await api.post('/media/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
-            toast.success('Image uploaded successfully!');
-        } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to upload image');
-        } finally {
-            setUploading(false);
-            e.target.value = '';
         }
     };
 
@@ -232,6 +203,10 @@ export default function LifeAtTHSTI() {
     const getImageUrl = (url) => {
         if (!url) return '';
         if (url.startsWith('http') || url.startsWith('data:')) return url;
+        if (url.startsWith('images/')) {
+            const publicUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:5173';
+            return `${publicUrl}/${url}`;
+        }
         const baseUrl = import.meta.env.VITE_ASSETS_BASE_URL || 'http://localhost:5000';
         const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
         return `${baseUrl}/${cleanUrl}`;
@@ -376,30 +351,12 @@ export default function LifeAtTHSTI() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="col-span-1 md:col-span-2">
-                            <label className="admin-form-label mb-2">Image Source (for images)</label>
-                            
-                            <div className="flex flex-col md:flex-row gap-4 p-3 bg-gray-50 border border-gray-200 rounded items-start md:items-center">
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Upload File (JPG/PNG)</span>
-                                    <input 
-                                        type="file" 
-                                        accept=".jpg,.jpeg,.png" 
-                                        onChange={handleImageUpload} 
-                                        className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border bg-white rounded-md p-1" 
-                                    />
-                                    {uploading && <span className="text-[10px] text-blue-600 font-bold animate-pulse mt-1 block">Uploading...</span>}
-                                </div>
-                                <div className="hidden md:block text-xs font-bold text-gray-400 uppercase">OR</div>
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Paste URL/Link</span>
-                                    <input type="text" name="imageUrl" className="admin-form-input py-1.5 text-xs h-9" value={formData.imageUrl} onChange={handleChange} placeholder="https://..." />
-                                </div>
-                            </div>
-                            {formData.imageUrl && (
-                                <div className="mt-2 flex items-center justify-between">
-                                    <img src={getImageUrl(formData.imageUrl)} alt="Preview" className="h-12 object-contain border border-gray-200 bg-white" />
-                                </div>
-                            )}
+                            <MediaSelector
+                                label="Image Source (for images)"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/jpeg, image/png, image/jpg"
+                            />
                         </div>
 
                         <div className="col-span-1">
@@ -514,14 +471,14 @@ export default function LifeAtTHSTI() {
                             type="button"
                             onClick={handleCloseModal}
                             className="admin-btn-secondary"
-                            disabled={isSubmitting || uploading}
+                            disabled={isSubmitting}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             className="admin-btn-primary"
-                            disabled={isSubmitting || uploading}
+                            disabled={isSubmitting}
                         >
                             {isSubmitting ? 'Saving...' : 'Save Item'}
                         </button>

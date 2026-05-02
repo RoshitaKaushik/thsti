@@ -23,12 +23,12 @@ namespace ThstiServer.Controllers
         public async Task<IActionResult> GetAll()
         {
             var items = await _context.TranslationLanguages
-                .OrderBy(x => x.Id).ToListAsync();
+                .OrderBy(x => x.Order).ToListAsync();
             return Ok(items);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
         {
             var item = await _context.TranslationLanguages.FindAsync(id);
             if (item == null) return NotFound();
@@ -47,8 +47,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TranslationLanguage updatedItem)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] TranslationLanguage updatedItem)
         {
             var item = await _context.TranslationLanguages.FindAsync(id);
             if (item == null) return NotFound();
@@ -62,8 +62,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.TranslationLanguages.FindAsync(id);
             if (item == null) return NotFound();
@@ -73,5 +73,43 @@ namespace ThstiServer.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpPatch("{id:long}/toggle-active")]
+        public async Task<IActionResult> ToggleActive(long id)
+        {
+            var item = await _context.TranslationLanguages.FindAsync(id);
+            if (item == null) return NotFound();
+            
+            item.IsActive = !item.IsActive;
+            item.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return Ok(item);
+        }
+
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpPut("reorder")]
+        public async Task<IActionResult> Reorder([FromBody] ThstiServer.DTOs.GenericReorderRequest req)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var order in req.Orders)
+                {
+                    var item = await _context.TranslationLanguages.FindAsync(order.Id);
+                    if (item != null) item.Order = order.DisplayOrder;
+                }
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return Ok(new { message = "Reordered successfully" });
+            }
+            catch(Exception)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { error = "Failed to reorder" });
+            }
+        }
+
     }
 }
+

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
 
 public partial class Menu
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Label { get; set; } = null!;
 
@@ -15,11 +15,15 @@ public partial class Menu
 
     public bool IsActive { get; set; }
 
-    public int? ParentId { get; set; }
+    public long? ParentId { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
 
     public bool IsExternal { get; set; }
 
@@ -35,3 +39,5 @@ public partial class Menu
 
     public virtual Menu? Parent { get; set; }
 }
+
+

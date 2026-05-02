@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
+import MediaSelector from '../components/MediaSelector';
 
 export default function Settings() {
     const [settings, setSettings] = useState({
@@ -12,6 +13,7 @@ export default function Settings() {
         workingHours: '',
         address: '',
         mapLink: '',
+        footerImageUrl: '',
         facebookUrl: '',
         twitterUrl: '',
         linkedinUrl: '',
@@ -90,8 +92,12 @@ export default function Settings() {
                             <input type="text" name="siteName" className="admin-input" value={settings.siteName} onChange={handleChange} required />
                         </div>
                         <div>
-                            <label className="block text-text-main font-bold mb-1">Logo URL</label>
-                            <input type="text" name="logoUrl" className="admin-input" value={settings.logoUrl} onChange={handleChange} placeholder="/assets/images/logo.png" />
+                            <MediaSelector
+                                label="Site Logo"
+                                value={settings.logoUrl}
+                                onChange={(url) => setSettings({ ...settings, logoUrl: url })}
+                                accept="image/*"
+                            />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-text-main font-bold mb-1">Copyright Text</label>
@@ -121,8 +127,18 @@ export default function Settings() {
                             <textarea name="address" className="admin-input h-24" value={settings.address} onChange={handleChange} />
                         </div>
                         <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Google Maps Embed Link</label>
-                            <input type="text" name="mapLink" className="admin-input font-mono text-sm" value={settings.mapLink} onChange={handleChange} placeholder="https://maps.google.com/..." />
+                            <label className="block text-text-main font-bold mb-1">Google Maps Embed Link (Iframe URL)</label>
+                            <input type="text" name="mapLink" className="admin-input font-mono text-sm" value={settings.mapLink} onChange={handleChange} placeholder="https://maps.google.com/... or <iframe src='...'></iframe>" />
+                            <div className="text-xs text-gray-500 mt-1">Paste a Google Maps iframe snippet or URL here. It will display in the footer.</div>
+                        </div>
+                        <div className="md:col-span-2">
+                            <MediaSelector
+                                label="Footer Featured Image"
+                                value={settings.footerImageUrl}
+                                onChange={(url) => setSettings({ ...settings, footerImageUrl: url })}
+                                accept="image/*"
+                            />
+                            <div className="text-xs text-gray-500 mt-1">Upload a photo to display alongside the map in the footer.</div>
                         </div>
                     </div>
                 </div>

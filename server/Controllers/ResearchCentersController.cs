@@ -75,6 +75,9 @@ namespace ThstiServer.Controllers
                     Slug = req.Slug,
                     Excerpt = req.Excerpt,
                     Content = req.Content,
+                    OverviewContent = req.OverviewContent,
+                    CareersContent = req.CareersContent,
+                    AdmissionsContent = req.AdmissionsContent,
                     ImageUrl = req.ImageUrl,
                     RouteUrl = routeUrl,
                     IsExternal = req.IsExternal,
@@ -96,8 +99,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateResearchCenter(int id, [FromBody] ResearchCenterRequest req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdateResearchCenter(long id, [FromBody] ResearchCenterRequest req)
         {
             var center = await _context.ResearchCenters.FindAsync(id);
             if (center == null) return NotFound(new { error = "Research center not found" });
@@ -117,6 +120,9 @@ namespace ThstiServer.Controllers
                 center.Slug = req.Slug;
                 center.Excerpt = req.Excerpt;
                 center.Content = req.Content;
+                center.OverviewContent = req.OverviewContent;
+                center.CareersContent = req.CareersContent;
+                center.AdmissionsContent = req.AdmissionsContent;
                 center.ImageUrl = req.ImageUrl;
                 center.RouteUrl = routeUrl;
                 center.IsExternal = req.IsExternal;
@@ -135,8 +141,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPatch("{id:int}/toggle-active")]
-        public async Task<IActionResult> ToggleResearchCenterActive(int id)
+        [HttpPatch("{id:long}/toggle-active")]
+        public async Task<IActionResult> ToggleResearchCenterActive(long id)
         {
             var center = await _context.ResearchCenters.FindAsync(id);
             if (center == null) return NotFound(new { error = "Not found" });
@@ -186,3 +192,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

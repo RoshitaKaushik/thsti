@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { PUBLIC_SITE_URL } from '../config/env';
-import { Save, Plus, Trash2, Image as ImageIcon } from 'lucide-react';
+import { Save, Plus, Trash2, Image as ImageIcon, ExternalLink } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
+import MediaSelector from '../components/MediaSelector';
 
 export default function HomeSections() {
     const [loading, setLoading] = useState(true);
-    const [uploading, setUploading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const fileInputRef = useRef(null);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -100,28 +99,6 @@ export default function HomeSections() {
         setCounters(prev => prev.filter((_, i) => i !== index));
     };
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-
-        setUploading(true);
-        try {
-            const res = await api.post('/media/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
-            toast.success('Image uploaded successfully');
-        } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to upload image');
-        } finally {
-            setUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSaving(true);
@@ -144,8 +121,8 @@ export default function HomeSections() {
     if (loading) return <div className="p-8 text-gray-500 font-bold">Loading Homepage Intro Data...</div>;
 
     const actionButtons = (
-        <a href={`${PUBLIC_SITE_URL}/#about-intro`} target="_blank" rel="noopener noreferrer" className="admin-btn-secondary flex items-center justify-center gap-2 py-2 text-sm bg-white border border-gray-300">
-            Preview on Live Site
+        <a href={`${PUBLIC_SITE_URL}/#about-intro`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-2 px-4 text-sm bg-white border border-border-light rounded hover:bg-stone-50 text-secondary font-bold shadow-sm transition-colors">
+            <ExternalLink size={16} /> Preview on Live Site
         </a>
     );
 
@@ -179,27 +156,13 @@ export default function HomeSections() {
                         </div>
 
                         {/* Image Upload */}
-                        <div className="md:col-span-2 bg-stone-50 border border-stone-200 rounded-lg p-5">
-                            <label className="block text-sm font-bold text-secondary mb-2 flex items-center gap-2">
-                                <ImageIcon size={18} className="text-stone-400" />
-                                Side Featured Image
-                            </label>
-                            <p className="text-xs text-stone-500 mb-4">Upload the main image displayed alongside the introductory text.</p>
-                            
-                            <div className="flex gap-4 items-center">
-                                <input type="text" name="imageUrl" className="admin-input flex-1 bg-white font-mono text-xs" value={formData.imageUrl} readOnly placeholder="Upload an image..." />
-                                <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/png, image/jpeg, image/webp" />
-                                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="admin-btn-secondary flex items-center gap-2 whitespace-nowrap bg-white">
-                                    <ImageIcon size={16} />
-                                    {uploading ? 'Uploading...' : 'Upload New Image'}
-                                </button>
-                            </div>
-                            {formData.imageUrl && (
-                                <div className="mt-4 flex items-center gap-3">
-                                    <img src={formData.imageUrl.startsWith('http') ? formData.imageUrl : `${PUBLIC_SITE_URL}${formData.imageUrl}`} alt="Featured" className="h-16 w-16 object-cover rounded shadow-sm border border-stone-300" onError={(e) => e.target.style.display = 'none'} />
-                                    <span className="text-xs text-green-600 font-bold bg-green-50 px-2 py-1 rounded">✓ Live Image Active</span>
-                                </div>
-                            )}
+                        <div className="md:col-span-2">
+                            <MediaSelector
+                                label="Side Featured Image"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/png, image/jpeg, image/webp"
+                            />
                         </div>
 
                         {/* CTA */}

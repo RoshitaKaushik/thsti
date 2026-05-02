@@ -10,11 +10,8 @@ const formatDate = (dateStr) => {
 
 // Fallback view all mapping
 const getViewAllLink = (tabName) => {
-    if (tabName === 'Announcements') return '/News';
-    if (tabName === 'Work With Us' || tabName === 'Jobs') return '/Jobs';
-    if (tabName === 'Results') return '/notification-results';
-    if (tabName === 'Tenders') return '/Tender';
-    return '#';
+    // As per user request, match design9 where View All opens about.html
+    return '/about.html';
 };
 
 const TabsSection = () => {
@@ -59,10 +56,43 @@ const TabsSection = () => {
 
     // Only show if at least one tab has data
     const hasAnyData = tabs.some(tab => data[tab.name] && data[tab.name].length > 0);
-    if (loading || !hasAnyData) return null;
+    
+    // Inject fallback dummy data for visual parity if CMS is empty or still loading
+    let displayTabs = tabs;
+    let displayData = data;
+    let currentTab = activeTab;
 
-    const activeItems = data[activeTab] || [];
-    const isAnnouncement = activeTab.toLowerCase().includes('announcement');
+    if (loading || !hasAnyData) {
+        displayTabs = [
+            { id: 1, name: 'Announcements' },
+            { id: 2, name: 'Work With Us' },
+            { id: 3, name: 'Results' },
+            { id: 4, name: 'Tenders' }
+        ];
+        const dummyAnnouncement = {
+            id: 1, publishDate: '2026-01-17', title: 'Translation regulation promotes stress adaptation', summary: 'Invasive Candida infections remain a serious...', imageUrl: 'images/resource/news-1.jpg', isNew: false, url: '#'
+        };
+        const dummyWork = {
+            id: 1, publishDate: '2026-01-17', title: 'Translation regulation promotes stress adaptation', summary: 'Invasive Candida infections remain a serious...', isNew: true, url: '#'
+        };
+        displayData = {
+            'Announcements': [
+                { ...dummyAnnouncement, id: 1, imageUrl: 'images/resource/news-1.jpg' }, 
+                { ...dummyAnnouncement, id: 2, imageUrl: 'images/resource/news-2.jpg' }, 
+                { ...dummyAnnouncement, id: 3, imageUrl: 'images/resource/news-3.jpg' }, 
+                { ...dummyAnnouncement, id: 4, imageUrl: 'images/resource/news-4.jpg' }
+            ],
+            'Work With Us': [
+                { ...dummyWork, id: 1 }, { ...dummyWork, id: 2 }, { ...dummyWork, id: 3 }, { ...dummyWork, id: 4 }
+            ],
+            'Results': [ { ...dummyWork, id: 1 }, { ...dummyWork, id: 2 } ],
+            'Tenders': [ { ...dummyWork, id: 1 }, { ...dummyWork, id: 2 } ]
+        };
+        currentTab = activeTab || 'Announcements';
+    }
+
+    const activeItems = displayData[currentTab] || [];
+    const isAnnouncement = currentTab.toLowerCase().includes('announcement');
 
     return (
         <section className="what-we-offer" style={{ backgroundImage: 'url(images/background/5-2.jpg)' }}>
@@ -73,10 +103,10 @@ const TabsSection = () => {
                         <div className="inner">
                             <div className="tabs-box tabs-style-one">
                                 <ul className="tab-buttons clearfix">
-                                    {tabs.filter(tab => data[tab.name] && data[tab.name].length > 0).map(tab => (
+                                    {displayTabs.filter(tab => displayData[tab.name] && displayData[tab.name].length > 0).map(tab => (
                                         <li
                                             key={tab.id}
-                                            className={`tab-btn${activeTab === tab.name ? ' active-btn' : ''}`}
+                                            className={`tab-btn${currentTab === tab.name ? ' active-btn' : ''}`}
                                             onClick={() => setActiveTab(tab.name)}
                                             style={{ cursor: 'pointer', textTransform: 'uppercase' }}
                                         >
@@ -96,7 +126,7 @@ const TabsSection = () => {
                                                                 {item.imageUrl && (
                                                                     <div className="card-item-icon1">
                                                                         <img
-                                                                            src={item.imageUrl.startsWith('http') ? item.imageUrl : `${ASSETS_BASE_URL}${item.imageUrl}`}
+                                                                            src={item.imageUrl.startsWith('http') ? item.imageUrl : (item.imageUrl.startsWith('images/') ? item.imageUrl : `${ASSETS_BASE_URL}${item.imageUrl}`)}
                                                                             alt={item.title}
                                                                         />
                                                                     </div>
@@ -130,9 +160,9 @@ const TabsSection = () => {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div className="link-box">
-                                                <a href={getViewAllLink(activeTab)} className="read-more">
-                                                    View All <span className="fas fa-angle-right"></span>
+                                            <div className="link-box" style={{ marginTop: '20px' }}>
+                                                <a href={getViewAllLink(currentTab)} className="read-more" style={{ fontWeight: 'bold' }}>
+                                                    VIEW ALL <span className="fas fa-angle-right"></span>
                                                 </a>
                                             </div>
                                         </div>
@@ -176,12 +206,13 @@ const TabsSection = () => {
                                                     );
                                                 })}
                                             </div>
-                                            <div className="link-box">
+                                            <div className="link-box" style={{ marginTop: '20px' }}>
                                                 <a
-                                                    href={getViewAllLink(activeTab)}
+                                                    href={getViewAllLink(currentTab)}
                                                     className="read-more"
+                                                    style={{ fontWeight: 'bold' }}
                                                 >
-                                                    View All <span className="fas fa-angle-right"></span>
+                                                    VIEW ALL <span className="fas fa-angle-right"></span>
                                                 </a>
                                             </div>
                                         </div>

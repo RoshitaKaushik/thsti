@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/env';
 import api from '../../api/axios';
+import { useAccessibility } from '../AccessibilityContext';
+import { useLanguage } from '../LanguageContext';
 
 const Header = () => {
     const [dynamicMenus, setDynamicMenus] = useState([]);
@@ -15,6 +17,9 @@ const Header = () => {
         return cached ? JSON.parse(cached) : [];
     });
 
+    const { increaseFont, decreaseFont, resetFont } = useAccessibility();
+    const { toggleLanguage } = useLanguage();
+
     useEffect(() => {
         // Fetch Settings block
         api.get('/settings')
@@ -25,7 +30,13 @@ const Header = () => {
 
         api.get('/menus?location=HEADER')
             .then(res => {
-                if (Array.isArray(res.data)) setDynamicMenus(res.data);
+                if (Array.isArray(res.data)) {
+                    const formatMenus = (menus) => menus.map(m => ({
+                        ...m,
+                        subMenus: (m.inverseParent && m.inverseParent.length > 0) ? formatMenus(m.inverseParent) : []
+                    }));
+                    setDynamicMenus(formatMenus(res.data));
+                }
             })
             .catch(err => console.error("CMS Menu Fetch Error:", err));
 
@@ -233,12 +244,12 @@ const Header = () => {
                         <div className="top-right clearfix">
                             {/*  Info List  */}
                             <ul className="info-list clearfix">
-                                <li><a href="#"><span className="txt">Skip To Main Content</span></a></li>
-                                <li><a href="#"><span className="txt">Screen Reader Access</span></a></li>
-                                <li><a href="#"><span className="txt">A+</span></a></li>
-                                <li><a href="#"><span className="txt">A</span></a></li>
-                                <li><a href="#"><span className="txt">A-</span></a></li>
-
+                                <li><a href="#main-content"><span className="txt">Skip To Main Content</span></a></li>
+                                <li><Link to="/contact-us"><span className="txt">Contact Us</span></Link></li>
+                                <li><a href="#" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new Event('toggleReader')); }}><span className="txt">Screen Reader Access</span></a></li>
+                                <li><a href="#" onClick={(e) => { e.preventDefault(); increaseFont(); }}><span className="txt">A+</span></a></li>
+                                <li><a href="#" onClick={(e) => { e.preventDefault(); resetFont(); }}><span className="txt">A</span></a></li>
+                                <li><a href="#" onClick={(e) => { e.preventDefault(); decreaseFont(); }}><span className="txt">A-</span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -259,7 +270,7 @@ const Header = () => {
 
                                     {/* Logo */}
                                     <div className="logo-outer">
-                                        <div className="logo"><a href="index.html"><img src="images/logo.jpg" alt=""
+                                        <div className="logo"><a href="/"><img src="/images/logo.jpg" alt=""
                                             title="" /></a></div>
                                     </div>
 
@@ -314,12 +325,12 @@ const Header = () => {
                                                     </button>
                                                     <ul className="bhashini-dropdown-content" id="bhashiniLanguageDropdown">
                                                         {languages.map(lang => (
-                                                            <li key={lang.code} className="dont-translate language-option" data-value={lang.code}>
+                                                            <li key={lang.code} className="dont-translate language-option" data-value={lang.code} onClick={() => toggleLanguage()}>
                                                                 {lang.label}
                                                             </li>
                                                         ))}
                                                         {languages.length === 0 && (
-                                                            <li className="dont-translate language-option" data-value="en">English</li>
+                                                            <li className="dont-translate language-option" data-value="en" onClick={() => toggleLanguage()}>English / हिंदी</li>
                                                         )}
                                                     </ul>
                                                 </div>
@@ -405,7 +416,7 @@ const Header = () => {
                     <div className="auto-container clearfix">
                         {/* Logo */}
                         <div className="logo pull-left">
-                            <a href="index.html" title=""><img src="images/logo-small.jpg" alt="" title="" /></a>
+                            <a href="/" title=""><img src="/images/logo-small.jpg" alt="" title="" /></a>
                         </div>
                         {/* Right Col */}
                         <div className="pull-right">

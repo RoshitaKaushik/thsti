@@ -11,14 +11,14 @@ namespace ThstiServer.DTOs
         public bool IsVisible { get; set; }
         public bool IsExternal { get; set; }
         public bool TargetBlank { get; set; }
-        public int? ParentId { get; set; }
+        public long? ParentId { get; set; }
         public string? Location { get; set; }
         public bool IsMegaMenu { get; set; }
     }
 
     public class MenuReorderItem
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int Order { get; set; }
     }
 
@@ -27,3 +27,4 @@ namespace ThstiServer.DTOs
         public List<MenuReorderItem> OrderedIds { get; set; } = new List<MenuReorderItem>();
     }
 }
+

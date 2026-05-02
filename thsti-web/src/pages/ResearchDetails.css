@@ -1,0 +1,351 @@
+/* Research Faculty Panels */
+.faculty-panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.faculty-panel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 1 100%;
+  background: #f3f5f9;
+  border: 1px solid #dce3ef;
+  border-left: 4px solid #9d302b;
+  border-radius: 6px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: #9d302b;
+  transition: all 300ms ease;
+}
+.faculty-panel:hover {
+  background: #9d302b;
+  border-color: #9d302b;
+  color: #fff;
+  text-decoration: none;
+}
+.faculty-panel-icon {
+  font-size: 30px;
+  flex-shrink: 0;
+  color: #9d302b;
+  line-height: 1;
+}
+.faculty-panel:hover .faculty-panel-icon {
+  color: #fff;
+}
+.faculty-panel-info {
+  display: flex;
+  flex-direction: column;
+}
+.faculty-panel-name {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: inherit;
+  text-transform: uppercase;
+}
+.faculty-panel-role {
+  font-size: 11px;
+  font-weight: 400;
+  margin-top: 3px;
+  opacity: 0.75;
+  color: inherit;
+  text-transform: uppercase;
+}
+@media (max-width: 767px) {
+  .faculty-panel {
+    flex: 0 1 100%;
+  }
+}
+
+/* External Website Panels */
+.ext-website-panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.ext-website-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  flex: 0 1 calc(50% - 6px);
+  background: #f3f5f9;
+  border: 1px solid #dce3ef;
+  border-top: 4px solid #9d302b;
+  border-radius: 6px;
+  padding: 20px 16px;
+  text-decoration: none;
+  color: #9d302b;
+  transition: all 300ms ease;
+}
+.ext-website-panel:hover {
+  background: #9d302b;
+  border-color: #9d302b;
+  color: #fff;
+  text-decoration: none;
+}
+.ext-website-icon {
+  font-size: 32px;
+  line-height: 1;
+  color: #9d302b;
+}
+.ext-website-panel:hover .ext-website-icon {
+  color: #fff;
+}
+.ext-website-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: inherit;
+}
+@media (max-width: 767px) {
+  .ext-website-panel {
+    flex: 0 1 100%;
+  }
+}
+
+/* Override Font Awesome version for sidebar arrows because React uses FA6 */
+.services-categories li a:before {
+  font-family: "Font Awesome 6 Free", "FontAwesome" !important;
+  font-weight: 900 !important;
+}
+.support-widget .widget-content {
+  position: relative;
+  padding: 50px 40px;
+  background-color: #001e57;
+  text-align: center;
+}
+.services-section-two {
+  background-color: #1253be !important;
+}
+
+@media (max-width: 1023px) {
+  .sidebar-page-container .sidebar-side {
+    order: -1;
+  }
+  .sidebar-page-container .sidebar-side .sidebar {
+    padding: 0 !important;
+  }
+  .sidebar-page-container .sidebar-side .services-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 0;
+  }
+  .sidebar-page-container .sidebar-side .services-categories li {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+  }
+  .sidebar-page-container .sidebar-side .services-categories li a {
+    display: inline-block;
+    padding: 8px 18px;
+    font-size: 14px;
+    border-bottom: none;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .sidebar-page-container .sidebar-side .services-categories li a:before {
+    display: none;
+  }
+}
+
+/* Fix Contact Details Box */
+.lower-content .text .row[style*="#a8252b"],
+.lower-content .text .row[style*="#9d302b"],
+.lower-content .text .row[style*="background:#a8252b"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px !important;
+  margin-top: 40px;
+  box-shadow: 0 10px 30px rgba(168, 37, 43, 0.2);
+  border-radius: 12px !important;
+}
+
+.lower-content .text .row[style*="#a8252b"] > div,
+.lower-content .text .row[style*="#9d302b"] > div,
+.lower-content .text .row[style*="background:#a8252b"] > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+/* Center the Contact Details heading */
+.lower-content .text .row[style*="#a8252b"] .col-lg-12,
+.lower-content .text .row[style*="background:#a8252b"] .col-lg-12 {
+  margin-bottom: 20px;
+}
+
+.lower-content .text .row[style*="#a8252b"] p,
+.lower-content .text .row[style*="background:#a8252b"] p {
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Make images/icons inside contact box better sized */
+.lower-content .text .row[style*="#a8252b"] img,
+.lower-content .text .row[style*="background:#a8252b"] img {
+  height: 24px !important;
+  width: 24px !important;
+  margin: 0 !important;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+/* Ensure text is clearly readable */
+.lower-content .text .row[style*="#a8252b"] span,
+.lower-content .text .row[style*="background:#a8252b"] span {
+  font-size: 15px !important;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.lower-content .text .row[style*="#a8252b"] .col-lg-12 span,
+.lower-content .text .row[style*="background:#a8252b"] .col-lg-12 span {
+  font-size: 24px !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Other Research Centers Footer Cards override to match design9 */
+.services-section-two .services-block-three .inner-box {
+    background-color: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.services-section-two .services-block-three .image {
+    margin-bottom: 0;
+    border-radius: 15px 15px 0 0;
+    overflow: hidden;
+}
+
+.services-section-two .services-block-three .image img {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.services-section-two .services-block-three .lower-content {
+    padding: 20px 25px 25px;
+    background-color: #ffffff;
+}
+
+.services-section-two .services-block-three .lower-content h3 {
+    margin-bottom: 0;
+}
+
+.services-section-two .services-block-three .lower-content h3 a {
+    color: #222222;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.services-section-two .services-block-three .lower-content h3 a:hover {
+    color: #9d302b;
+    text-decoration: none;
+}
+
+/* Swiper Navigation Arrows */
+.services-section-two .owl-nav {
+    position: absolute;
+    right: 0px;
+    top: -95px; /* Position above the carousel, next to the title */
+    z-index: 10;
+    display: flex;
+    align-items: center;
+}
+
+.services-section-two .owl-nav .owl-prev {
+    position: relative;
+    color: #ffffff;
+    font-size: 20px;
+    display: inline-block;
+    transition: all 500ms ease;
+    cursor: pointer;
+}
+
+.services-section-two .owl-nav .owl-next {
+    position: relative;
+    color: #ffffff;
+    font-size: 20px;
+    padding-left: 20px;
+    margin-left: 20px;
+    display: inline-block;
+    transition: all 500ms ease;
+    border-left: 1px solid rgba(255, 255, 255, 0.20);
+    cursor: pointer;
+}
+
+.services-section-two .owl-nav .owl-prev:hover,
+.services-section-two .owl-nav .owl-next:hover {
+    color: #9d302b;
+}
+
+/* Adjust blue background padding */
+.services-section-two.what-we-offer {
+    padding-top: 40px;
+    padding-bottom: 20px;
+}
+
+/* Better CMS Headings */
+.services-detail .inner-box .lower-content .cms-rich-text h2,
+.services-detail .inner-box .lower-content .cms-rich-text h3,
+.services-detail .inner-box .lower-content .cms-rich-text h4,
+.services-detail .inner-box .lower-content .cms-rich-text h5 {
+    color: #002147 !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    margin-top: 30px !important;
+    margin-bottom: 15px !important;
+    padding-bottom: 10px !important;
+    position: relative !important;
+    border-bottom: 2px solid #edf1f7 !important;
+}
+
+.services-detail .inner-box .lower-content .cms-rich-text h2:before,
+.services-detail .inner-box .lower-content .cms-rich-text h3:before,
+.services-detail .inner-box .lower-content .cms-rich-text h4:before,
+.services-detail .inner-box .lower-content .cms-rich-text h5:before,
+.services-detail .inner-box .lower-content .cms-rich-text h2:after,
+.services-detail .inner-box .lower-content .cms-rich-text h3:after,
+.services-detail .inner-box .lower-content .cms-rich-text h4:after,
+.services-detail .inner-box .lower-content .cms-rich-text h5:after {
+    display: none !important;
+}
+
+.services-detail .inner-box .lower-content .cms-rich-text p {
+    margin-bottom: 15px !important;
+    line-height: 1.7 !important;
+    color: #444 !important;
+    font-size: 16px !important;
+}
+
+/* Remove legacy red/blue line from main title */
+.services-detail .inner-box .lower-content .title-box h2:before,
+.services-detail .inner-box .lower-content .title-box h2:after {
+    display: none !important;
+}
+
+/* Add spacing to inline icons in CMS content */
+.cms-rich-text p img,
+.cms-rich-text span img,
+.cms-rich-text div img {
+    margin-right: 12px !important;
+}
+
+/* Make sure the gap in flex containers doesn't double up with margin */
+.cms-rich-text .d-flex img {
+    margin-right: 0 !important;
+}

@@ -13,6 +13,11 @@ import Tenders from './pages/Tenders';
 import News from './pages/News';
 import ContactUs from './pages/ContactUs';
 import Galleries from './pages/Galleries';
+import ResearchDetails from './pages/ResearchDetails';
+import ResearchCentersIndex from './pages/ResearchCentersIndex';
+import FacilityDetails from './pages/FacilityDetails';
+import About from './pages/About';
+import Partners from './components/home/Partners';
 
 function App() {
   // Initialize global scroll reveal WOW animations using the original library natively ported for React DOM observation
@@ -31,21 +36,29 @@ function App() {
   }, []);
 
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper" style={{ overflow: 'clip' }}>
       <Header />
       
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/faculty-and-scientists" element={<Navigate to="/page/faculty-and-scientists" replace />} />
+        {/* Legacy redirect for /page/ paths */}
         <Route path="/page/:slug" element={<Page />} />
+        {/* Dynamic CMS Pages (fallback route for any root slug) */}
+        <Route path="/:slug" element={<Page />} />
         <Route path="/faculty/:slug" element={<FacultyProfile />} />
         <Route path="/search" element={<Search />} />
         <Route path="/Tender" element={<Tenders />} />
         <Route path="/News" element={<News />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/galleries" element={<Galleries />} />
+        <Route path="/TheMatic" element={<ResearchCentersIndex />} />
+        <Route path="/research-centers/:slug" element={<ResearchDetails />} />
+        <Route path="/research-facilities/:slug" element={<FacilityDetails />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/about.html" element={<About />} />
       </Routes>
 
+      <Partners />
       <Footer />
       <Accessibility />
 

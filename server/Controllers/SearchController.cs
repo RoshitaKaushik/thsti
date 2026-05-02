@@ -44,6 +44,42 @@ namespace ThstiServer.Controllers
                 .Select(n => new { n.Title, n.Slug, n.Content })
                 .ToListAsync();
 
+            var tenders = await _context.Tenders
+                .Where(t => !t.IsArchived && 
+                           (t.Title.ToLower().Contains(queryLower) || 
+                            t.ReferenceNo.ToLower().Contains(queryLower)))
+                .Select(t => new { t.Title, t.ReferenceNo })
+                .ToListAsync();
+
+            var faculties = await _context.Faculties
+                .Where(f => f.IsActive && !f.IsArchived && 
+                           (f.Name.ToLower().Contains(queryLower) || 
+                            (f.Designation != null && f.Designation.ToLower().Contains(queryLower)) || 
+                            (f.ResearchFocus != null && f.ResearchFocus.ToLower().Contains(queryLower))))
+                .Select(f => new { f.Name, f.Slug, f.Designation, f.ResearchFocus })
+                .ToListAsync();
+
+            var researchCenters = await _context.ResearchCenters
+                .Where(r => r.IsActive && 
+                           (r.Title.ToLower().Contains(queryLower) || 
+                            (r.Content != null && r.Content.ToLower().Contains(queryLower))))
+                .Select(r => new { r.Title, r.Slug, r.Content })
+                .ToListAsync();
+
+            var researchFacilities = await _context.ResearchFacilities
+                .Where(r => r.IsActive && 
+                           (r.Title.ToLower().Contains(queryLower) || 
+                            (r.Content != null && r.Content.ToLower().Contains(queryLower))))
+                .Select(r => new { r.Title, r.Slug, r.Content })
+                .ToListAsync();
+
+            var events = await _context.Notifications
+                .Where(n => n.IsActive && 
+                           (n.Title.ToLower().Contains(queryLower) || 
+                            (n.Summary != null && n.Summary.ToLower().Contains(queryLower))))
+                .Select(n => new { n.Title, n.Url, n.Summary })
+                .ToListAsync();
+
             var results = new List<object>();
 
             foreach (var p in pages)
@@ -65,6 +101,65 @@ namespace ThstiServer.Controllers
                     title = n.Title,
                     url = $"/news/{n.Slug}",
                     snippet = GetSnippet(n.Content)
+                });
+            }
+
+            foreach (var t in tenders)
+            {
+                results.Add(new
+                {
+                    type = "Tender",
+                    title = t.Title,
+                    url = "/Tender",
+                    snippet = t.ReferenceNo
+                });
+            }
+
+            foreach (var f in faculties)
+            {
+                var combinedSnippet = "";
+                if (!string.IsNullOrEmpty(f.Designation)) combinedSnippet += f.Designation;
+                if (!string.IsNullOrEmpty(f.ResearchFocus)) combinedSnippet += string.IsNullOrEmpty(combinedSnippet) ? f.ResearchFocus : $" - {f.ResearchFocus}";
+                
+                results.Add(new
+                {
+                    type = "Faculty",
+                    title = f.Name,
+                    url = $"/faculty/{f.Slug}",
+                    snippet = combinedSnippet
+                });
+            }
+
+            foreach (var r in researchCenters)
+            {
+                results.Add(new
+                {
+                    type = "Research Center",
+                    title = r.Title,
+                    url = $"/research-centers/{r.Slug}",
+                    snippet = GetSnippet(r.Content)
+                });
+            }
+
+            foreach (var r in researchFacilities)
+            {
+                results.Add(new
+                {
+                    type = "Facility",
+                    title = r.Title,
+                    url = $"/research-facilities/{r.Slug}",
+                    snippet = GetSnippet(r.Content)
+                });
+            }
+
+            foreach (var e in events)
+            {
+                results.Add(new
+                {
+                    type = "Event / Notification",
+                    title = e.Title,
+                    url = string.IsNullOrEmpty(e.Url) ? "#" : e.Url,
+                    snippet = GetSnippet(e.Summary)
                 });
             }
 

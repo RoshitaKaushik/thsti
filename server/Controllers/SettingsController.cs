@@ -23,7 +23,7 @@ namespace ThstiServer.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSettings()
         {
-            var settings = await _context.GlobalSettings.FirstOrDefaultAsync(s => s.Id == 1);
+            var settings = await _context.GlobalSettings.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
             if (settings == null)
             {
                 settings = new GlobalSetting
@@ -45,13 +45,15 @@ namespace ThstiServer.Controllers
         {
             try
             {
-                var settings = await _context.GlobalSettings.FirstOrDefaultAsync(s => s.Id == 1);
+                var userName = User.FindFirst("name")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "System";
+                var settings = await _context.GlobalSettings.OrderByDescending(s => s.Id).FirstOrDefaultAsync();
                 
                 if (settings == null)
                 {
                     settings = new GlobalSetting
                     {
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = userName
                     };
                     _context.GlobalSettings.Add(settings);
                 }
@@ -62,6 +64,7 @@ namespace ThstiServer.Controllers
                 settings.ContactPhone = req.ContactPhone;
                 settings.Address = req.Address;
                 settings.MapLink = req.MapLink;
+                settings.FooterImageUrl = req.FooterImageUrl;
                 settings.WorkingHours = req.WorkingHours;
                 settings.FacebookUrl = req.FacebookUrl;
                 settings.TwitterUrl = req.TwitterUrl;
@@ -78,6 +81,7 @@ namespace ThstiServer.Controllers
                 
                 settings.IsSearchEnabled = req.IsSearchEnabled;
 
+                settings.UpdatedBy = userName;
                 settings.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();

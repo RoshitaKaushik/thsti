@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
 
 public partial class GlobalSetting
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string SiteName { get; set; } = null!;
 
@@ -18,6 +18,7 @@ public partial class GlobalSetting
     public string? Address { get; set; }
 
     public string? MapLink { get; set; }
+    public string? FooterImageUrl { get; set; }
 
     public string? FacebookUrl { get; set; }
 
@@ -28,6 +29,10 @@ public partial class GlobalSetting
     public string? CopyrightText { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
@@ -47,3 +52,5 @@ public partial class GlobalSetting
 
     public string? VirtualTourUrl { get; set; }
 }
+
+

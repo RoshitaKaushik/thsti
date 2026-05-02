@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, GripVertical } from 'lucide-react';
+import { Plus, Edit2, GripVertical, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
+import MediaSelector from '../components/MediaSelector';
 
 export default function FooterLinks() {
     const [links, setLinks] = useState([]);
@@ -23,7 +24,7 @@ export default function FooterLinks() {
 
     const fetchLinks = () => {
         setLoading(true);
-        api.get('/footer-links/all')
+        api.get('/footer-links')
             .then(res => setLinks(res.data))
             .catch(err => console.error('Failed to load footer links', err))
             .finally(() => setLoading(false));
@@ -75,6 +76,17 @@ export default function FooterLinks() {
         }
     };
 
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this link?")) return;
+        try {
+            await api.delete(`/footer-links/${id}`);
+            fetchLinks();
+        } catch (error) {
+            console.error('Failed to delete footer link', error);
+            alert('Failed to delete link');
+        }
+    };
+
     // Grouping links by column visually
     const importantLinks = links.filter(l => l.column === 'IMPORTANT').sort((a, b) => a.displayOrder - b.displayOrder);
     const usefulLinks = links.filter(l => l.column === 'USEFUL').sort((a, b) => a.displayOrder - b.displayOrder);
@@ -88,28 +100,28 @@ export default function FooterLinks() {
     const renderTable = (data, title) => (
         <div className="mb-8">
             <h3 className="text-lg font-bold text-secondary mb-3">{title}</h3>
-            <div className="admin-card overflow-hidden bg-white shadow-sm border border-border-light">
-                <table className="admin-table w-full">
-                    <thead className="bg-gray-50">
+            <div className="overflow-hidden bg-white shadow-sm border border-gray-200 rounded-md">
+                <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-100 border-b border-gray-200 text-sm">
                         <tr>
-                            <th className="w-16">S.No</th>
-                            <th>Label</th>
-                            <th>URL</th>
-                            <th className="w-24 text-center">Order</th>
-                            <th className="w-24 text-center">Status</th>
-                            <th className="w-24 text-right">Actions</th>
+                            <th className="w-16 py-3 px-4 font-bold text-gray-700 text-center">S.No</th>
+                            <th className="py-3 px-4 font-bold text-gray-700">Label</th>
+                            <th className="py-3 px-4 font-bold text-gray-700">URL</th>
+                            <th className="w-24 py-3 px-4 font-bold text-gray-700 text-center">Order</th>
+                            <th className="w-24 py-3 px-4 font-bold text-gray-700 text-center">Status</th>
+                            <th className="w-24 py-3 px-4 font-bold text-gray-700 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.length === 0 ? (
-                            <tr><td colSpan="6" className="text-center py-6 text-text-muted">No links found for this column.</td></tr>
+                            <tr><td colSpan="6" className="text-center py-10 text-gray-400 text-sm italic">No links found for this column.</td></tr>
                         ) : data.map((item, index) => (
-                            <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="text-center font-medium text-text-muted">{index + 1}</td>
-                                <td className="font-bold text-secondary">{item.label}</td>
-                                <td className="text-text-muted font-mono text-sm max-w-[200px] truncate" title={item.url}>{item.url}</td>
-                                <td className="text-center">{item.displayOrder}</td>
-                                <td className="text-center">
+                            <tr key={item.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
+                                <td className="py-3 px-4 text-center font-medium text-gray-500 text-sm">{index + 1}</td>
+                                <td className="py-3 px-4 font-bold text-secondary text-sm">{item.label}</td>
+                                <td className="py-3 px-4 text-gray-500 font-mono text-sm max-w-[200px] truncate" title={item.url}>{item.url}</td>
+                                <td className="py-3 px-4 text-center text-sm text-gray-600">{item.displayOrder}</td>
+                                <td className="py-3 px-4 text-center">
                                     <button
                                         onClick={() => handleToggleActive(item.id)}
                                         className={`px-2 py-1 text-xs font-bold rounded-full w-20 transition-colors ${item.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
@@ -117,10 +129,15 @@ export default function FooterLinks() {
                                         {item.isActive ? 'Active' : 'Disabled'}
                                     </button>
                                 </td>
-                                <td className="text-right">
-                                    <button onClick={() => handleOpenEdit(item)} className="p-1.5 text-text-muted hover:text-accent bg-gray-50 border border-border-light rounded transition-colors" title="Edit Link">
-                                        <Edit2 size={16} />
-                                    </button>
+                                <td className="py-3 px-4 text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <button onClick={() => handleOpenEdit(item)} className="p-1.5 text-gray-500 hover:text-blue-600 bg-gray-50 border border-gray-200 rounded transition-colors" title="Edit Link">
+                                            <Edit2 size={16} />
+                                        </button>
+                                        <button onClick={() => handleDelete(item.id)} className="p-1.5 text-gray-500 hover:text-red-600 bg-gray-50 border border-gray-200 rounded transition-colors" title="Delete Link">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -155,8 +172,13 @@ export default function FooterLinks() {
                         <input type="text" name="label" className="admin-input" value={formData.label} onChange={handleChange} required placeholder="e.g. Policies" />
                     </div>
                     <div>
-                        <label className="block text-text-main font-bold mb-1">URL / Route *</label>
-                        <input type="text" name="url" className="admin-input" value={formData.url} onChange={handleChange} required placeholder="e.g. /policies or https://..." />
+                        <MediaSelector
+                            label="URL / Document *"
+                            value={formData.url}
+                            onChange={(url) => setFormData(prev => ({ ...prev, url }))}
+                            accept="*/*"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">You can type a regular URL (e.g., /policies) or select/upload a document.</div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>

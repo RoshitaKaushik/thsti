@@ -4,14 +4,30 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ThstiServer.Models;
 using System;
+using ThstiServer.Interceptors;
+
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 524288000; // 500 MB
+});
+builder.Services.Configure<IISServerOptions>(options => 
+{
+    options.MaxRequestBodySize = 524288000; // 500 MB
+});
 
 var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "supersecret_thsticms_key_at_least_32_chars_long!!";
 var connString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost\\SQLEXPRESS;Database=thsti_dev;Integrated Security=True;TrustServerCertificate=True;";
 
-builder.Services.AddDbContext<ThstiDbContext>(options =>
-    options.UseSqlServer(connString));
+builder.Services.AddSingleton<AuditInterceptor>();
+builder.Services.AddSingleton<ThstiServer.Interceptors.RevisionInterceptor>();
+
+builder.Services.AddDbContext<ThstiDbContext>((sp, options) => {
+    var auditInterceptor = sp.GetRequiredService<AuditInterceptor>();
+    var revisionInterceptor = sp.GetRequiredService<ThstiServer.Interceptors.RevisionInterceptor>();
+    options.UseSqlServer(connString).AddInterceptors(auditInterceptor, revisionInterceptor);
+});
 
 builder.Services.AddScoped<ThstiServer.Utils.Mailer>();
 builder.Services.AddHostedService<ThstiServer.Services.ArchivalHostedService>();
@@ -22,6 +38,14 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Configure maximum global form limitations
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 524288000; // 500 MB
+    options.ValueLengthLimit = 524288000;
+    options.MultipartHeadersLengthLimit = 32768; // 32 KB
+});
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -85,7 +109,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads",
     OnPrepareResponse = ctx =>
     {
-        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         ctx.Context.Response.Headers.Append("Cross-Origin-Resource-Policy", "cross-origin");
     }
 });
@@ -100,7 +123,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/cloud-vault",
     OnPrepareResponse = ctx =>
     {
-        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         ctx.Context.Response.Headers.Append("Cross-Origin-Resource-Policy", "cross-origin");
     }
 });

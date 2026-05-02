@@ -13,6 +13,7 @@ namespace ThstiServer.DTOs
         public string? ContactPhone { get; set; }
         public string? Address { get; set; }
         public string? MapLink { get; set; }
+        public string? FooterImageUrl { get; set; }
         public string? WorkingHours { get; set; }
         public string? FacebookUrl { get; set; }
         public string? TwitterUrl { get; set; }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_BASE_URL } from '../../config/env';
+import { API_BASE_URL, ASSETS_BASE_URL } from '../../config/env';
 import api from '../../api/axios';
 
 const AnimatedCounter = ({ targetValue, duration }) => {
@@ -216,7 +216,7 @@ const AboutIntroStatsSection = () => {
                 <div className="row clearfix">
 
                     {/* Content Column */}
-                    <div className="content-column col-lg-12 col-md-12 col-sm-12">
+                    <div className={`content-column ${content.imageUrl ? 'col-lg-7' : 'col-lg-12'} col-md-12 col-sm-12`}>
                         <div className="inner-column pt-5">
                             {/* Sec Title */}
                             <div className="sec-title wow fadeInLeft" data-wow-delay="0ms" data-wow-duration="1500ms">
@@ -228,7 +228,21 @@ const AboutIntroStatsSection = () => {
                         </div>
                     </div>
 
-                    <div className="images-column col-lg-12 col-md-12 col-sm-12">
+                    {/* Image Column */}
+                    {content.imageUrl && (
+                        <div className="image-column col-lg-5 col-md-12 col-sm-12">
+                            <div className="inner-column pt-5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                <img 
+                                    src={content.imageUrl.startsWith('http') ? content.imageUrl : `${ASSETS_BASE_URL}/${content.imageUrl.replace(/^\//, '')}`} 
+                                    alt={content.title} 
+                                    className="img-fluid rounded shadow" 
+                                    style={{ maxHeight: '400px', objectFit: 'cover' }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="images-column col-lg-12 col-md-12 col-sm-12 mt-4">
                         <div className="inner-column">
 
                             {/* Counter Box */}

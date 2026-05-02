@@ -68,8 +68,8 @@ namespace ThstiServer.Controllers
             return StatusCode(201, new { user.Id, user.Email, user.Role });
         }
 
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserRequest req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdateUser(long id, [FromBody] UserRequest req)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
@@ -93,8 +93,8 @@ namespace ThstiServer.Controllers
             return Ok(new { user.Id, user.Email, user.Role });
         }
 
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DeleteUser(long id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
@@ -114,3 +114,4 @@ namespace ThstiServer.Controllers
         public bool IsActive { get; set; } = true;
     }
 }
+

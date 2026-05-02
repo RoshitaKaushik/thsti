@@ -119,6 +119,46 @@ const Facilities = () => {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/16.png" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Biorepository</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/15.png" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Biosafety Level-3 Lab</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/21.png" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Data Management Centre</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/photo/14.png" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Multi-Omics Facility</a></h3>
+                                            <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

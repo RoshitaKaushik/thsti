@@ -4,6 +4,7 @@ import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
 import { Edit2, Trash2, ExternalLink, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import MediaSelector from '../components/MediaSelector';
 
 export default function Notifications() {
     const [items, setItems] = useState([]);
@@ -216,20 +217,27 @@ export default function Notifications() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Summary (Optional)</label>
                         <textarea value={formData.summary} onChange={e => setFormData({ ...formData, summary: e.target.value })} className="w-full border border-gray-300 rounded-md p-2" rows={2} />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
-                            <input type="text" value={formData.url} onChange={e => setFormData({ ...formData, url: e.target.value })} className="w-full border border-gray-300 rounded-md p-2" placeholder="https://..." />
+                        <div className="col-span-1 md:col-span-2">
+                            <MediaSelector 
+                                label="Link Document / Target URL" 
+                                value={formData.url} 
+                                onChange={(url) => setFormData({ ...formData, url: url })} 
+                                accept="*" 
+                                placeholder="Enter external URL or upload a file (e.g. PDF Circular)"
+                            />
                         </div>
-                        <div>
+                        <div className="col-span-1 md:col-span-2">
+                            <MediaSelector 
+                                label="Associated Image (Optional)" 
+                                value={formData.imageUrl} 
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })} 
+                                accept="image/*"
+                            />
+                        </div>
+                        <div className="col-span-1 md:col-span-3">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Button Text (Optional)</label>
-                            <input type="text" value={formData.buttonText} onChange={e => setFormData({ ...formData, buttonText: e.target.value })} className="w-full border border-gray-300 rounded-md p-2" placeholder="e.g. READ MORE" />
+                            <input type="text" value={formData.buttonText} onChange={e => setFormData({ ...formData, buttonText: e.target.value })} className="w-full border border-gray-300 rounded-md p-2" placeholder="e.g. READ MORE / APPLY NOW" />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Image URL (Optional)</label>
-                            <input type="text" value={formData.imageUrl} onChange={e => setFormData({ ...formData, imageUrl: e.target.value })} className="w-full border border-gray-300 rounded-md p-2" placeholder="https://... or /uploads/..." />
-                        </div>
-                    </div>
                     <div className="flex flex-wrap gap-4">
                         {[['openInNewTab', 'Open in new tab'], ['isNew', 'Mark as New'], ['isActive', 'Active']].map(([key, label]) => (
                             <label key={key} className="flex items-center space-x-2 cursor-pointer">

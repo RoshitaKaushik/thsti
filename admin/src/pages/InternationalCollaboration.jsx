@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ASSETS_BASE_URL } from '../config/env';
+import { ASSETS_BASE_URL, PUBLIC_SITE_URL } from '../config/env';
 import { Plus, Edit2, Trash2, Save, MoveUp, MoveDown, Check, X, Image as ImageIcon } from 'lucide-react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
+import MediaSelector from '../components/MediaSelector';
 
 export default function InternationalCollaboration() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [editingItem, setEditingItem] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -44,15 +43,9 @@ export default function InternationalCollaboration() {
         }));
     };
 
-    const handleImageChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
 
     const startEdit = (item) => {
         setEditingItem(item);
-        setImageFile(null);
         setFormData({
             title: item.title,
             imageUrl: item.imageUrl || '',
@@ -65,7 +58,6 @@ export default function InternationalCollaboration() {
 
     const handleOpenNew = () => {
         setEditingItem(null);
-        setImageFile(null);
         setFormData({
             title: '', imageUrl: '', link: '', isActive: true, displayOrder: items.length
         });
@@ -75,27 +67,13 @@ export default function InternationalCollaboration() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingItem(null);
-        setImageFile(null);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            let uploadedImageUrl = formData.imageUrl;
-            if (imageFile) {
-                const uploadData = new FormData();
-                uploadData.append('file', imageFile);
-                uploadData.append('altText', formData.title);
-                uploadData.append('categoryId', '1');
-                const uploadRes = await api.post('/media/upload', uploadData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                uploadedImageUrl = uploadRes.data.url;
-            }
-
             const payload = {
-                ...formData,
-                imageUrl: uploadedImageUrl
+                ...formData
             };
 
             if (editingItem) {
@@ -152,6 +130,14 @@ export default function InternationalCollaboration() {
 
     if (loading) return <div>Loading...</div>;
 
+    const resolveImageUrl = (url) => {
+        if (!url) return '';
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        if (url.startsWith('/images/')) return `${PUBLIC_SITE_URL}${url}`;
+        if (url.startsWith('images/')) return `${PUBLIC_SITE_URL}/${url}`;
+        return `${ASSETS_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+    };
+
     const actionButtons = (
         <button onClick={handleOpenNew} className="admin-btn-primary flex items-center gap-2 px-4 py-2 text-sm">
             <Plus size={16} /> New Item
@@ -183,7 +169,7 @@ export default function InternationalCollaboration() {
                                     </div>
                                     <div className="w-24 h-24 bg-gray-100 rounded border border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                         {item.imageUrl ? (
-                                            <img src={`${ASSETS_BASE_URL}${item.imageUrl}`} alt={item.title} className="w-full h-full object-cover" />
+                                            <img src={resolveImageUrl(item.imageUrl)} alt={item.title} className="w-full h-full object-cover" />
                                         ) : (
                                             <ImageIcon size={24} className="text-gray-300" />
                                         )}
@@ -230,21 +216,12 @@ export default function InternationalCollaboration() {
                             <p className="text-xs text-text-muted mt-1">E.g., where the arrow button redirects to.</p>
                         </div>
                         <div>
-                            <label className="block text-text-main font-bold mb-1">Image</label>
-                            <div className="flex items-center gap-4">
-                                <div className="flex-1">
-                                    <input type="file" accept="image/*" onChange={handleImageChange} className="admin-input p-1" />
-                                </div>
-                                {(imageFile || formData.imageUrl) && (
-                                    <div className="h-16 w-24 bg-gray-100 border border-gray-300 rounded overflow-hidden flex items-center justify-center">
-                                        {imageFile ? (
-                                            <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-full w-full object-cover" />
-                                        ) : (
-                                            <img src={`${ASSETS_BASE_URL}${formData.imageUrl}`} alt="Existing" className="h-full w-full object-cover" onError={(e) => e.target.style.display='none'} />
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                            <MediaSelector
+                                label="Image"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/jpeg, image/png, image/webp"
+                            />
                         </div>
                         <div className="flex items-center gap-2 py-2">
                             <input type="checkbox" id="isActive" name="isActive" checked={formData.isActive} onChange={handleChange} className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary" />

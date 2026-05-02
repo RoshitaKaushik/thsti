@@ -27,8 +27,8 @@ namespace ThstiServer.Controllers
             return Ok(items);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
         {
             var item = await _context.FooterLinks.FindAsync(id);
             if (item == null) return NotFound();
@@ -47,14 +47,17 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] FooterLink updatedItem)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] FooterLink updatedItem)
         {
             var item = await _context.FooterLinks.FindAsync(id);
             if (item == null) return NotFound();
 
-            _context.Entry(item).CurrentValues.SetValues(updatedItem);
-            item.Id = id; 
+            item.Column = updatedItem.Column;
+            item.Label = updatedItem.Label;
+            item.Url = updatedItem.Url;
+            item.DisplayOrder = updatedItem.DisplayOrder;
+            item.IsActive = updatedItem.IsActive;
             item.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -62,8 +65,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.FooterLinks.FindAsync(id);
             if (item == null) return NotFound();
@@ -71,6 +74,20 @@ namespace ThstiServer.Controllers
             _context.FooterLinks.Remove(item);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpPatch("{id:long}/toggle-active")]
+        public async Task<IActionResult> ToggleActive(long id)
+        {
+            var item = await _context.FooterLinks.FindAsync(id);
+            if (item == null) return NotFound();
+            
+            item.IsActive = !item.IsActive;
+            item.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return Ok(item);
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
@@ -98,3 +115,4 @@ namespace ThstiServer.Controllers
 
     }
 }
+

@@ -5,7 +5,7 @@ namespace ThstiServer.Models;
 
 public partial class AdminModule
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Name { get; set; } = null!;
 
@@ -15,7 +15,7 @@ public partial class AdminModule
 
     public int Order { get; set; }
 
-    public int? ParentId { get; set; }
+    public long? ParentId { get; set; }
 
     public string AllowedRoles { get; set; } = "ADMIN";
 
@@ -24,3 +24,4 @@ public partial class AdminModule
     public virtual AdminModule? Parent { get; set; }
     public virtual ICollection<AdminModule> InverseParent { get; set; } = new List<AdminModule>();
 }
+

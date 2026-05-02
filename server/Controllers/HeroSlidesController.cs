@@ -107,8 +107,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateHeroSlide(int id, [FromBody] HeroSlideRequest req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdateHeroSlide(long id, [FromBody] HeroSlideRequest req)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -170,8 +170,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteHeroSlide(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DeleteHeroSlide(long id)
         {
             var slide = await _context.HeroSlides.FindAsync(id);
             if (slide == null) return NotFound();
@@ -182,8 +182,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER")]
-        [HttpPatch("{id:int}/toggle-active")]
-        public async Task<IActionResult> ToggleHeroSlideActive(int id)
+        [HttpPatch("{id:long}/toggle-active")]
+        public async Task<IActionResult> ToggleHeroSlideActive(long id)
         {
             var slide = await _context.HeroSlides.FindAsync(id);
             if (slide == null) return NotFound(new { error = "Hero slide not found" });
@@ -225,3 +225,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

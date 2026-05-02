@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { ASSETS_BASE_URL } from '../../config/env';
 
-const FacultyGrid = () => {
+const FacultyGrid = ({ config = { showSearch: true, showCategory: true, showPagination: true } }) => {
     const [faculty, setFaculty] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -104,28 +104,28 @@ const FacultyGrid = () => {
                     <div className="col-lg-12 col-md-12 col-sm-12">
                         <div className="filter-bar">
                             {/* Search */}
-                            <div className="search-box position-relative" style={{ display: 'inline-block', marginRight: '15px', marginBottom: '15px' }}>
-                                <span className="icon position-absolute" style={{ top: '10px', left: '15px', color: '#999' }}>
-                                    <i className="fa fa-search" aria-hidden="true"></i>
-                                </span>
-                                <input 
-                                    type="text" 
-                                    placeholder="Search..." 
-                                    value={searchQuery}
-                                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                                    style={{ paddingLeft: '40px', height: '45px', borderRadius: '4px', border: '1px solid #ddd', width: '250px' }}
-                                />
-                            </div>
+                            {config.showSearch && (
+                                <div className="search-box">
+                                    <span className="icon">
+                                        <i className="fa fa-search" aria-hidden="true"></i>
+                                    </span>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search..." 
+                                        value={searchQuery}
+                                        onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                                    />
+                                </div>
+                            )}
 
                             {/* Sort */}
-                            <div className="select-box position-relative" style={{ display: 'inline-block', marginRight: '15px', marginBottom: '15px' }}>
-                                <span className="icon position-absolute" style={{ top: '12px', left: '15px', color: '#999' }}>
+                            <div className="select-box">
+                                <span className="icon">
                                     <i className="fa fa-sort-amount-desc" aria-hidden="true"></i>
                                 </span>
                                 <select 
                                     value={sortOption} 
                                     onChange={(e) => { setSortOption(e.target.value); setCurrentPage(1); }}
-                                    style={{ paddingLeft: '40px', height: '45px', borderRadius: '4px', border: '1px solid #ddd', width: '180px', appearance: 'auto', background: '#fff' }}
                                 >
                                     <option>Sort by</option>
                                     <option>Name</option>
@@ -135,31 +135,31 @@ const FacultyGrid = () => {
                             </div>
 
                             {/* Category */}
-                            <div className="select-box position-relative" style={{ display: 'inline-block', marginRight: '15px', marginBottom: '15px' }}>
-                                <span className="icon position-absolute" style={{ top: '12px', left: '15px', color: '#999' }}>
-                                    <i className="fa fa-tag" aria-hidden="true"></i>
-                                </span>
-                                <select 
-                                    value={categoryFilter} 
-                                    onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
-                                    style={{ paddingLeft: '40px', height: '45px', borderRadius: '4px', border: '1px solid #ddd', width: '220px', appearance: 'auto', background: '#fff' }}
-                                >
-                                    <option>Category</option>
-                                    {designations.map(desig => (
-                                        <option key={desig} value={desig}>{desig}</option>
-                                    ))}
-                                </select>
-                            </div>
+                            {config.showCategory && (
+                                <div className="select-box">
+                                    <span className="icon">
+                                        <i className="fa fa-tag" aria-hidden="true"></i>
+                                    </span>
+                                    <select 
+                                        value={categoryFilter} 
+                                        onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
+                                    >
+                                        <option>Category</option>
+                                        {designations.map(desig => (
+                                            <option key={desig} value={desig}>{desig}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
 
                             {/* Per Page */}
-                            <div className="select-box small position-relative" style={{ display: 'inline-block', marginBottom: '15px' }}>
-                                <span className="icon position-absolute" style={{ top: '12px', left: '15px', color: '#999' }}>
+                            <div className="select-box small">
+                                <span className="icon">
                                     <i className="fa fa-bars" aria-hidden="true"></i>
                                 </span>
                                 <select 
                                     value={perPage} 
                                     onChange={(e) => { setPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                                    style={{ paddingLeft: '40px', height: '45px', borderRadius: '4px', border: '1px solid #ddd', width: '150px', appearance: 'auto', background: '#fff' }}
                                 >
                                     <option value={10}>10 per page</option>
                                     <option value={20}>20 per page</option>
@@ -177,49 +177,40 @@ const FacultyGrid = () => {
                         </div>
                     ) : (
                         displayedFaculty.map((member) => (
-                            <div key={member.id} className="col-lg-3 col-md-6 col-sm-12 mb-4">
-                                <div className="faculty-card-premium h-100 d-flex flex-column bg-white position-relative">
-                                    <div className="premium-gradient-bar"></div>
-                                    
-                                    <div className="image-box position-relative" style={{ display: 'flex', justifyContent: 'center', paddingTop: '35px' }}>
-                                        <figure className="image m-0 position-relative rounded-circle overflow-hidden shadow-sm" style={{ width: '150px', height: '150px', border: '5px solid #fff', zIndex: 2 }}>
-                                            <Link to={`/faculty/${member.slug}`} className="w-100 h-100 d-block">
+                            <div key={member.id} className="team-block-two col-lg-3 col-md-6 col-sm-12 mb-4">
+                                <div className="inner-box">
+                                    <div className="image-box">
+                                        <figure className="image">
+                                            <Link to={`/faculty/${member.slug}`}>
                                                 {member.imageUrl ? (
                                                     <img 
-                                                        src={`${ASSETS_BASE_URL}${member.imageUrl}`} 
-                                                        alt={member.name}
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                        src={member.imageUrl.startsWith('http') ? member.imageUrl : `${ASSETS_BASE_URL}${member.imageUrl}`} 
+                                                        alt={member.name} 
+                                                        onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=0b2d55&color=fff&size=300`; }}
                                                     />
                                                 ) : (
-                                                    <div className="w-100 h-100 d-flex flex-column align-items-center justify-content-center fallback-monogram">
-                                                        <span>{member.name ? member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}</span>
-                                                    </div>
+                                                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=0b2d55&color=fff&size=300`} alt={member.name} />
                                                 )}
                                             </Link>
                                         </figure>
-                                    </div>
-                                    
-                                    <div className="lower-content px-4 pb-4 pt-3 text-center mt-auto flex-grow-1 d-flex flex-column">
-                                        <h3 className="name mb-1">
-                                            <Link to={`/faculty/${member.slug}`}>{member.name}</Link>
-                                        </h3>
-                                        {member.designation && <span className="designation d-block mb-2">{member.designation}</span>}
-                                        {member.department && <p className="mb-0 department-text"><i className="fa fa-building-o mr-1"></i> {member.department}</p>}
-                                        
-                                        <div className="contact-info mt-auto pt-3 border-top border-light mt-4">
-                                            {member.email && (
-                                                <a href={`mailto:${member.email}`} className="text-muted d-block small mb-1 text-truncate" title={member.email}>
-                                                    <i className="fa fa-envelope mr-2"></i> {member.email}
-                                                </a>
-                                            )}
+                                        <div className="overlay-box">
+                                            <ul className="contact-list">
+                                                {member.phone && <li><i className="icon icon-call-in"></i> <a href={`tel:${member.phone.replace(/\D/g,'')}`}>{member.phone}</a></li>}
+                                                {member.email && <li><i className="icon icon-envelope-open"></i> <a href={`mailto:${member.email}`}>{member.email}</a></li>}
+                                            </ul>
                                         </div>
-
-                                        {/* Social Links via FontAwesome */}
-                                        <ul className="social-links mt-3 list-unstyled d-flex justify-content-center gap-2 mb-0">
-                                            {member.linkedinUrl && <li><a href={member.linkedinUrl} target="_blank" rel="noreferrer"><i className="fa fa-linkedin"></i></a></li>}
-                                            {member.googleScholarUrl && <li><a href={member.googleScholarUrl} target="_blank" rel="noreferrer"><i className="fa fa-google"></i></a></li>}
-                                            {member.researchGateUrl && <li><a href={member.researchGateUrl} target="_blank" rel="noreferrer"><i className="fa fa-flask"></i></a></li>}
+                                    </div>
+                                    <div className="lower-content">
+                                        <h3 className="name"><Link to={`/faculty/${member.slug}`}>{member.name}</Link></h3>
+                                        <span className="designation">{member.designation}</span>
+                                        {member.department && <p className="mb-2 department-text text-muted small"><i className="fa fa-building-o mr-1"></i> {member.department}</p>}
+                                        
+                                        <ul className="social-links">
+                                            {member.linkedinUrl && <li><a href={member.linkedinUrl} target="_blank" rel="noreferrer"><i className="fab fa-linkedin-in"></i></a></li>}
+                                            {member.googleScholarUrl && <li><a href={member.googleScholarUrl} target="_blank" rel="noreferrer"><i className="fab fa-google"></i></a></li>}
+                                            {member.researchGateUrl && <li><a href={member.researchGateUrl} target="_blank" rel="noreferrer"><i className="fab fa-researchgate"></i></a></li>}
                                         </ul>
+                                        <Link className="arrow" to={`/faculty/${member.slug}`}><span className="icon flaticon-next"></span></Link>
                                     </div>
                                 </div>
                             </div>
@@ -228,7 +219,7 @@ const FacultyGrid = () => {
                 </div>
 
                 {/* Pagination Controls */}
-                {totalPages > 1 && (
+                {config.showPagination && totalPages > 1 && (
                     <div className="styled-pagination text-center pb-5">
                         <ul className="clearfix list-unstyled d-flex justify-content-center gap-2">
                             {currentPage > 1 && (
@@ -267,77 +258,76 @@ const FacultyGrid = () => {
             </div>
             
             <style>{`
-            .filter-bar {
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 8px;
-                margin-bottom: 40px;
-                text-align: center;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            /* Filter Bar */
+            .filter-bar{
+                display: flex;
+                gap: 18px;
+                align-items: center;
+                flex-wrap: wrap;
+                margin-bottom: 20px;
+                justify-content: space-around;
+                background: #f5f5f5;
+                padding: 10px;
+                border-radius: 10px;
             }
-            .faculty-card-premium {
-                border-radius: 12px;
-                box-shadow: 0 5px 25px rgba(0, 0, 0, 0.04);
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                overflow: hidden;
-            }
-            .faculty-card-premium:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 15px 35px rgba(11, 45, 85, 0.12);
-            }
-            .premium-gradient-bar {
-                height: 5px;
-                width: 100%;
-                background: linear-gradient(90deg, #0b2d55 0%, #ab1f24 100%);
-            }
-            .fallback-monogram {
-                background: linear-gradient(135deg, #e4f0fa 0%, #c4e0f5 100%);
-                color: #0b2d55;
-                font-size: 50px;
-                font-weight: 700;
-                letter-spacing: 2px;
-            }
-            .faculty-card-premium .name a {
-                color: #0b2d55;
-                font-size: 20px;
-                text-decoration: none;
-                font-weight: 800;
-                letter-spacing: 0.2px;
-            }
-            .faculty-card-premium .name a:hover {
-                color: #ab1f24;
-            }
-            .faculty-card-premium .designation {
-                color: #ab1f24;
-                font-size: 13px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.8px;
-            }
-            .faculty-card-premium .department-text {
-                color: #666;
-                font-size: 14px;
-                font-weight: 500;
-            }
-            .faculty-card-premium .social-links a {
-                width: 36px;
-                height: 36px;
+
+            /* Common Box Style */
+            .filter-bar .search-box,
+            .filter-bar .select-box{
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                border-radius: 50%;
-                background: #f4f6f9;
-                color: #0b2d55;
-                transition: all 0.3s ease;
-                font-size: 15px;
+                background: #fff;
+                border: 1px solid #dddddd;
+                border-radius: 6px;
+                height: 50px;
+                padding: 0 14px;
+                transition: 0.3s;
+                width: 24%;
+                justify-content: space-between;
             }
-            .faculty-card-premium .social-links a:hover {
-                background: #0b2d55;
-                color: #fff;
-                transform: translateY(-3px);
+
+            /* Hover Effect */
+            .filter-bar .search-box:hover,
+            .filter-bar .select-box:hover{
+                border-color:#2f5ed3;
             }
-            .border-light {
-                border-color: #f0f0f0 !important;
+
+            /* Search Box */
+            .filter-bar .search-box{
+                width:360px;
+            }
+
+            .filter-bar .search-box input{
+                width:100%;
+                border:none;
+                outline:none;
+                font-size:15px;
+                padding-left:10px;
+            }
+
+            /* Dropdown Box */
+            .filter-bar .select-box select{
+                border:none;
+                outline:none;
+                font-size:15px;
+                background:transparent;
+                cursor:pointer;
+                padding-left:10px;
+                width: 100%;
+                -webkit-appearance: auto;
+                -moz-appearance: auto;
+                appearance: auto;
+            }
+
+            /* Small Box */
+            .filter-bar .select-box.small{
+                width:165px;
+            }
+
+            /* Icon */
+            .filter-bar .icon{
+                color:#4c73d9;
+                font-size:18px;
             }
             `}</style>
         </section>

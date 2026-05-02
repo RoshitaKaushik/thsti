@@ -77,6 +77,10 @@ namespace ThstiServer.Controllers
                     MetaTitle = req.MetaTitle,
                     MetaDescription = req.MetaDescription,
                     IsActive = req.IsActive,
+                    PageType = req.PageType,
+                    BannerImageUrl = req.BannerImageUrl,
+                    BreadcrumbTitle = req.BreadcrumbTitle,
+                    TemplateConfigJson = req.TemplateConfigJson,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -92,8 +96,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdatePage(int id, [FromBody] PageRequest req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdatePage(long id, [FromBody] PageRequest req)
         {
             var page = await _context.Pages.FindAsync(id);
             if (page == null) return NotFound(new { error = "Page not found" });
@@ -110,6 +114,10 @@ namespace ThstiServer.Controllers
                 page.MetaTitle = req.MetaTitle;
                 page.MetaDescription = req.MetaDescription;
                 page.IsActive = req.IsActive;
+                page.PageType = req.PageType;
+                page.BannerImageUrl = req.BannerImageUrl;
+                page.BreadcrumbTitle = req.BreadcrumbTitle;
+                page.TemplateConfigJson = req.TemplateConfigJson;
                 page.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
@@ -122,8 +130,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeletePage(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DeletePage(long id)
         {
             var page = await _context.Pages.FindAsync(id);
             if (page == null) return NotFound();
@@ -134,3 +142,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+
