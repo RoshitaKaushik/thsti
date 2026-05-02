@@ -22,7 +22,7 @@ namespace ThstiServer.DTOs
 
     public class ReorderItem
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public int Order { get; set; }
     }
 
@@ -31,3 +31,4 @@ namespace ThstiServer.DTOs
         public List<ReorderItem> Items { get; set; } = new List<ReorderItem>();
     }
 }
+

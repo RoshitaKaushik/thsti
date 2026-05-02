@@ -106,7 +106,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("api/notifications/{id}")]
-        public async Task<IActionResult> UpdateNotification(int id, [FromBody] NotificationRequest req)
+        public async Task<IActionResult> UpdateNotification(long id, [FromBody] NotificationRequest req)
         {
             try
             {
@@ -140,7 +140,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("api/notifications/{id}")]
-        public async Task<IActionResult> DeleteNotification(int id)
+        public async Task<IActionResult> DeleteNotification(long id)
         {
             try
             {
@@ -160,7 +160,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("api/notifications/{id}/toggle-active")]
-        public async Task<IActionResult> ToggleNotificationActive(int id)
+        public async Task<IActionResult> ToggleNotificationActive(long id)
         {
             try
             {
@@ -181,3 +181,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

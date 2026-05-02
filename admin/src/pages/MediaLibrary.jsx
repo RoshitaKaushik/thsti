@@ -66,7 +66,7 @@ export default function MediaLibrary() {
                         <div key={file.id} className="admin-card bg-white overflow-hidden flex flex-col hover:shadow-md transition-all group">
                             <div className="h-40 bg-gray-100 flex items-center justify-center relative border-b border-border-light">
                                 {isImage(file.mimeType) ? (
-                                    <img src={`${ASSETS_BASE_URL}${file.url}`} alt={file.filename} className="w-full h-full object-cover" />
+                                    <img src={file.url.startsWith('http') ? file.url : `${ASSETS_BASE_URL}${file.url.startsWith('/') ? '' : '/'}${file.url}`} alt={file.filename} className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
                                 ) : (
                                     <div className="text-gray-400 flex flex-col items-center">
                                         <FileText size={48} />
@@ -74,10 +74,10 @@ export default function MediaLibrary() {
                                     </div>
                                 )}
                                 <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                    <button onClick={() => window.open(`${ASSETS_BASE_URL}${file.url}`, '_blank')} className="p-2 bg-white text-gray-800 hover:text-accent rounded-full transition-colors" title="View/Download">
+                                    <button onClick={() => window.open(file.url.startsWith('http') ? file.url : `${ASSETS_BASE_URL}${file.url.startsWith('/') ? '' : '/'}${file.url}`, '_blank')} className="p-2 bg-white text-gray-800 hover:text-accent rounded-full transition-colors" title="View/Download">
                                         <Download size={18} />
                                     </button>
-                                    <button onClick={() => copyToClipboard(file.url)} className="p-2 bg-white text-gray-800 hover:text-accent rounded-full transition-colors" title="Copy URL Path">
+                                    <button onClick={() => copyToClipboard(file.url.startsWith('http') ? file.url : `${ASSETS_BASE_URL}${file.url.startsWith('/') ? '' : '/'}${file.url}`)} className="p-2 bg-white text-gray-800 hover:text-accent rounded-full transition-colors" title="Copy URL Path">
                                         <Copy size={18} />
                                     </button>
                                     <button onClick={() => handleDelete(file.id)} className="p-2 bg-white text-red-600 hover:bg-red-50 rounded-full transition-colors" title="Delete Permanently">

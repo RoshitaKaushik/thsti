@@ -27,8 +27,8 @@ namespace ThstiServer.Controllers
             return Ok(items);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
         {
             var item = await _context.PreFooterLinks.FindAsync(id);
             if (item == null) return NotFound();
@@ -47,14 +47,18 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] PreFooterLink updatedItem)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] PreFooterLink updatedItem)
         {
             var item = await _context.PreFooterLinks.FindAsync(id);
             if (item == null) return NotFound();
 
-            _context.Entry(item).CurrentValues.SetValues(updatedItem);
-            item.Id = id; 
+            item.Title = updatedItem.Title;
+            item.Url = updatedItem.Url;
+            item.ImageUrl = updatedItem.ImageUrl;
+            item.DisplayOrder = updatedItem.DisplayOrder;
+            item.IsActive = updatedItem.IsActive;
+            item.OpenInNewTab = updatedItem.OpenInNewTab;
             item.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -62,8 +66,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.PreFooterLinks.FindAsync(id);
             if (item == null) return NotFound();
@@ -74,6 +78,21 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpPatch("{id:long}/toggle-active")]
+        public async Task<IActionResult> ToggleActive(long id)
+        {
+            var item = await _context.PreFooterLinks.FindAsync(id);
+            if (item == null) return NotFound();
+            
+            item.IsActive = !item.IsActive;
+            item.UpdatedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+            return Ok(item);
+        }
+
+        [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
+        [HttpPatch("reorder")]
         [HttpPut("reorder")]
         public async Task<IActionResult> Reorder([FromBody] ThstiServer.DTOs.GenericReorderRequest req)
         {
@@ -98,3 +117,4 @@ namespace ThstiServer.Controllers
 
     }
 }
+

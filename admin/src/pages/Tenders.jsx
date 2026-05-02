@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../api/axios';
 import { FiEdit2, FiTrash2, FiFileText } from 'react-icons/fi';
+import MediaSelector from '../components/MediaSelector';
 
 export default function Tenders() {
     const currentUser = JSON.parse(localStorage.getItem('thsti_admin_user') || '{}');
@@ -24,9 +25,6 @@ export default function Tenders() {
         remarks: ''
     });
 
-    const [uploading, setUploading] = useState(false);
-    const [documentFile, setDocumentFile] = useState(null);
-
     const fetchTenders = useCallback(async () => {
         setLoading(true);
         try {
@@ -41,42 +39,10 @@ export default function Tenders() {
 
     useEffect(() => { fetchTenders(); }, [fetchTenders]);
 
-    const handleUpload = async (file) => {
-        if (!file) return null;
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-        uploadData.append('altText', file.name);
-
-        setUploading(true);
-        try {
-            const res = await api.post('/media/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            return res.data.url;
-        } catch (error) {
-            toast.error('Document upload failed');
-            return null;
-        } finally {
-            setUploading(false);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            let finalDocumentUrl = formData.documentUrl;
-            if (documentFile) {
-                const uploadedUrl = await handleUpload(documentFile);
-                if (uploadedUrl) finalDocumentUrl = uploadedUrl;
-                else return;
-            }
-
-            if (!finalDocumentUrl) {
-                toast.error('Document upload is required.');
-                return;
-            }
-
-            const payload = { ...formData, documentUrl: finalDocumentUrl };
+            const payload = { ...formData };
 
             if (editingTender) {
                 await api.put(`/tenders/${editingTender.id}`, payload);
@@ -123,7 +89,6 @@ export default function Tenders() {
 
     const openCreateModal = () => {
         setEditingTender(null);
-        setDocumentFile(null);
         setFormData({
             title: '', titleHi: '', referenceNo: '', documentUrl: '',
             publishDate: new Date().toISOString().split('T')[0],
@@ -135,7 +100,6 @@ export default function Tenders() {
 
     const openEditModal = (item) => {
         setEditingTender(item);
-        setDocumentFile(null);
         setFormData({
             title: item.title,
             titleHi: item.titleHi || '',
@@ -271,18 +235,11 @@ export default function Tenders() {
                                 </div>
 
                                 <div className="col-span-2">
-                                    <label className="block font-bold mb-1">Tender Document (PDF)</label>
-                                    {formData.documentUrl && !documentFile && (
-                                        <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded text-sm break-all">
-                                            Current: <a href={formData.documentUrl} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{formData.documentUrl}</a>
-                                        </div>
-                                    )}
-                                    <input 
-                                        type="file" 
+                                    <MediaSelector
+                                        label="Tender Document (PDF)"
+                                        value={formData.documentUrl}
+                                        onChange={(url) => setFormData({ ...formData, documentUrl: url })}
                                         accept=".pdf,.doc,.docx"
-                                        className="admin-input" 
-                                        onChange={(e) => setDocumentFile(e.target.files[0])} 
-                                        required={!formData.documentUrl}
                                     />
                                 </div>
                             </div>
@@ -309,8 +266,8 @@ export default function Tenders() {
 
                             <div className="pt-4 flex justify-end gap-3 mt-6 border-t border-border-light">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="admin-btn-secondary">Cancel</button>
-                                <button type="submit" disabled={uploading} className="admin-btn-primary">
-                                    {uploading ? 'Uploading...' : (isExec && formData.reviewStatus === 'Published' ? 'Submit for Review' : 'Save Tender')}
+                                <button type="submit" className="admin-btn-primary">
+                                    {isExec && formData.reviewStatus === 'Published' ? 'Submit for Review' : 'Save Tender'}
                                 </button>
                             </div>
                         </form>

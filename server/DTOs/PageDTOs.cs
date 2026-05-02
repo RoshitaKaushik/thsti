@@ -9,5 +9,9 @@ namespace ThstiServer.DTOs
         public string? MetaTitle { get; set; }
         public string? MetaDescription { get; set; }
         public bool IsActive { get; set; } = true;
+        public string PageType { get; set; } = "Standard";
+        public string? BannerImageUrl { get; set; }
+        public string? BreadcrumbTitle { get; set; }
+        public string? TemplateConfigJson { get; set; }
     }
 }

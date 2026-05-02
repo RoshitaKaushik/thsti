@@ -117,8 +117,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateMenu(int id, [FromBody] MenuRequest req)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> UpdateMenu(long id, [FromBody] MenuRequest req)
         {
             try
             {
@@ -146,8 +146,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteMenu(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DeleteMenu(long id)
         {
             var menu = await _context.Menus.FindAsync(id);
             if (menu == null) return NotFound();
@@ -192,7 +192,7 @@ namespace ThstiServer.Controllers
                 var allMenus = await _context.Menus.Include(m => m.Parent).OrderBy(m => m.Order).ThenBy(m => m.Id).ToListAsync();
 
                 var sortedMenus = new List<Menu>();
-                void BuildTree(int? parentId)
+                void BuildTree(long? parentId)
                 {
                     var children = allMenus.Where(m => m.ParentId == parentId).ToList();
                     foreach (var child in children)
@@ -203,7 +203,7 @@ namespace ThstiServer.Controllers
                 }
                 BuildTree(null);
 
-                var sortedIds = new HashSet<int>(sortedMenus.Select(m => m.Id));
+                var sortedIds = new HashSet<long>(sortedMenus.Select(m => m.Id));
                 var orphans = allMenus.Where(m => !sortedIds.Contains(m.Id)).ToList();
                 sortedMenus.AddRange(orphans);
 
@@ -283,7 +283,7 @@ namespace ThstiServer.Controllers
                     bool.TryParse(row.Cell(11).Value.ToString(), out bool isExternal);
                     bool.TryParse(row.Cell(12).Value.ToString(), out bool targetBlank);
 
-                    int? parentId = int.TryParse(parentIdCell, out int pid) ? pid : null;
+                    long? parentId = long.TryParse(parentIdCell, out long pid) ? pid : null;
 
                     var payload = new Menu
                     {
@@ -299,7 +299,7 @@ namespace ThstiServer.Controllers
                         IsMegaMenu = false
                     };
 
-                    if (int.TryParse(idCell, out int id) && id > 0)
+                    if (long.TryParse(idCell, out long id) && id > 0)
                     {
                         var existing = await _context.Menus.FindAsync(id);
                         if (existing != null)
@@ -364,3 +364,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

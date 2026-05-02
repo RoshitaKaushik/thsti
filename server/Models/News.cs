@@ -5,7 +5,7 @@ namespace ThstiServer.Models;
 
 public partial class News
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Title { get; set; } = null!;
 
@@ -29,6 +29,10 @@ public partial class News
 
     public DateTime UpdatedAt { get; set; }
 
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
+
     public bool IsFeatured { get; set; }
 
     public string ReviewStatus { get; set; } = "Published";
@@ -37,3 +41,5 @@ public partial class News
 
     public bool IsArchived { get; set; } = false;
 }
+
+

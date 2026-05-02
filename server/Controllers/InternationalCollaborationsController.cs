@@ -85,7 +85,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("api/international-collaboration/{id}")]
-        public async Task<IActionResult> UpdateCollaboration(int id, [FromBody] InternationalCollaborationRequest req)
+        public async Task<IActionResult> UpdateCollaboration(long id, [FromBody] InternationalCollaborationRequest req)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("api/international-collaboration/{id}")]
-        public async Task<IActionResult> DeleteCollaboration(int id)
+        public async Task<IActionResult> DeleteCollaboration(long id)
         {
             try
             {
@@ -131,7 +131,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("api/international-collaboration/{id}/toggle-active")]
-        public async Task<IActionResult> ToggleCollaborationActive(int id)
+        public async Task<IActionResult> ToggleCollaborationActive(long id)
         {
             try
             {
@@ -151,3 +151,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

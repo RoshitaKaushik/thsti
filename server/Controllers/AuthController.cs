@@ -83,7 +83,7 @@ namespace ThstiServer.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role ?? "VIEWER")
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddHours(24),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -113,7 +113,7 @@ namespace ThstiServer.Controllers
                 Success = true,
                 AccessToken = jwt,
                 RefreshToken = rawRefresh.ToLower(),
-                ExpiresIn = 900,
+                ExpiresIn = 86400,
                 User = new UserDto
                 {
                     Id = user.Id,
@@ -158,7 +158,7 @@ namespace ThstiServer.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, user.Role ?? "VIEWER")
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.UtcNow.AddHours(24),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -187,7 +187,7 @@ namespace ThstiServer.Controllers
                 success = true,
                 accessToken = jwt,
                 refreshToken = newRawRefresh.ToLower(),
-                expiresIn = 900
+                expiresIn = 86400
             });
         }
 

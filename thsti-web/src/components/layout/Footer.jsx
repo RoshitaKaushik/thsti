@@ -53,7 +53,7 @@ const Footer = () => {
                                     <div className="footer-column col-lg-6 col-md-6 col-sm-12">
                                         <div className="footer-widget about-widget">
                                             <div className="logo">
-                                                <a className="logobox" href="/"><img src="images/logo-small1.png" alt={settings?.siteName || "THSTI Logo"} title={settings?.siteName || "THSTI Logo"} /></a>
+                                                <a className="logobox" href="/"><img src={settings?.logoUrl ? (settings.logoUrl.startsWith('http') ? settings.logoUrl : `${ASSETS_BASE_URL}${settings.logoUrl}`) : "images/logo-small1.png"} alt={settings?.siteName || "THSTI Logo"} title={settings?.siteName || "THSTI Logo"} style={{ maxWidth: '100%', maxHeight: '80px', objectFit: 'contain' }} /></a>
                                             </div>
                                             <div className="text">Translational Health Science and Technology Institute and
                                                 Institute of Biotechnology Research and Innovation Council Dept. of
@@ -111,6 +111,25 @@ const Footer = () => {
                                                 <li><a href="#">{(settings?.contactEmail || 'info@thsti.res.in').replace('@', '[AT]').replaceAll('.', '[DOT]')}</a></li>
                                                 <li>{settings?.workingHours || 'Mon to Sat: 9:am to 6pm'}</li>
                                             </ul>
+                                            
+                                            {/* Dynamic Footer Media (Map AND Image) */}
+                                            {(settings?.mapLink || settings?.footerImageUrl) && (
+                                                <div className="footer-media mt-4" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                                    {/* Featured Image */}
+                                                    {settings?.footerImageUrl && (
+                                                        <img src={settings.footerImageUrl.startsWith('http') ? settings.footerImageUrl : `${ASSETS_BASE_URL}${settings.footerImageUrl}`} alt="Footer Featured Media" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '4px', objectFit: 'contain', background: '#fff', padding: '5px' }} />
+                                                    )}
+                                                    
+                                                    {/* Google Map Embed */}
+                                                    {settings?.mapLink && (
+                                                        settings.mapLink.includes('<iframe') ? (
+                                                            <div dangerouslySetInnerHTML={{ __html: settings.mapLink }} className="embedded-map-container" />
+                                                        ) : (
+                                                            <iframe src={settings.mapLink} title="Footer Map" width="100%" height="200" style={{ border: 0, borderRadius: '4px' }} allowFullScreen="" loading="lazy"></iframe>
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

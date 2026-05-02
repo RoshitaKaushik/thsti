@@ -144,7 +144,7 @@ export default function Sidebar() {
             <div className="flex-1 py-4 overflow-y-auto overflow-x-hidden sidebar-scrollbar">
                 <ul className="flex flex-col m-0 p-0 list-none space-y-0.5 px-3">
                     {navItems.map((item, index) => {
-                        if (item.children) {
+                        if (item.children && item.children.length > 0) {
                             const parentActive = isChildActive(item.children);
 
                             return (
@@ -256,7 +256,7 @@ export default function Sidebar() {
                         <div className="font-medium text-white px-3 pb-2 text-[14px] border-b border-white/10 mb-1">
                             {hoveredItem.name}
                         </div>
-                        {hoveredItem.children ? (
+                        {hoveredItem.children && hoveredItem.children.length > 0 ? (
                             <ul className="m-0 p-0 list-none space-y-0.5">
                                 {hoveredItem.children.map(child => {
                                     const active = isMatch(child.path);

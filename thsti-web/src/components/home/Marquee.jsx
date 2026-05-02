@@ -44,8 +44,8 @@ const Marquee = () => {
                     ref={marqueeRef}
                     behavior="scroll" 
                     direction="left" 
-                    onMouseOver={(e) => { e.target.stop(); setIsPaused(true); }} 
-                    onMouseOut={(e) => { e.target.start(); setIsPaused(false); }}
+                    onMouseOver={(e) => { if (marqueeRef.current) marqueeRef.current.stop(); setIsPaused(true); }} 
+                    onMouseOut={(e) => { if (marqueeRef.current) marqueeRef.current.start(); setIsPaused(false); }}
                   >
                      {displayItems.map((item) => (
                         <a 

@@ -6,6 +6,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { toast } from 'react-hot-toast';
 import api from '../api/axios';
 import SectionSettings from '../components/SectionSettings';
+import MediaSelector from '../components/MediaSelector';
 
 export default function Programmes() {
     const [programmes, setProgrammes] = useState([]);
@@ -23,7 +24,6 @@ export default function Programmes() {
         isActive: true
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
 
     const fetchProgrammes = useCallback(async () => {
@@ -82,35 +82,6 @@ export default function Programmes() {
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
-    };
-
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const validExt = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (!validExt.includes(file.type)) {
-            alert('Only JPG, JPEG, and PNG files are allowed.');
-            e.target.value = '';
-            return;
-        }
-
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-
-        setUploading(true);
-        try {
-            const res = await api.post('/media/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
-            toast.success('Image uploaded successfully!');
-        } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to upload image');
-        } finally {
-            setUploading(false);
-            e.target.value = '';
-        }
     };
 
     const handleSubmit = async (e) => {
@@ -189,6 +160,10 @@ export default function Programmes() {
     const getImageUrl = (url) => {
         if (!url) return null;
         if (url.startsWith('http') || url.startsWith('data:')) return url;
+        if (url.startsWith('images/')) {
+            const publicUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'http://localhost:5173';
+            return `${publicUrl}/${url}`;
+        }
         // Import ASSETS_BASE_URL dynamically to avoid missing imports up top if forgotten
         const baseUrl = import.meta.env.VITE_ASSETS_BASE_URL || 'http://localhost:5000';
         const cleanUrl = url.startsWith('/') ? url.slice(1) : url;
@@ -341,41 +316,12 @@ export default function Programmes() {
                         </div>
 
                         <div className="col-span-1 md:col-span-2">
-                            <label className="admin-form-label mb-2">Image Source</label>
-                            
-                            <div className="flex flex-col md:flex-row gap-4 p-3 bg-gray-50 border border-gray-200 rounded items-start md:items-center">
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Upload File (JPG/PNG)</span>
-                                    <input 
-                                        type="file" 
-                                        accept=".jpg,.jpeg,.png" 
-                                        onChange={handleImageUpload} 
-                                        className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border bg-white rounded-md p-1" 
-                                    />
-                                    {uploading && <span className="text-[10px] text-blue-600 font-bold animate-pulse mt-1 block">Uploading...</span>}
-                                </div>
-                                
-                                <div className="hidden md:block text-xs font-bold text-gray-400 uppercase">OR</div>
-                                
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Paste URL/Link</span>
-                                    <input type="text" name="imageUrl" className="admin-form-input py-1.5 text-xs h-9" value={formData.imageUrl} onChange={handleChange} placeholder="https://..." />
-                                </div>
-                            </div>
-
-                            {formData.imageUrl && (
-                                <div className="mt-2 flex items-center justify-between">
-                                    <div className="text-xs px-1 text-gray-500 flex-1 truncate pr-4">
-                                        Source: <span className="text-blue-600 font-mono inline-block align-bottom truncate w-full">{formData.imageUrl}</span>
-                                    </div>
-                                    <img
-                                        src={getImageUrl(formData.imageUrl)}
-                                        alt="Preview"
-                                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x300?text=No+Image'; }}
-                                        className="h-12 w-auto object-contain rounded border border-gray-200 bg-white"
-                                    />
-                                </div>
-                            )}
+                            <MediaSelector
+                                label="Image Source"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/jpeg, image/png, image/jpg"
+                            />
                         </div>
 
                         <div className="col-span-1 md:col-span-2 border-t pt-4">

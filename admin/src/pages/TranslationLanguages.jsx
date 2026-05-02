@@ -28,7 +28,7 @@ export default function TranslationLanguages() {
     const fetchLanguages = () => {
         setLoading(true);
         setPageError('');
-        api.get('/translation-languages/all')
+        api.get('/translation-languages')
             .then(res => setLanguages(res.data))
             .catch(err => {
                 if (err.response && (err.response.status === 403 || err.response.status === 401)) {
@@ -120,8 +120,8 @@ export default function TranslationLanguages() {
 
     const saveReorder = async (orderedLangs) => {
         try {
-            const items = orderedLangs.map(l => ({ id: l.id, order: l.order }));
-            await api.put('/translation-languages/reorder', items);
+            const items = orderedLangs.map(l => ({ id: l.id, displayOrder: l.order }));
+            await api.put('/translation-languages/reorder', { orders: items });
         } catch (error) {
             console.error('Failed to reorder', error);
             fetchLanguages(); // revert on fail
@@ -252,41 +252,41 @@ export default function TranslationLanguages() {
 
     return (
         <AdminPageLayout title="Translation Languages" subtitle="Manage dynamic dropdown language list" actionButtons={actionButtons}>
-            <div className="admin-card overflow-hidden flex flex-col flex-1 min-h-0 bg-white shadow-sm border border-border-light printable-area">
+            <div className="overflow-hidden flex flex-col flex-1 min-h-0 bg-white shadow-sm border border-gray-200 rounded-md printable-area">
                 <div className="overflow-auto flex-1">
-                    <table className="admin-table w-full">
-                        <thead className="sticky top-0 z-10">
+                    <table className="w-full text-left border-collapse">
+                        <thead className="bg-gray-100 border-b border-gray-200 text-sm sticky top-0 z-10">
                             <tr>
-                                <th className="w-16">Reorder</th>
-                                <th className="w-16">S.No</th>
-                                <th>Label</th>
-                                <th>Code</th>
-                                <th className="w-24">Order</th>
-                                <th className="w-24 text-center">Status</th>
-                                <th className="w-32 text-right no-print">Actions</th>
+                                <th className="w-16 py-3 px-4 font-bold text-gray-700 text-center">Reorder</th>
+                                <th className="w-16 py-3 px-4 font-bold text-gray-700 text-center">S.No</th>
+                                <th className="py-3 px-4 font-bold text-gray-700">Label</th>
+                                <th className="py-3 px-4 font-bold text-gray-700">Code</th>
+                                <th className="w-24 py-3 px-4 font-bold text-gray-700 text-center">Order</th>
+                                <th className="w-24 py-3 px-4 font-bold text-gray-700 text-center">Status</th>
+                                <th className="w-32 py-3 px-4 font-bold text-gray-700 text-right no-print">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {pageError ? (
-                                <tr><td colSpan="7" className="text-center py-8 text-red-600 font-bold bg-red-50">{pageError}</td></tr>
+                                <tr><td colSpan="7" className="text-center py-8 text-red-600 font-bold bg-red-50 text-sm">{pageError}</td></tr>
                             ) : loading ? (
-                                <tr><td colSpan="7" className="text-center py-8 text-text-muted">Loading languages...</td></tr>
+                                <tr><td colSpan="7" className="text-center py-8 text-gray-400 text-sm italic">Loading languages...</td></tr>
                             ) : languages.length === 0 ? (
-                                <tr><td colSpan="7" className="text-center py-8 text-text-muted">No languages found.</td></tr>
+                                <tr><td colSpan="7" className="text-center py-8 text-gray-400 text-sm italic">No languages found.</td></tr>
                             ) : (
                                 languages.map((lang, index) => (
-                                    <tr key={lang.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="text-center text-gray-400 no-print">
+                                    <tr key={lang.id} className="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
+                                        <td className="py-3 px-4 text-center text-gray-400 no-print">
                                             <div className="flex flex-col items-center gap-1">
-                                                <button onClick={() => moveUp(index)} disabled={index === 0} className="hover:text-primary disabled:opacity-30"><GripVertical size={14} className="rotate-90" /></button>
-                                                <button onClick={() => moveDown(index)} disabled={index === languages.length - 1} className="hover:text-primary disabled:opacity-30"><GripVertical size={14} className="rotate-90" /></button>
+                                                <button onClick={() => moveUp(index)} disabled={index === 0} className="hover:text-blue-600 disabled:opacity-30"><GripVertical size={14} className="rotate-90" /></button>
+                                                <button onClick={() => moveDown(index)} disabled={index === languages.length - 1} className="hover:text-blue-600 disabled:opacity-30"><GripVertical size={14} className="rotate-90" /></button>
                                             </div>
                                         </td>
-                                        <td className="text-center font-medium text-text-muted">{index + 1}</td>
-                                        <td className="font-bold text-secondary">{lang.label}</td>
-                                        <td><span className="bg-gray-100 text-gray-800 font-mono px-2 py-1 rounded text-xs">{lang.code}</span></td>
-                                        <td className="text-center">{lang.order}</td>
-                                        <td className="text-center">
+                                        <td className="py-3 px-4 text-center font-medium text-gray-500 text-sm">{index + 1}</td>
+                                        <td className="py-3 px-4 font-bold text-secondary text-sm">{lang.label}</td>
+                                        <td className="py-3 px-4"><span className="bg-gray-100 border border-gray-200 text-gray-800 font-mono px-2 py-1 rounded text-xs">{lang.code}</span></td>
+                                        <td className="py-3 px-4 text-center text-sm text-gray-600">{lang.order}</td>
+                                        <td className="py-3 px-4 text-center">
                                             <button
                                                 onClick={() => handleToggleActive(lang.id)}
                                                 className={`px-2 py-1 text-xs font-bold rounded-full w-20 transition-colors ${lang.isActive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`}
@@ -294,8 +294,8 @@ export default function TranslationLanguages() {
                                                 {lang.isActive ? 'Active' : 'Disabled'}
                                             </button>
                                         </td>
-                                        <td className="text-right no-print space-x-2">
-                                            <button onClick={() => handleOpenEdit(lang)} className="p-1.5 text-text-muted hover:text-accent bg-gray-50 border border-border-light rounded transition-colors" title="Edit Language">
+                                        <td className="py-3 px-4 text-right no-print space-x-2">
+                                            <button onClick={() => handleOpenEdit(lang)} className="p-1.5 text-gray-500 hover:text-blue-600 bg-gray-50 border border-gray-200 rounded transition-colors" title="Edit Language">
                                                 <Edit2 size={16} />
                                             </button>
                                         </td>

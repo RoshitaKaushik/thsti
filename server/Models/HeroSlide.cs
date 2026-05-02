@@ -5,7 +5,7 @@ namespace ThstiServer.Models;
 
 public partial class HeroSlide
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string? Title { get; set; }
     public string? TitleHi { get; set; }
@@ -33,6 +33,10 @@ public partial class HeroSlide
 
     public DateTime UpdatedAt { get; set; }
 
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
+
     public string ReviewStatus { get; set; } = "Published"; // Draft, PendingReview, Published, Rejected
 
     public string? Remarks { get; set; }
@@ -41,3 +45,5 @@ public partial class HeroSlide
 
     public bool IsArchived { get; set; } = false;
 }
+
+

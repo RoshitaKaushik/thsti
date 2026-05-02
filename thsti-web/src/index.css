@@ -9,6 +9,129 @@
 
 /* Global styles will be imported here */
 
+:root {
+  --base-font-size: 100%;
+}
+
+/* CMS Rich Text Editor Alignment Classes */
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+
+:root[data-font-size="large"] {
+  --base-font-size: 110%;
+}
+
+:root[data-font-size="xlarge"] {
+  --base-font-size: 120%;
+}
+
+html {
+  font-size: var(--base-font-size) !important;
+  transition: filter 0.3s ease, font-size 0.3s ease;
+  font-variant-ligatures: none;
+}
+
+/* Vision Box Styles from director-message template */
+.visionbox {
+   background: #f8f9fc;
+   border: 1px solid #e8edf5;
+   border-left: 4px solid #9d302b;
+   border-radius: 10px;
+   padding: 14px 18px;
+   position: relative;
+   margin-bottom: 40px;
+}
+
+.visionbox h2 {
+   font-size: 20px;
+   font-weight: 800;
+   color: #0d1f36;
+   margin-bottom: 8px;
+   line-height: 1.2;
+}
+
+.visionbox p {
+   font-size: 16px;
+   font-weight: 400;
+   color: #555555;
+   letter-spacing: 0.4px;
+   margin-bottom: 6px;
+}
+
+/* Sticky Scroll Nav Styles from director-message template */
+.fp2-sticky-nav {
+   position: sticky;
+   top: 0;
+   z-index: 200;
+   background: #0b3a6f;
+   border-bottom: 3px solid #9d302b;
+   overflow-x: auto;
+   scrollbar-width: none;
+}
+
+.fp2-sticky-nav::-webkit-scrollbar {
+   display: none;
+}
+
+.fp2-sticky-nav-inner {
+   display: flex;
+   min-width: max-content;
+}
+
+.fp2-nav-link {
+   display: inline-flex;
+   align-items: center;
+   gap: 7px;
+   padding: 14px 22px;
+   font-size: 12.5px;
+   font-weight: 700;
+   letter-spacing: 0.8px;
+   text-transform: uppercase;
+   color: rgba(255, 255, 255, 0.65);
+   text-decoration: none;
+   border-right: 1px solid rgba(255, 255, 255, 0.08);
+   transition: all 0.2s;
+   white-space: nowrap;
+}
+
+.fp2-nav-link i {
+   font-size: 13px;
+}
+
+.fp2-nav-link:hover,
+.fp2-nav-link.fp2-nav-active {
+   color: #fff;
+   background: rgba(255, 255, 255, 0.1);
+   text-decoration: none;
+}
+
+.fp2-nav-link.fp2-nav-active {
+   border-bottom: 3px solid #9d302b;
+   margin-bottom: -3px;
+}
+
+:root[data-font-size="large"] body {
+  zoom: 1.1;
+}
+
+:root[data-font-size="xlarge"] body {
+  zoom: 1.2;
+}
+
+/* High Contrast Mode via CSS Filter */
+html[data-theme="high-contrast"] {
+  filter: invert(100%) hue-rotate(180deg) contrast(120%);
+  background-color: #000;
+}
+
+/* Re-invert images and videos so they look normal in high contrast */
+html[data-theme="high-contrast"] img,
+html[data-theme="high-contrast"] video {
+  filter: invert(100%) hue-rotate(180deg);
+}
+
+
 /* =========================================
    What's New / Marquee Strip (fixed-bottom)
    ========================================= */
@@ -116,4 +239,204 @@
 }
 .swiper-slide-active .image-layer {
     animation: kenBurnsZoom 12s linear forwards !important;
+}
+
+html[data-readable-font="true"] *:not(i):not([class*="fa"]):not([class*="icon"]) {
+  font-family: Arial, Helvetica, sans-serif !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* CMS Rich Text Output Styling */
+.cms-rich-text h1, .cms-rich-text h2, .cms-rich-text h3, .cms-rich-text h4, .cms-rich-text h5, .cms-rich-text h6 {
+  color: var(--brand-navy);
+  font-weight: 700;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  line-height: 1.3;
+}
+.cms-rich-text h1 { font-size: 2.2rem; }
+.cms-rich-text h2 { font-size: 1.8rem; border-bottom: 2px solid #eaeaea; padding-bottom: 10px; }
+.cms-rich-text h3 { font-size: 1.5rem; }
+.cms-rich-text h4 { font-size: 1.25rem; }
+.cms-rich-text h5 { font-size: 1.1rem; }
+.cms-rich-text h6 { font-size: 1rem; }
+
+.cms-rich-text p {
+  margin-bottom: 1.5em;
+  line-height: 1.8;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+/* Magic: Automatically turn standalone bold paragraphs into beautiful section headers */
+.cms-rich-text p:has(> strong:only-child) {
+  font-size: 1.4rem;
+  color: var(--brand-navy);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  display: block;
+}
+
+/* Specific override so the contact names (which are strong) don't get the huge margin if followed by contact info */
+.cms-rich-text p[style*="margin-top: 24px"]:has(> strong:only-child) {
+  margin-top: 24px !important;
+  border-bottom: none;
+  padding-bottom: 0;
+  color: #222;
+}
+
+.cms-rich-text ul {
+  list-style: disc outside !important;
+  padding-left: 1.5em !important;
+  margin-bottom: 1.8em;
+}
+.cms-rich-text ol {
+  list-style: decimal outside !important;
+  padding-left: 1.5em !important;
+  margin-bottom: 1.8em;
+}
+.cms-rich-text li {
+  display: list-item !important;
+  margin-bottom: 0.5em;
+  line-height: 1.6;
+  color: #444;
+  font-size: 1.05rem;
+}
+
+/* Custom Native Accordion for CMS Content */
+.cms-accordion {
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+.cms-accordion[open] {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+.cms-accordion-header {
+  padding: 16px 22px;
+  background: #f8faff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--brand-navy);
+  cursor: pointer;
+  list-style: none; /* Hide default marker */
+  position: relative;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin: 0;
+}
+.cms-accordion-header::-webkit-details-marker {
+  display: none;
+}
+.cms-accordion-header::after {
+  content: '\f107'; /* FontAwesome down arrow */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.3s ease;
+  color: var(--brand-maroon);
+}
+.cms-accordion[open] .cms-accordion-header::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+.cms-accordion[open] .cms-accordion-header {
+  background: var(--brand-maroon);
+  color: #fff;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.cms-accordion[open] .cms-accordion-header::after {
+  color: #fff;
+}
+.cms-accordion-body {
+  padding: 22px;
+  border-top: 1px solid #e0e6ed;
+  background: #fff;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cms-accordion-body ul, .cms-accordion-body ol {
+  margin-bottom: 0;
+}
+
+.cms-rich-text li::marker {
+  color: var(--brand-maroon);
+}
+
+.cms-rich-text strong, .cms-rich-text b {
+  font-weight: 700;
+  color: #111;
+}
+
+.cms-rich-text blockquote {
+  border-left: 4px solid var(--brand-maroon);
+  padding-left: 1em;
+  margin-bottom: 1.5em;
+  color: #555;
+  font-style: italic;
+  background-color: #f9f9f9;
+  padding: 15px 20px;
+  border-radius: 4px;
+}
+
+.cms-rich-text a {
+  color: var(--brand-maroon);
+  text-decoration: underline;
+}
+.cms-rich-text a:hover {
+  color: var(--brand-navy);
+}
+
+.cms-rich-text img {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Reduce bottom margin for paragraphs containing inline images to tighten up contact lists */
+.cms-rich-text p:has(img) {
+  margin-bottom: 0.5em;
+}
+
+/* Two-column Contact Profile Cards */
+.contact-person-card {
+  display: inline-block;
+  width: 48%;
+  margin: 0 1% 20px 1%;
+  vertical-align: top;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #edf1f7;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.contact-person-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+@media (max-width: 768px) {
+  .contact-person-card {
+    width: 100%;
+    margin: 0 0 20px 0;
+  }
+}
+
+/* Fix MS Word Headings: Auto-center main section titles (36pt text) */
+.cms-rich-text p:has(span[style*="36.0pt"]),
+.cms-rich-text div:has(span[style*="36.0pt"]) {
+  text-align: center !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 1.5rem !important;
 }

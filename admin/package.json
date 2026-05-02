@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@craftjs/core": "^0.2.12",
+    "@craftjs/layers": "^0.2.7",
     "@hello-pangea/dnd": "^18.0.1",
     "axios": "^1.13.5",
     "crypto-js": "^4.2.0",

@@ -4,7 +4,7 @@ namespace ThstiServer.Models;
 
 public partial class Tender
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Title { get; set; } = null!;
     public string? TitleHi { get; set; }
@@ -23,4 +23,10 @@ public partial class Tender
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
 }
+
+

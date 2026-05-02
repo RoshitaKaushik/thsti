@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { API_BASE_URL, PUBLIC_SITE_URL, ASSETS_BASE_URL } from '../config/env';
-import { Plus, Edit2, Shield, Eye, ShieldAlert, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react';
+import { Plus, Edit2, Shield, Eye, ShieldAlert, ArrowUp, ArrowDown, ExternalLink, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
 import SectionSettings from '../components/SectionSettings';
+import MediaSelector from '../components/MediaSelector';
+import RichTextEditor from '../components/RichTextEditor';
+import RevisionHistoryModal from '../components/RevisionHistoryModal';
 
 export default function ResearchFacilities() {
     const [facilities, setFacilities] = useState([]);
@@ -13,12 +16,13 @@ export default function ResearchFacilities() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingFacility, setEditingFacility] = useState(null);
     const [viewingFacility, setViewingFacility] = useState(null);
-    const [uploading, setUploading] = useState(false);
+    const [historyFacility, setHistoryFacility] = useState(null);
 
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
         excerpt: '',
+        content: '',
         imageUrl: '',
         routeUrl: '',
         isExternal: false,
@@ -45,12 +49,12 @@ export default function ResearchFacilities() {
     const handleOpenModal = (facility = null) => {
         if (facility) {
             setEditingFacility(facility);
-            setFormData({ ...facility, excerpt: facility.excerpt || '', imageUrl: facility.imageUrl || '', routeUrl: facility.routeUrl || '' });
+            setFormData({ ...facility, excerpt: facility.excerpt || '', content: facility.content || '', imageUrl: facility.imageUrl || '', routeUrl: facility.routeUrl || '' });
         } else {
             setEditingFacility(null);
             setFormData({
-                title: '', slug: '', excerpt: '', imageUrl: '', routeUrl: '', isExternal: false, openInNewTab: false,
-                displayOrder: facilities.length > 0 ? Math.max(...facilities.map(f => f.displayOrder)) + 1 : 1,
+                title: '', slug: '', excerpt: '', content: '', imageUrl: '', routeUrl: '', isExternal: false, openInNewTab: false,
+                displayOrder: facilities.length > 0 ? Math.max(...facilities.map(c => c.displayOrder)) + 1 : 1,
                 isActive: true
             });
         }
@@ -76,43 +80,14 @@ export default function ResearchFacilities() {
         });
     };
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const validExt = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (!validExt.includes(file.type)) {
-            alert('Only JPG, JPEG, and PNG files are allowed.');
-            e.target.value = '';
-            return;
-        }
-
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-
-        setUploading(true);
-        try {
-            const res = await api.post('/media/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
-            toast.success('Image uploaded successfully!');
-        } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to upload image');
-        } finally {
-            setUploading(false);
-            e.target.value = '';
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const payload = { ...formData, displayOrder: parseInt(formData.displayOrder, 10) };
             if (editingFacility) {
-                await api.put(`/research-facilities/admin/${editingFacility.id}`, payload);
+                await api.put(`/research-facilities/${editingFacility.id}`, payload);
             } else {
-                await api.post('/research-facilities/admin', payload);
+                await api.post('/research-facilities', payload);
             }
             handleCloseModal();
             fetchFacilities();
@@ -200,7 +175,7 @@ export default function ResearchFacilities() {
                                 <td className="p-3 text-text-muted">{index + 1}</td>
                                 <td className="p-3">
                                     {facility.imageUrl ? (
-                                        <img src={facility.imageUrl.startsWith('http') ? facility.imageUrl : `${ASSETS_BASE_URL}/${facility.imageUrl.replace(/^\//, '')}`} alt={facility.title} className="w-12 h-12 object-cover rounded shadow-sm border border-gray-200" onError={(e) => { e.target.src = 'https://placehold.co/100x100?text=No+Img' }} />
+                                        <img src={facility.imageUrl.startsWith('http') ? facility.imageUrl : (facility.imageUrl.startsWith('images/') ? `${PUBLIC_SITE_URL}/${facility.imageUrl}` : `${ASSETS_BASE_URL}/${facility.imageUrl.replace(/^\//, '')}`)} alt={facility.title} className="w-12 h-12 object-cover rounded shadow-sm border border-gray-200" onError={(e) => { e.target.src = 'https://placehold.co/100x100?text=No+Img' }} />
                                     ) : (
                                         <div className="w-12 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-400">N/A</div>
                                     )}
@@ -233,6 +208,9 @@ export default function ResearchFacilities() {
                                                 <ExternalLink size={18} />
                                             </a>
                                         )}
+                                        <button onClick={() => setHistoryFacility(facility)} className="p-2 text-text-muted hover:text-blue-500 transition-colors tooltip" title="Revision History (Undo)">
+                                            <Clock size={18} />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -244,10 +222,13 @@ export default function ResearchFacilities() {
             {/* View Modal */}
             {viewingFacility && (
                 <AdminModal isOpen={true} onClose={handleCloseModal} title={`Viewing: ${viewingFacility.title}`}>
-                    <div className="space-y-4 text-sm text-text-main">
+                    <div className="space-y-4 text-sm text-text-main max-h-[70vh] overflow-y-auto pr-2">
                         <div><strong className="block text-secondary">Title:</strong> {viewingFacility.title}</div>
                         <div><strong className="block text-secondary">Slug:</strong> <span className="font-mono bg-gray-100 px-1">{viewingFacility.slug}</span></div>
                         <div><strong className="block text-secondary">Excerpt:</strong> <div className="p-2 bg-gray-50 border rounded mt-1">{viewingFacility.excerpt}</div></div>
+                        <div><strong className="block text-secondary">Detailed Content:</strong>
+                            <div className="p-4 bg-gray-50 border rounded mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: viewingFacility.content || '<em class="text-gray-400">No content provided</em>' }}></div>
+                        </div>
                         <div><strong className="block text-secondary">Image URL:</strong> {viewingFacility.imageUrl ? <span className="text-blue-600 underline">{viewingFacility.imageUrl}</span> : 'None'}</div>
                         <div><strong className="block text-secondary">Link Details:</strong>
                             {viewingFacility.isExternal ? ' External URL' : ' Internal Route'} | {viewingFacility.openInNewTab ? 'Opens in New Tab' : 'Same Tab'}
@@ -258,6 +239,16 @@ export default function ResearchFacilities() {
                     </div>
                 </AdminModal>
             )}
+
+            {/* Revision History Modal */}
+            <RevisionHistoryModal
+                isOpen={!!historyFacility}
+                onClose={() => setHistoryFacility(null)}
+                entityType="ResearchFacility"
+                entityId={historyFacility?.id}
+                entityTitle={historyFacility?.title}
+                onRevertSuccess={fetchFacilities}
+            />
 
             {/* Edit / Create Modal */}
             <AdminModal isOpen={isModalOpen} onClose={handleCloseModal} title={editingFacility ? 'Edit Research Facility' : 'Add New Research Facility'} size="lg">
@@ -278,32 +269,21 @@ export default function ResearchFacilities() {
                         </div>
 
                         <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Image Source *</label>
-                            
-                            <div className="flex flex-col md:flex-row gap-4 p-3 bg-gray-50 border border-gray-200 rounded items-start md:items-center">
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Upload File (JPG/PNG)</span>
-                                    <input 
-                                        type="file" 
-                                        accept=".jpg,.jpeg,.png" 
-                                        onChange={handleImageUpload} 
-                                        className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border bg-white rounded-md p-1" 
-                                    />
-                                    {uploading && <span className="text-[10px] text-blue-600 font-bold animate-pulse mt-1 block">Uploading...</span>}
-                                </div>
-                                
-                                <div className="hidden md:block text-xs font-bold text-gray-400 uppercase">OR</div>
-                                
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Paste URL/Link</span>
-                                    <input type="text" name="imageUrl" className="admin-input py-1.5 text-xs" value={formData.imageUrl} onChange={handleChange} placeholder="https://..." />
-                                </div>
-                            </div>
-                            {formData.imageUrl && (
-                                <div className="mt-1 text-xs px-1 text-gray-500">
-                                    Source: <span className="text-blue-600 font-mono truncate inline-block max-w-sm align-bottom">{formData.imageUrl}</span>
-                                </div>
-                            )}
+                            <label className="block text-text-main font-bold mb-1">Detailed Page Content</label>
+                            <RichTextEditor
+                                value={formData.content}
+                                onChange={(val) => setFormData(prev => ({ ...prev, content: val }))}
+                                placeholder="Write the full details for this research facility here..."
+                            />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <MediaSelector
+                                label="Image Source *"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/jpeg, image/png, image/jpg"
+                            />
                         </div>
 
                         <div className="md:col-span-1">

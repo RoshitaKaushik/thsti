@@ -24,12 +24,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.AdminModule", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AllowedRoles")
                         .IsRequired()
@@ -60,8 +60,8 @@ namespace ThstiServer.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("order");
 
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int")
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint")
                         .HasColumnName("parentId");
 
                     b.Property<string>("Path")
@@ -78,12 +78,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.AuthAuditLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -108,8 +108,8 @@ namespace ThstiServer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("userAgent");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int")
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("userId");
 
                     b.HasKey("Id")
@@ -122,14 +122,47 @@ namespace ThstiServer.Migrations
                     b.ToTable("AuthAuditLog", (string)null);
                 });
 
+            modelBuilder.Entity("ThstiServer.Models.CmsRevision", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ChangedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<long>("EntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SnapshotJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CmsRevision", (string)null);
+                });
+
             modelBuilder.Entity("ThstiServer.Models.ContactSubmission", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -170,12 +203,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Faculty", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AwardsContent")
                         .HasColumnType("nvarchar(max)")
@@ -196,6 +229,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CvUrl")
                         .HasColumnType("nvarchar(max)")
@@ -334,6 +370,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("Faculty_pkey");
 
@@ -345,12 +384,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.FooterLink", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Column")
                         .IsRequired()
@@ -362,6 +401,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -384,6 +426,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -399,15 +444,15 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Gallery", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int")
+                    b.Property<long?>("CategoryId")
+                        .HasColumnType("bigint")
                         .HasColumnName("categoryId");
 
                     b.Property<DateTime>("CreatedAt")
@@ -435,12 +480,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.GalleryCategory", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -458,12 +503,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.GlobalSetting", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)")
@@ -487,9 +532,15 @@ namespace ThstiServer.Migrations
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FacebookUrl")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("facebookUrl");
+
+                    b.Property<string>("FooterImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsSearchEnabled")
                         .ValueGeneratedOnAdd()
@@ -540,6 +591,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("VirtualTourActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -570,18 +624,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.HeroSlide", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -661,6 +718,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("HeroSlide_pkey");
 
@@ -671,12 +731,15 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.HomeSection", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CtaLink")
                         .HasColumnType("nvarchar(max)")
@@ -721,6 +784,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("HomeSection_pkey");
 
@@ -731,18 +797,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.InternationalCollaboration", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -773,6 +842,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("InternationalCollaboration_pkey");
 
@@ -781,12 +853,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.LifeAtThstiItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ButtonLink")
                         .HasColumnType("nvarchar(max)")
@@ -805,6 +877,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)")
@@ -851,6 +926,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("LifeAtThstiItem_pkey");
 
@@ -861,18 +939,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.MarqueeItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -901,6 +982,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("url");
@@ -915,12 +999,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Medium", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("AltText")
                         .HasColumnType("nvarchar(max)")
@@ -964,18 +1048,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Menu", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1019,8 +1106,8 @@ namespace ThstiServer.Migrations
                         .HasDefaultValue(0)
                         .HasColumnName("order");
 
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int")
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint")
                         .HasColumnName("parentId");
 
                     b.Property<string>("Route")
@@ -1037,6 +1124,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("Menu_pkey");
 
@@ -1051,12 +1141,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.News", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -1071,6 +1161,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)")
@@ -1125,6 +1218,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("News_pkey");
 
@@ -1138,12 +1234,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Notification", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("ButtonText")
                         .HasColumnType("nvarchar(max)")
@@ -1154,6 +1250,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -1209,6 +1308,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("url");
@@ -1223,12 +1325,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.NotificationCategory", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1264,12 +1366,18 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Page", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BannerImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BreadcrumbTitle")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -1281,6 +1389,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1300,10 +1411,17 @@ namespace ThstiServer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ogImage");
 
+                    b.Property<string>("PageType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("slug");
+
+                    b.Property<string>("TemplateConfigJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -1313,6 +1431,9 @@ namespace ThstiServer.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
                         .HasName("Page_pkey");
@@ -1327,12 +1448,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.PasswordResetToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1361,8 +1482,8 @@ namespace ThstiServer.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("userAgent");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("userId");
 
                     b.HasKey("Id")
@@ -1380,18 +1501,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.PreFooterLink", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -1423,6 +1547,9 @@ namespace ThstiServer.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)")
@@ -1487,18 +1614,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Programme", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -1550,6 +1680,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("Programme_pkey");
 
@@ -1563,12 +1696,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1589,8 +1722,8 @@ namespace ThstiServer.Migrations
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("tokenHash");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
                         .HasColumnName("userId");
 
                     b.HasKey("Id")
@@ -1608,12 +1741,18 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.ResearchCenter", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AdmissionsContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CareersContent")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)")
@@ -1624,6 +1763,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -1657,6 +1799,9 @@ namespace ThstiServer.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("openInNewTab");
 
+                    b.Property<string>("OverviewContent")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RouteUrl")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("routeUrl");
@@ -1674,6 +1819,9 @@ namespace ThstiServer.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
                         .HasName("ResearchCenter_pkey");
@@ -1688,12 +1836,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.ResearchFacility", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)")
@@ -1704,6 +1852,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
@@ -1755,6 +1906,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("ResearchFacility_pkey");
 
@@ -1768,17 +1922,20 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.Tender", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("ClosingDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DocumentUrl")
                         .IsRequired()
@@ -1811,6 +1968,9 @@ namespace ThstiServer.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Tenders");
@@ -1818,12 +1978,12 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.TranslationLanguage", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1835,6 +1995,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1857,6 +2020,9 @@ namespace ThstiServer.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
 
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id")
                         .HasName("TranslationLanguage_pkey");
 
@@ -1868,18 +2034,21 @@ namespace ThstiServer.Migrations
 
             modelBuilder.Entity("ThstiServer.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("createdAt")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1944,6 +2113,9 @@ namespace ThstiServer.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2")
                         .HasColumnName("updatedAt");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .IsRequired()

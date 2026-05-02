@@ -11,6 +11,16 @@ const ContactUs = () => {
         message: ''
     });
     const [status, setStatus] = useState({ loading: false, success: false, error: null });
+    const [captcha, setCaptcha] = useState({ num1: 0, num2: 0 });
+    const [userCaptcha, setUserCaptcha] = useState('');
+
+    const generateCaptcha = () => {
+        setCaptcha({
+            num1: Math.floor(Math.random() * 10) + 1,
+            num2: Math.floor(Math.random() * 10) + 1
+        });
+        setUserCaptcha('');
+    };
 
     useSeo({
         title: 'Contact Us | THSTI',
@@ -18,6 +28,7 @@ const ContactUs = () => {
     });
 
     useEffect(() => {
+        generateCaptcha();
         // Fetch settings for contact info
         api.get('/settings')
             .then(res => setSettings(res.data))
@@ -31,16 +42,24 @@ const ContactUs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (parseInt(userCaptcha) !== captcha.num1 + captcha.num2) {
+            setStatus({ loading: false, success: false, error: "Incorrect Math Captcha answer. Please try again." });
+            generateCaptcha();
+            return;
+        }
+
         setStatus({ loading: true, success: false, error: null });
         
         try {
             await api.post('/contact-submissions/public', formData);
             setStatus({ loading: false, success: true, error: null });
             setFormData({ name: '', email: '', phone: '', message: '' });
+            generateCaptcha();
             setTimeout(() => setStatus(prev => ({ ...prev, success: false })), 5000);
         } catch (error) {
             console.error("Submission Error", error);
             setStatus({ loading: false, success: false, error: "Failed to send message. Please try again later." });
+            generateCaptcha();
         }
     };
 
@@ -139,6 +158,15 @@ const ContactUs = () => {
                                             <div className="col-md-12 form-group" style={{marginBottom: '30px'}}>
                                                 <textarea name="message" placeholder="Write your message here..." required value={formData.message} onChange={handleChange}
                                                     style={{width: '100%', padding: '15px 20px', height: '180px', border: '1px solid #e1e1e1', borderRadius: '5px', background: '#fbfbfb'}}></textarea>
+                                            </div>
+
+                                            <div className="col-md-12 form-group" style={{marginBottom: '20px'}}>
+                                                <div style={{display: 'flex', alignItems: 'center', background: '#f4f5f8', padding: '15px', borderRadius: '5px'}}>
+                                                    <span style={{fontWeight: 'bold', marginRight: '15px', fontSize: '18px', color: '#1a5fa8'}}>Anti-Spam Check:</span>
+                                                    <span style={{fontWeight: 'bold', marginRight: '15px', fontSize: '20px', letterSpacing: '2px'}}>{captcha.num1} + {captcha.num2} = </span>
+                                                    <input type="number" placeholder="?" required value={userCaptcha} onChange={(e) => setUserCaptcha(e.target.value)} 
+                                                        style={{width: '100px', padding: '10px 15px', border: '2px solid #e1e1e1', borderRadius: '5px', background: '#fff', fontSize: '18px', textAlign: 'center'}} />
+                                                </div>
                                             </div>
                                             
                                             <div className="col-md-12 form-group">

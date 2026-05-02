@@ -3,6 +3,7 @@ import api from '../api/axios';
 import SectionSettings from '../components/SectionSettings';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
+import MediaSelector from '../components/MediaSelector';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Edit2, Trash2, GripVertical, Check, X, FileVideo, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -11,21 +12,10 @@ export default function HeroSlides() {
     const [slides, setSlides] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingSlide, setEditingSlide] = useState(null);
-    const [mediaList, setMediaList] = useState([]);
     
     // Auth State
     const currentUser = JSON.parse(localStorage.getItem('thsti_admin_user') || '{}');
-    const isExecutive = currentUser?.role === 'EXECUTIVE';
-
-    // Advanced Media States
-    const [mediaOpt, setMediaOpt] = useState('LIBRARY'); // LIBRARY, UPLOAD, URL
-    const [mediaFile, setMediaFile] = useState(null);
-    const [mediaCustomUrl, setMediaCustomUrl] = useState('');
-
-    const [posterOpt, setPosterOpt] = useState('LIBRARY');
-    const [posterFile, setPosterFile] = useState(null);
-    const [posterCustomUrl, setPosterCustomUrl] = useState('');
-
+    const isExecutive = currentUser?.role === 'Executive';
     // Form State
     const [formData, setFormData] = useState({
         title: '',
@@ -44,7 +34,6 @@ export default function HeroSlides() {
 
     useEffect(() => {
         fetchSlides();
-        fetchMedia();
     }, []);
 
     const [filterState, setFilterState] = useState('ALL');
@@ -58,14 +47,6 @@ export default function HeroSlides() {
         }
     };
 
-    const fetchMedia = async () => {
-        try {
-            const res = await api.get('/media');
-            setMediaList(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     const handleDragEnd = async (result) => {
         if (!result.destination) return;
@@ -89,42 +70,21 @@ export default function HeroSlides() {
 
     const [isSaving, setIsSaving] = useState(false);
 
-    const handleFileUpload = async (file) => {
-        const payload = new FormData();
-        payload.append('file', file);
-        const res = await api.post('/media/upload', payload, { headers: { 'Content-Type': 'multipart/form-data' }});
-        return res.data.url;
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             setIsSaving(true);
-            let finalMedia = formData.mediaUrl;
-            let finalPoster = formData.posterUrl;
 
-            if (mediaOpt === 'UPLOAD' && mediaFile) {
-                finalMedia = await handleFileUpload(mediaFile);
-            } else if (mediaOpt === 'URL') {
-                finalMedia = mediaCustomUrl;
-            }
-
-            if (formData.type === 'VIDEO') {
-                if (posterOpt === 'UPLOAD' && posterFile) {
-                    finalPoster = await handleFileUpload(posterFile);
-                } else if (posterOpt === 'URL') {
-                    finalPoster = posterCustomUrl;
-                }
-            } else {
-                finalPoster = ''; 
-            }
-
-            if (!finalMedia) {
+            if (!formData.mediaUrl) {
                 toast.error("Media source is required");
                 return;
             }
 
-            const payload = { ...formData, mediaUrl: finalMedia, posterUrl: finalPoster };
+            const payload = { ...formData };
+            if (payload.type !== 'VIDEO') {
+                payload.posterUrl = '';
+            }
 
             if (editingSlide) {
                 await api.put(`/hero-slides/${editingSlide.id}`, payload);
@@ -135,7 +95,6 @@ export default function HeroSlides() {
             }
             setIsModalOpen(false);
             fetchSlides();
-            fetchMedia();
         } catch (error) {
             toast.error(error.response?.data?.error || "Failed to save slide");
         } finally {
@@ -186,28 +145,12 @@ export default function HeroSlides() {
                 reviewStatus: slide.reviewStatus || 'Draft',
                 remarks: slide.remarks || ''
             });
-            const isMediaLibrary = mediaList.some(m => m.url === slide.mediaUrl);
-            setMediaOpt(slide.mediaUrl && !isMediaLibrary ? 'URL' : 'LIBRARY');
-            setMediaCustomUrl(slide.mediaUrl || '');
-            setMediaFile(null);
-
-            const isPosterLibrary = mediaList.some(m => m.url === slide.posterUrl);
-            setPosterOpt(slide.posterUrl && !isPosterLibrary ? 'URL' : 'LIBRARY');
-            setPosterCustomUrl(slide.posterUrl || '');
-            setPosterFile(null);
         } else {
             setEditingSlide(null);
             setFormData({
                 title: '', subtitle: '', type: 'IMAGE', mediaUrl: '', posterUrl: '',
                 isActiveVideo: false, isActive: true, openInNewTab: false, routeUrl: '', showText: true, reviewStatus: 'Draft', remarks: ''
             });
-            setMediaOpt('LIBRARY');
-            setMediaCustomUrl('');
-            setMediaFile(null);
-
-            setPosterOpt('LIBRARY');
-            setPosterCustomUrl('');
-            setPosterFile(null);
         }
         setIsModalOpen(true);
     };
@@ -357,68 +300,22 @@ export default function HeroSlides() {
                         </div>
                     </div>
 
-                    <div className="border rounded p-3 mb-4 space-y-3 bg-white">
-                        <label className="block text-sm font-medium text-gray-700">Media Source (Required)</label>
-                        <div className="flex space-x-4 mb-2">
-                            <label className="flex items-center space-x-1 cursor-pointer">
-                                <input type="radio" value="LIBRARY" checked={mediaOpt === 'LIBRARY'} onChange={() => setMediaOpt('LIBRARY')} className="text-[var(--primary)] focus:ring-[var(--primary)]" />
-                                <span className="text-sm">Media Library</span>
-                            </label>
-                            <label className="flex items-center space-x-1 cursor-pointer">
-                                <input type="radio" value="UPLOAD" checked={mediaOpt === 'UPLOAD'} onChange={() => setMediaOpt('UPLOAD')} className="text-[var(--primary)] focus:ring-[var(--primary)]" />
-                                <span className="text-sm">Upload from Device</span>
-                            </label>
-                            <label className="flex items-center space-x-1 cursor-pointer">
-                                <input type="radio" value="URL" checked={mediaOpt === 'URL'} onChange={() => setMediaOpt('URL')} className="text-[var(--primary)] focus:ring-[var(--primary)]" />
-                                <span className="text-sm">Drive Link / URL</span>
-                            </label>
-                        </div>
-
-                        {mediaOpt === 'LIBRARY' && (
-                            <select value={formData.mediaUrl} onChange={(e) => setFormData({ ...formData, mediaUrl: e.target.value })} className="w-full border border-gray-300 rounded-md p-2">
-                                <option value="">Select Media from Library</option>
-                                {Array.from(new Map(mediaList.map(m => [m.filename, m])).values()).map(m => <option key={m.id} value={m.url}>{m.filename}</option>)}
-                            </select>
-                        )}
-                        {mediaOpt === 'UPLOAD' && (
-                            <input type="file" onChange={(e) => setMediaFile(e.target.files[0])} className="w-full border border-gray-300 rounded-md p-2 text-sm" accept={formData.type === 'VIDEO' ? "video/*" : "image/*"} />
-                        )}
-                        {mediaOpt === 'URL' && (
-                            <input type="text" value={mediaCustomUrl} onChange={(e) => setMediaCustomUrl(e.target.value)} placeholder="Enter Google Drive link or direct URL" className="w-full border border-gray-300 rounded-md p-2" />
-                        )}
-                    </div>
+                    <MediaSelector
+                        label="Media Source (Required)"
+                        value={formData.mediaUrl}
+                        onChange={(url) => setFormData({ ...formData, mediaUrl: url })}
+                        accept={formData.type === 'VIDEO' ? "video/*" : "image/*"}
+                        placeholder="Enter Google Drive link or direct URL"
+                    />
 
                     {formData.type === 'VIDEO' && (
-                        <div className="border rounded p-3 mb-4 space-y-3 bg-gray-50">
-                            <label className="block text-sm font-medium text-gray-700">Fallback Poster Image (Required for Video)</label>
-                            <div className="flex space-x-4 mb-2">
-                                <label className="flex items-center space-x-1 cursor-pointer">
-                                    <input type="radio" value="LIBRARY" checked={posterOpt === 'LIBRARY'} onChange={() => setPosterOpt('LIBRARY')} className="text-[var(--primary)] focus:ring-[var(--primary)]" />
-                                    <span className="text-sm">Media Library</span>
-                                </label>
-                                <label className="flex items-center space-x-1 cursor-pointer">
-                                    <input type="radio" value="UPLOAD" checked={posterOpt === 'UPLOAD'} onChange={() => setPosterOpt('UPLOAD')} className="text-[var(--primary)] focus:ring-[var(--primary)]" />
-                                    <span className="text-sm">Upload from Device</span>
-                                </label>
-                                <label className="flex items-center space-x-1 cursor-pointer">
-                                    <input type="radio" value="URL" checked={posterOpt === 'URL'} onChange={() => setPosterOpt('URL')} className="text-[var(--primary)] focus:ring-[var(--primary)]" />
-                                    <span className="text-sm">Drive Link / URL</span>
-                                </label>
-                            </div>
-
-                            {posterOpt === 'LIBRARY' && (
-                                <select value={formData.posterUrl} onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })} className="w-full border border-gray-300 rounded-md p-2">
-                                    <option value="">Select Poster from Library</option>
-                                    {Array.from(new Map(mediaList.map(m => [m.filename, m])).values()).map(m => <option key={m.id} value={m.url}>{m.filename}</option>)}
-                                </select>
-                            )}
-                            {posterOpt === 'UPLOAD' && (
-                                <input type="file" onChange={(e) => setPosterFile(e.target.files[0])} className="w-full border border-gray-300 rounded-md p-2 text-sm" accept="image/*" />
-                            )}
-                            {posterOpt === 'URL' && (
-                                <input type="text" value={posterCustomUrl} onChange={(e) => setPosterCustomUrl(e.target.value)} placeholder="Enter direct Image URL" className="w-full border border-gray-300 rounded-md p-2" />
-                            )}
-                        </div>
+                        <MediaSelector
+                            label="Fallback Poster Image (Required for Video)"
+                            value={formData.posterUrl}
+                            onChange={(url) => setFormData({ ...formData, posterUrl: url })}
+                            accept="image/*"
+                            placeholder="Enter direct Image URL"
+                        />
                     )}
 
                     <div className="grid grid-cols-2 gap-4">

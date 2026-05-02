@@ -9,7 +9,6 @@ import LifeAtTHSTI from '../components/home/LifeAtTHSTI';
 import NewsEvents from '../components/home/NewsEvents';
 import TabsSection from '../components/home/TabsSection';
 import InternationalCollaboration from '../components/home/InternationalCollaboration';
-import Partners from '../components/home/Partners';
 
 const Home = () => {
     return (
@@ -22,9 +21,8 @@ const Home = () => {
             <Programmes />
             <LifeAtTHSTI />
             <NewsEvents />
-            <TabsSection />
             <InternationalCollaboration />
-            <Partners />
+            <TabsSection />
         </>
     );
 };

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
 
 public partial class Medium
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Filename { get; set; } = null!;
 
@@ -21,3 +21,4 @@ public partial class Medium
 
     public string StoragePath { get; set; } = null!;
 }
+

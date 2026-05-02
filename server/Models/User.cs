@@ -5,7 +5,7 @@ namespace ThstiServer.Models;
 
 public partial class User
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Email { get; set; } = null!;
 
@@ -16,6 +16,10 @@ public partial class User
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public string? CreatedBy { get; set; }
+
+    public string? UpdatedBy { get; set; }
 
     public int FailedLoginAttempts { get; set; }
 
@@ -43,3 +47,5 @@ public partial class User
 
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }
+
+

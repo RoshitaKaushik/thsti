@@ -70,7 +70,7 @@ const HeroSlider = () => {
                     navigation
                     pagination={{ clickable: true }}
                     autoplay={{ delay: 6000, disableOnInteraction: false }}
-                    loop={true}
+                    loop={false}
                     className="mySwiper"
                     style={{ width: '100%', height: '670px' }}
                 >
@@ -102,7 +102,7 @@ const HeroSlider = () => {
                 navigation
                 pagination={{ clickable: true }}
                 autoplay={{ delay: 6000, disableOnInteraction: false }}
-                loop={true}
+                loop={slides.length > 1}
                 className="mySwiper"
                 style={{ width: '100%', height: '670px' }}
             >
@@ -131,7 +131,7 @@ const HeroSlider = () => {
                                     <div
                                         className="image-layer"
                                         style={{
-                                            backgroundImage: bgMedia ? `url(${bgMedia})` : 'none',
+                                            backgroundImage: bgMedia ? `url('${bgMedia}')` : 'none',
                                             backgroundColor: '#000',
                                             width: '100%',
                                             height: '100%',

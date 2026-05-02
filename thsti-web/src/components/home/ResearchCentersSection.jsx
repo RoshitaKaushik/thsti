@@ -113,6 +113,46 @@ const ResearchCentersSection = () => {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-5.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Immunobiology and Immunotherapy</a></h3>
+                                            <div className="text">Understanding effector and regulatory T cell response in autoimmune, inflammatory diseases and cancer...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-6.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Drug Discovery</a></h3>
+                                            <div className="text">The Center for Drug Discovery (CDD) is a multi-disciplinary unit that integrates basic with translational research to...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-7.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Clinical Development Services Agency</a></h3>
+                                            <div className="text">The Clinical Development Services Agency (CDSA) functions as an academic research unit established...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                                    <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
+                                        <div className="image"><a href="#"><img src="images/resource/res-8.jpg" alt="" /></a></div>
+                                        <div className="lower-content">
+                                            <h3><a href="#">Computational and Mathematical Biology</a></h3>
+                                            <div className="text">Develop novel computational tools and mathematical models to address biological problems...</div>
+                                            <a href="#" className="read-more">Read More <span className="fas fa-angle-right"></span></a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -153,14 +193,16 @@ const ResearchCentersSection = () => {
 
                                 return (
                                     <div key={center.id || index} className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
-                                        <div className="inner-box wow fadeInUp" data-wow-delay={delay} data-wow-duration="1500ms">
+                                        <div className="inner-box wow fadeInUp h-100 d-flex flex-column" data-wow-delay={delay} data-wow-duration="1500ms">
                                             <div className="image">
-                                                {finalImageUrl ? renderTitleLink(center, <img src={finalImageUrl} alt={center.title} onError={(e) => { e.target.style.display = 'none'; }} />) : renderTitleLink(center, <div style={{width: '100%', height: '250px', backgroundColor: '#e2e8f0'}}></div>)}
+                                                {finalImageUrl ? renderTitleLink(center, <img src={finalImageUrl} alt={center.title} onError={(e) => { e.target.style.display = 'none'; }} />) : renderTitleLink(center, <div style={{width: '100%', height: '260px', backgroundColor: '#e2e8f0'}}></div>)}
                                             </div>
-                                            <div className="lower-content">
+                                            <div className="lower-content flex-grow-1 d-flex flex-column">
                                                 <h3>{renderTitleLink(center, center.title)}</h3>
-                                                <div className="text" dangerouslySetInnerHTML={{ __html: center.excerpt }}></div>
-                                                {renderLink(center, <>Read More <span className="fas fa-angle-right"></span></>)}
+                                                <div className="text" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: center.excerpt }}></div>
+                                                <div className="mt-auto">
+                                                    {renderLink(center, <React.Fragment>Read More <span className="fas fa-angle-right"></span></React.Fragment>)}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

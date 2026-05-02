@@ -27,8 +27,8 @@ namespace ThstiServer.Controllers
             return Ok(items);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
         {
             var item = await _context.MarqueeItems.FindAsync(id);
             if (item == null) return NotFound();
@@ -47,8 +47,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] MarqueeItem updatedItem)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] MarqueeItem updatedItem)
         {
             var item = await _context.MarqueeItems.FindAsync(id);
             if (item == null) return NotFound();
@@ -62,8 +62,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.MarqueeItems.FindAsync(id);
             if (item == null) return NotFound();
@@ -98,3 +98,4 @@ namespace ThstiServer.Controllers
 
     }
 }
+

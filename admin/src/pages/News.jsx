@@ -5,6 +5,7 @@ import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
+import MediaSelector from '../components/MediaSelector';
 
 export default function News() {
     const [news, setNews] = useState([]);
@@ -12,7 +13,6 @@ export default function News() {
     const [loading, setLoading] = useState(true);
     const [editingNews, setEditingNews] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [imageFile, setImageFile] = useState(null);
 
     // Auth State
     const currentUser = JSON.parse(localStorage.getItem('thsti_admin_user') || '{}');
@@ -69,15 +69,8 @@ export default function News() {
         setFormData(prev => ({ ...prev, slug: generated }));
     };
     
-    const handleImageChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
-
     const startEdit = (item) => {
         setEditingNews(item);
-        setImageFile(null);
         setFormData({
             title: item.title,
             titleHi: item.titleHi || '',
@@ -98,7 +91,6 @@ export default function News() {
 
     const handleOpenNew = () => {
         setEditingNews(null);
-        setImageFile(null);
         setFormData({
             title: '', titleHi: '', slug: '', summary: '', content: '', contentHi: '',
             publishDate: new Date().toISOString().split('T')[0], isActive: true, isFeatured: false, reviewStatus: 'Draft', remarks: ''
@@ -109,27 +101,13 @@ export default function News() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingNews(null);
-        setImageFile(null);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            let uploadedImageUrl = formData.imageUrl;
-            if (imageFile) {
-                const uploadData = new FormData();
-                uploadData.append('file', imageFile);
-                uploadData.append('altText', formData.title);
-                uploadData.append('categoryId', '1');
-                const uploadRes = await api.post('/media/upload', uploadData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                uploadedImageUrl = uploadRes.data.url;
-            }
-
             const payload = {
                 ...formData,
-                imageUrl: uploadedImageUrl,
                 publishDate: new Date(formData.publishDate).toISOString()
             };
 
@@ -291,22 +269,12 @@ export default function News() {
                     </div>
 
                     <div className="md:col-span-2">
-                        <label className="block text-text-main font-bold mb-1">Featured Image</label>
-                        <div className="flex items-center gap-4">
-                            <div className="flex-1">
-                                <input type="file" accept="image/*" onChange={handleImageChange} className="admin-input p-1" />
-                            </div>
-                            {(imageFile || formData.imageUrl) && (
-                                <div className="h-16 w-24 bg-gray-100 border border-gray-300 rounded overflow-hidden flex items-center justify-center">
-                                    {imageFile ? (
-                                        <img src={URL.createObjectURL(imageFile)} alt="Preview" className="h-full w-full object-cover" />
-                                    ) : (
-                                        <img src={`${PUBLIC_SITE_URL}${formData.imageUrl}`} alt="Existing" className="h-full w-full object-cover" onError={(e) => e.target.style.display = 'none'} />
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                        <p className="text-xs text-text-muted mt-1">Select a new image to upload. If editing, leave empty to keep the existing image.</p>
+                            <MediaSelector
+                                label="Featured Image"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/*"
+                            />
                     </div>
 
                     <div>

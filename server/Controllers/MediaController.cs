@@ -21,6 +21,8 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPost("upload")]
+        [RequestSizeLimit(524288000)] // 500 MB Limit
+        [RequestFormLimits(MultipartBodyLengthLimit = 524288000)] // 500 MB Limit
         public async Task<IActionResult> UploadMedia([FromForm] IFormFile file, [FromForm] string? altText)
         {
             if (file == null || file.Length == 0)
@@ -60,8 +62,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteMedia(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> DeleteMedia(long id)
         {
             var media = await _context.Media.FindAsync(id);
             if (media == null) return NotFound(new { error = "Media not found" });
@@ -78,3 +80,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

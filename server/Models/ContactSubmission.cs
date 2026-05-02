@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ThstiServer.Models;
 
 public partial class ContactSubmission
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Name { get; set; } = null!;
 
@@ -19,3 +19,4 @@ public partial class ContactSubmission
 
     public DateTime CreatedAt { get; set; }
 }
+

@@ -81,7 +81,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut("api/notifications/categories/{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] NotificationCategoryRequest req)
+        public async Task<IActionResult> UpdateCategory(long id, [FromBody] NotificationCategoryRequest req)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER")]
         [HttpDelete("api/notifications/categories/{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(long id)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace ThstiServer.Controllers
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPatch("api/notifications/categories/{id}/toggle")]
-        public async Task<IActionResult> ToggleCategoryActive(int id)
+        public async Task<IActionResult> ToggleCategoryActive(long id)
         {
             try
             {
@@ -142,3 +142,4 @@ namespace ThstiServer.Controllers
         }
     }
 }
+

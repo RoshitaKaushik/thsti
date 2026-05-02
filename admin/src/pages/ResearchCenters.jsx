@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit2, Shield, Eye, ShieldAlert, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react';
+import { Plus, Edit2, Shield, Eye, ShieldAlert, ArrowUp, ArrowDown, ExternalLink, Clock } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { ASSETS_BASE_URL } from '../config/env';
+import { ASSETS_BASE_URL, PUBLIC_SITE_URL } from '../config/env';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
 import SectionSettings from '../components/SectionSettings';
+import MediaSelector from '../components/MediaSelector';
+import RichTextEditor from '../components/RichTextEditor';
+import RevisionHistoryModal from '../components/RevisionHistoryModal';
 
 export default function ResearchCenters() {
     const [centers, setCenters] = useState([]);
@@ -13,12 +16,17 @@ export default function ResearchCenters() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCenter, setEditingCenter] = useState(null);
     const [viewingCenter, setViewingCenter] = useState(null);
-    const [uploading, setUploading] = useState(false);
+    const [historyCenter, setHistoryCenter] = useState(null);
+    const [activeTab, setActiveTab] = useState('contents');
 
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
         excerpt: '',
+        content: '',
+        overviewContent: '',
+        careersContent: '',
+        admissionsContent: '',
         imageUrl: '',
         routeUrl: '',
         isExternal: false,
@@ -43,13 +51,23 @@ export default function ResearchCenters() {
     }, [fetchCenters]);
 
     const handleOpenModal = (center = null) => {
+        setActiveTab('contents');
         if (center) {
             setEditingCenter(center);
-            setFormData({ ...center, excerpt: center.excerpt || '', imageUrl: center.imageUrl || '', routeUrl: center.routeUrl || '' });
+            setFormData({ 
+                ...center, 
+                excerpt: center.excerpt || '', 
+                content: center.content || '', 
+                overviewContent: center.overviewContent || '',
+                careersContent: center.careersContent || '',
+                admissionsContent: center.admissionsContent || '',
+                imageUrl: center.imageUrl || '', 
+                routeUrl: center.routeUrl || '' 
+            });
         } else {
             setEditingCenter(null);
             setFormData({
-                title: '', slug: '', excerpt: '', imageUrl: '', routeUrl: '', isExternal: false, openInNewTab: false,
+                title: '', slug: '', excerpt: '', content: '', overviewContent: '', careersContent: '', admissionsContent: '', imageUrl: '', routeUrl: '', isExternal: false, openInNewTab: false,
                 displayOrder: centers.length > 0 ? Math.max(...centers.map(c => c.displayOrder)) + 1 : 1,
                 isActive: true
             });
@@ -68,41 +86,11 @@ export default function ResearchCenters() {
         setFormData(prev => {
             const updates = { [name]: type === 'checkbox' ? checked : value };
 
-            // Auto-generate slug from title if creating new
             if (name === 'title' && !editingCenter) {
                 updates.slug = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
             }
             return { ...prev, ...updates };
         });
-    };
-
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const validExt = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (!validExt.includes(file.type)) {
-            alert('Only JPG, JPEG, and PNG files are allowed.');
-            e.target.value = '';
-            return;
-        }
-
-        const uploadData = new FormData();
-        uploadData.append('file', file);
-
-        setUploading(true);
-        try {
-            const res = await api.post('/media/upload', uploadData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setFormData(prev => ({ ...prev, imageUrl: res.data.url }));
-            toast.success('Image uploaded successfully!');
-        } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to upload image');
-        } finally {
-            setUploading(false);
-            e.target.value = '';
-        }
     };
 
     const handleSubmit = async (e) => {
@@ -158,10 +146,17 @@ export default function ResearchCenters() {
 
     if (loading) return <div>Loading research centers...</div>;
 
+    const tabs = [
+        { id: 'contents', label: 'Contents' },
+        { id: 'overview', label: 'Overview' },
+        { id: 'careers', label: 'Careers' },
+        { id: 'admissions', label: 'Admissions' }
+    ];
+
     return (
         <AdminPageLayout
             title="Research Centers"
-            subtitle="Manage dynamic research center cards for the public homepage"
+            subtitle="Manage dynamic research center cards and detailed tab pages"
             actions={
                 <button onClick={() => handleOpenModal()} className="admin-btn-primary flex items-center gap-2">
                     <Plus size={18} /> Add Center
@@ -200,7 +195,7 @@ export default function ResearchCenters() {
                                 <td className="p-3 text-text-muted">{index + 1}</td>
                                 <td className="p-3">
                                     {center.imageUrl ? (
-                                        <img src={center.imageUrl.startsWith('http') ? center.imageUrl : `${ASSETS_BASE_URL}/${center.imageUrl.replace(/^\//, '')}`} alt={center.title} className="w-12 h-12 object-cover rounded shadow-sm border border-gray-200" onError={(e) => { e.target.src = 'https://placehold.co/100x100?text=No+Img' }} />
+                                        <img src={center.imageUrl.startsWith('http') ? center.imageUrl : (center.imageUrl.startsWith('images/') ? `${PUBLIC_SITE_URL}/${center.imageUrl}` : `${ASSETS_BASE_URL}/${center.imageUrl.replace(/^\//, '')}`)} alt={center.title} className="w-12 h-12 object-cover rounded shadow-sm border border-gray-200" onError={(e) => { e.target.src = 'https://placehold.co/100x100?text=No+Img' }} />
                                     ) : (
                                         <div className="w-12 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xs text-gray-400">N/A</div>
                                     )}
@@ -233,6 +228,9 @@ export default function ResearchCenters() {
                                                 <ExternalLink size={18} />
                                             </a>
                                         )}
+                                        <button onClick={() => setHistoryCenter(center)} className="p-2 text-text-muted hover:text-blue-500 transition-colors tooltip" title="Revision History (Undo)">
+                                            <Clock size={18} />
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -243,12 +241,27 @@ export default function ResearchCenters() {
 
             {/* View Modal */}
             {viewingCenter && (
-                <AdminModal isOpen={true} onClose={handleCloseModal} title={`Viewing: ${viewingCenter.title}`}>
-                    <div className="space-y-4 text-sm text-text-main">
+                <AdminModal isOpen={true} onClose={handleCloseModal} title={`Viewing: ${viewingCenter.title}`} size="xl">
+                    <div className="space-y-4 text-sm text-text-main max-h-[70vh] overflow-y-auto pr-2">
                         <div><strong className="block text-secondary">Title:</strong> {viewingCenter.title}</div>
                         <div><strong className="block text-secondary">Slug:</strong> <span className="font-mono bg-gray-100 px-1">{viewingCenter.slug}</span></div>
                         <div><strong className="block text-secondary">Excerpt:</strong> <div className="p-2 bg-gray-50 border rounded mt-1">{viewingCenter.excerpt}</div></div>
-                        <div><strong className="block text-secondary">Image URL:</strong> {viewingCenter.imageUrl ? <span className="text-blue-600 underline">{viewingCenter.imageUrl}</span> : 'None'}</div>
+                        <div className="mt-4">
+                            <strong className="block text-secondary text-lg mb-2 border-b pb-1">Tab Contents</strong>
+                            
+                            <h4 className="font-bold mt-3 text-blue-800">Contents Tab:</h4>
+                            <div className="p-4 bg-gray-50 border rounded mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: viewingCenter.content || '<em class="text-gray-400">No content provided</em>' }}></div>
+                            
+                            <h4 className="font-bold mt-3 text-blue-800">Overview Tab:</h4>
+                            <div className="p-4 bg-gray-50 border rounded mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: viewingCenter.overviewContent || '<em class="text-gray-400">No overview provided</em>' }}></div>
+                            
+                            <h4 className="font-bold mt-3 text-blue-800">Careers Tab:</h4>
+                            <div className="p-4 bg-gray-50 border rounded mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: viewingCenter.careersContent || '<em class="text-gray-400">No careers provided</em>' }}></div>
+
+                            <h4 className="font-bold mt-3 text-blue-800">Admissions Tab:</h4>
+                            <div className="p-4 bg-gray-50 border rounded mt-1 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: viewingCenter.admissionsContent || '<em class="text-gray-400">No admissions provided</em>' }}></div>
+                        </div>
+                        <div><strong className="block text-secondary mt-4">Image URL:</strong> {viewingCenter.imageUrl ? <span className="text-blue-600 underline">{viewingCenter.imageUrl}</span> : 'None'}</div>
                         <div><strong className="block text-secondary">Link Details:</strong>
                             {viewingCenter.isExternal ? ' External URL' : ' Internal Route'} | {viewingCenter.openInNewTab ? 'Opens in New Tab' : 'Same Tab'}
                             <br /><span className="font-mono text-xs">{viewingCenter.routeUrl}</span>
@@ -259,8 +272,18 @@ export default function ResearchCenters() {
                 </AdminModal>
             )}
 
+            {/* Revision History Modal */}
+            <RevisionHistoryModal
+                isOpen={!!historyCenter}
+                onClose={() => setHistoryCenter(null)}
+                entityType="ResearchCenter"
+                entityId={historyCenter?.id}
+                entityTitle={historyCenter?.title}
+                onRevertSuccess={fetchCenters}
+            />
+
             {/* Edit / Create Modal */}
-            <AdminModal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCenter ? 'Edit Research Center' : 'Add New Research Center'} size="lg">
+            <AdminModal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCenter ? 'Edit Research Center' : 'Add New Research Center'} size="xl">
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-1">
@@ -274,36 +297,76 @@ export default function ResearchCenters() {
 
                         <div className="md:col-span-2">
                             <label className="block text-text-main font-bold mb-1">Excerpt (Short Description over Image)</label>
-                            <textarea name="excerpt" maxLength="400" className="admin-input h-24" value={formData.excerpt} onChange={handleChange} placeholder="Max 400 characters." />
+                            <textarea name="excerpt" maxLength="400" className="admin-input h-16" value={formData.excerpt} onChange={handleChange} placeholder="Max 400 characters." />
+                        </div>
+                        
+                        <div className="md:col-span-2">
+                            <MediaSelector
+                                label="Listing Image Source *"
+                                value={formData.imageUrl}
+                                onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                                accept="image/jpeg, image/png, image/jpg"
+                            />
                         </div>
 
-                        <div className="md:col-span-2">
-                            <label className="block text-text-main font-bold mb-1">Image Source *</label>
-                            
-                            <div className="flex flex-col md:flex-row gap-4 p-3 bg-gray-50 border border-gray-200 rounded items-start md:items-center">
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Upload File (JPG/PNG)</span>
-                                    <input 
-                                        type="file" 
-                                        accept=".jpg,.jpeg,.png" 
-                                        onChange={handleImageUpload} 
-                                        className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border bg-white rounded-md p-1" 
-                                    />
-                                    {uploading && <span className="text-[10px] text-blue-600 font-bold animate-pulse mt-1 block">Uploading...</span>}
-                                </div>
-                                
-                                <div className="hidden md:block text-xs font-bold text-gray-400 uppercase">OR</div>
-                                
-                                <div className="flex-1 w-full">
-                                    <span className="font-semibold text-xs text-gray-700 block mb-1">Paste URL/Link</span>
-                                    <input type="text" name="imageUrl" className="admin-input py-1.5 text-xs" value={formData.imageUrl} onChange={handleChange} placeholder="https://..." />
-                                </div>
+                        {/* Tab Navigation */}
+                        <div className="md:col-span-2 mt-4">
+                            <div className="flex border-b border-gray-200 gap-1 overflow-x-auto">
+                                {tabs.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        type="button"
+                                        className={`px-4 py-2 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${activeTab === tab.id ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                                        onClick={() => setActiveTab(tab.id)}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
                             </div>
-                            {formData.imageUrl && (
-                                <div className="mt-1 text-xs px-1 text-gray-500">
-                                    Source: <span className="text-blue-600 font-mono truncate inline-block max-w-sm align-bottom">{formData.imageUrl}</span>
-                                </div>
-                            )}
+
+                            {/* Tab Content Areas */}
+                            <div className="pt-4 min-h-[300px]">
+                                {activeTab === 'contents' && (
+                                    <div>
+                                        <label className="block text-text-main font-bold mb-1">Contents Tab Data</label>
+                                        <RichTextEditor
+                                            value={formData.content}
+                                            onChange={(val) => setFormData(prev => ({ ...prev, content: val }))}
+                                            placeholder="Write the main contents for this research center here..."
+                                        />
+                                    </div>
+                                )}
+                                {activeTab === 'overview' && (
+                                    <div>
+                                        <label className="block text-text-main font-bold mb-1">Overview Tab Data</label>
+                                        <RichTextEditor
+                                            value={formData.overviewContent}
+                                            onChange={(val) => setFormData(prev => ({ ...prev, overviewContent: val }))}
+                                            placeholder="Write the overview details..."
+                                        />
+                                    </div>
+                                )}
+                                {activeTab === 'careers' && (
+                                    <div>
+                                        <label className="block text-text-main font-bold mb-1">Careers Tab Data</label>
+                                        <RichTextEditor
+                                            value={formData.careersContent}
+                                            onChange={(val) => setFormData(prev => ({ ...prev, careersContent: val }))}
+                                            placeholder="Write about career opportunities..."
+                                        />
+                                    </div>
+                                )}
+                                {activeTab === 'admissions' && (
+                                    <div>
+                                        <label className="block text-text-main font-bold mb-1">Admissions Tab Data</label>
+                                        <RichTextEditor
+                                            value={formData.admissionsContent}
+                                            onChange={(val) => setFormData(prev => ({ ...prev, admissionsContent: val }))}
+                                            placeholder="Write about admission procedures..."
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="md:col-span-1">

@@ -31,6 +31,18 @@ namespace ThstiServer.Controllers
             return Ok(items);
         }
 
+        [HttpGet("public")]
+        public async Task<IActionResult> GetPublic([FromQuery] int? limit = null)
+        {
+            var query = _context.News
+                .Where(n => n.IsActive && n.ReviewStatus == "Published" && !n.IsArchived)
+                .OrderByDescending(n => n.PublishDate);
+                
+            var resultQuery = limit.HasValue ? query.Take(limit.Value) : query;
+            var items = await resultQuery.ToListAsync();
+            return Ok(items);
+        }
+
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllAdmin()
@@ -39,8 +51,8 @@ namespace ThstiServer.Controllers
             return Ok(items);
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:long}")]
+        public async Task<IActionResult> GetById(long id)
         {
             var item = await _context.News.FindAsync(id);
             if (item == null) return NotFound();
@@ -78,8 +90,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] News updatedItem)
+        [HttpPut("{id:long}")]
+        public async Task<IActionResult> Update(long id, [FromBody] News updatedItem)
         {
             var item = await _context.News.FindAsync(id);
             if (item == null) return NotFound();
@@ -112,8 +124,8 @@ namespace ThstiServer.Controllers
         }
 
         [Authorize(Roles = "ADMIN,MANAGER")]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{id:long}")]
+        public async Task<IActionResult> Delete(long id)
         {
             var item = await _context.News.FindAsync(id);
             if (item == null) return NotFound();
@@ -133,3 +145,4 @@ namespace ThstiServer.Controllers
 
     }
 }
+
