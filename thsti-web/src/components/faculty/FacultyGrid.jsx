@@ -112,6 +112,7 @@ const FacultyGrid = ({ config = { showSearch: true, showCategory: true, showPagi
                                     <input 
                                         type="text" 
                                         placeholder="Search..." 
+                                        aria-label="Search Faculty"
                                         value={searchQuery}
                                         onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                                     />
@@ -125,6 +126,7 @@ const FacultyGrid = ({ config = { showSearch: true, showCategory: true, showPagi
                                 </span>
                                 <select 
                                     value={sortOption} 
+                                    aria-label="Sort Faculty By"
                                     onChange={(e) => { setSortOption(e.target.value); setCurrentPage(1); }}
                                 >
                                     <option>Sort by</option>
@@ -142,6 +144,7 @@ const FacultyGrid = ({ config = { showSearch: true, showCategory: true, showPagi
                                     </span>
                                     <select 
                                         value={categoryFilter} 
+                                        aria-label="Filter by Category"
                                         onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
                                     >
                                         <option>Category</option>
@@ -159,6 +162,7 @@ const FacultyGrid = ({ config = { showSearch: true, showCategory: true, showPagi
                                 </span>
                                 <select 
                                     value={perPage} 
+                                    aria-label="Results Per Page"
                                     onChange={(e) => { setPerPage(Number(e.target.value)); setCurrentPage(1); }}
                                 >
                                     <option value={10}>10 per page</option>

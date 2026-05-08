@@ -38,7 +38,7 @@ const InternationalCollaboration = () => {
                         <div className="news-block col-lg-4 col-md-6 col-sm-12">
                             <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
                                 <div className="image">
-                                    <a href="#"><img src="images/resource/news-1.jpg" alt="" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
+                                    <a href="#"><img src="images/resource/news-1.jpg" alt="Collaboration Partnership Thumbnail" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
                                 </div>
                                 <div className="lower-content">
                                     <h3><a href="#">Quality Industrial Products & Services</a></h3>
@@ -50,7 +50,7 @@ const InternationalCollaboration = () => {
                         <div className="news-block col-lg-4 col-md-6 col-sm-12">
                             <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
                                 <div className="image">
-                                    <a href="#"><img src="images/resource/news-2.jpg" alt="" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
+                                    <a href="#"><img src="images/resource/news-2.jpg" alt="International Agreement Signing" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
                                 </div>
                                 <div className="lower-content">
                                     <h3><a href="#">Quality Industrial Products & Services</a></h3>
@@ -62,7 +62,7 @@ const InternationalCollaboration = () => {
                         <div className="news-block col-lg-4 col-md-6 col-sm-12">
                             <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
                                 <div className="image">
-                                    <a href="#"><img src="images/resource/news-3.jpg" alt="" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
+                                    <a href="#"><img src="images/resource/news-3.jpg" alt="Global Research Presentation" style={{ width: '100%', height: '240px', objectFit: 'cover' }} /></a>
                                 </div>
                                 <div className="lower-content">
                                     <h3><a href="#">Quality Industrial Products & Services</a></h3>
@@ -91,7 +91,7 @@ const InternationalCollaboration = () => {
                             <div className="inner-box wow fadeInUp" data-wow-delay={wowDelays[index] || '0ms'} data-wow-duration="1500ms">
                                 <div className="image">
                                     {item.link ? (
-                                        <a href={item.link} target="_blank" rel="noreferrer">
+                                        <a href={item.link} target="_blank" rel="noopener noreferrer">
                                             <img src={resolveImageUrl(item.imageUrl)} alt={item.title} style={{ width: '100%', height: '240px', objectFit: 'cover' }} />
                                         </a>
                                     ) : (

@@ -4,6 +4,8 @@ namespace ThstiServer.DTOs
     {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public string? CaptchaToken { get; set; }
+        public string? CaptchaAnswer { get; set; }
     }
 
     public class LoginResponse

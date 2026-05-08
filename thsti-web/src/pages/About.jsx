@@ -27,7 +27,7 @@ const About = () => {
     <section className="about-section-two" style={{"backgroundImage":`url(/images/background/about-section-two-bg.png)`}}>
         <div className="auto-container">
             <div className="title-style-one style-two centered">
-                <div className="icon"><img src={`/images/icons/logo-icon.png`} alt="" /></div>
+                <div className="icon"><img src={`/images/icons/logo-icon.png`} alt="THSTI Icon" /></div>
                 <div className="subtitle">We are Solustrid</div>
                 <h2>We are committed to provide safe <br />industrial solutions to many factories</h2>
                 <div className="text">At Solustrid, Our goal is to generate oriented sales by our staff  members which enables us to meet the clients expectations in timely manner ipsum dolor sit amet consectetur adipisicing elit sed ipsum eiusmod tempor incididunt labore</div>
@@ -36,7 +36,7 @@ const About = () => {
             <div className="row">
                 <div className="image-column col-lg-6 col-md-12 col-sm-12">
                     <div className="inner-column" data-wow-delay="0ms" data-wow-duration="1500ms">
-                        <figure className="image"><a href="images/resource/about-img-1.jpg" className="lightbox-image"><img src={`/images/resource/about-img-1.jpg`} alt="" /></a></figure> 
+                        <figure className="image"><a href="images/resource/about-img-1.jpg" className="lightbox-image"><img src={`/images/resource/about-img-1.jpg`} alt="THSTI Campus Building" /></a></figure>
                     </div>
                 </div>
 
@@ -100,7 +100,7 @@ const About = () => {
                             <div className="text">Incididunt ut labore et dolore magna aliqua veniamtion ullamco laboris nisi ut aliquip ex eac consequat duis derit velit culpa quis labore dolore magna.</div>
                         </div>
                         <div className="image-box" data-wow-delay="0ms" data-wow-duration="1500ms">
-                            <figure className="image"><a href="images/resource/mission.jpg" className="lightbox-image"><img src={`/images/resource/mission.jpg`} alt="" /></a></figure>
+                            <figure className="image"><a href="images/resource/mission.jpg" className="lightbox-image"><img src={`/images/resource/mission.jpg`} alt="THSTI Mission Graph" /></a></figure>
                         </div>
                     </div>
                 </div>
@@ -108,7 +108,7 @@ const About = () => {
                 <div className="colum right-column col-lg-6 col-md-12 col-sm-12">
                     <div className="inner-column">
                         <div className="image-box" data-wow-delay="0ms" data-wow-duration="1500ms">
-                            <figure className="image"><a href="images/resource/vision.jpg" className="lightbox-image"><img src={`/images/resource/vision.jpg`} alt="" /></a></figure>
+                            <figure className="image"><a href="images/resource/vision.jpg" className="lightbox-image"><img src={`/images/resource/vision.jpg`} alt="THSTI Vision Concept" /></a></figure>
                         </div>
                         <div className="content-box" data-wow-delay="0ms" data-wow-duration="1500ms" style={{"backgroundImage":`url(/images/icons/logo-icon-2.png)`}}>
                             <h4>Industry Vision</h4>
@@ -150,7 +150,7 @@ const About = () => {
                 <div className="accordion-column col-lg-7 col-md-12 col-sm-12">
                     <div className="inner-column">
                         <div className="title-style-one">
-                            <div className="icon"><img src={`/images/icons/logo-icon.png`} alt="" /></div>
+                            <div className="icon"><img src={`/images/icons/logo-icon.png`} alt="THSTI Logo Icon" /></div>
                             <div className="subtitle">We are Solustrid</div>
                             <h2>We offer Industrial Solutions that are reliable, efficient, safe and sustainable.</h2>
                         </div>
@@ -203,7 +203,7 @@ const About = () => {
                 {/*  image Column  */}
                 <div className="image-column col-lg-5 col-md-12 col-sm-12">
                     <div className="inner-column">
-                        <figure className="image" data-wow-delay="0ms" data-wow-duration="1500ms"><img src={`/images/resource/man-img-1.png`} alt="" /></figure>
+                        <figure className="image" data-wow-delay="0ms" data-wow-duration="1500ms"><img src={`/images/resource/man-img-1.png`} alt="THSTI Researcher Portrait" /></figure>
                     </div>
                 </div>
             </div>
@@ -269,7 +269,7 @@ const About = () => {
                 <div className="team-block col-lg-3 col-md-6 col-sm-12">
                     <div className="inner-box" data-wow-delay="0ms" data-wow-duration="1500ms">
                         <div className="image-box">
-                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-1.jpg`} alt="" /></a></figure>
+                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-1.jpg`} alt="Pramod Kumar Garg - Executive Director" /></a></figure>
                         </div>
                         <div className="lower-content">
                             <h3 className="name"><a href="blog-single.html">Daniel Ricardo</a></h3>
@@ -283,7 +283,7 @@ const About = () => {
                 <div className="team-block col-lg-3 col-md-6 col-sm-12">
                     <div className="inner-box" data-wow-delay="300ms" data-wow-duration="1500ms">
                         <div className="image-box">
-                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-2.jpg`} alt="" /></a></figure>
+                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-2.jpg`} alt="Prof. Shinjini Bhatnagar - Distinguished Professor" /></a></figure>
                         </div>
                         <div className="lower-content">
                             <h3 className="name"><a href="blog-single.html">Thomas Ralph</a></h3>
@@ -297,7 +297,7 @@ const About = () => {
                 <div className="team-block col-lg-3 col-md-6 col-sm-12">
                     <div className="inner-box" data-wow-delay="600ms" data-wow-duration="1500ms">
                         <div className="image-box">
-                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-3.jpg`} alt="" /></a></figure>
+                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-3.jpg`} alt="Mr. M V Santo - Head of Administration" /></a></figure>
                         </div>
                         <div className="lower-content">
                             <h3 className="name"><a href="blog-single.html">Alexander  Max</a></h3>
@@ -311,7 +311,7 @@ const About = () => {
                 <div className="team-block col-lg-3 col-md-6 col-sm-12">
                     <div className="inner-box" data-wow-delay="900ms" data-wow-duration="1500ms">
                         <div className="image-box">
-                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-4.jpg`} alt="" /></a></figure>
+                            <figure className="image"><a href="team.html"><img src={`/images/resource/team-4.jpg`} alt="Faculty Member Portrait" /></a></figure>
                         </div>
                         <div className="lower-content">
                             <h3 className="name"><a href="blog-single.html">Ruby Charlotte</a></h3>
@@ -347,7 +347,7 @@ const About = () => {
                                 <form method="post" action="contact.html">
                                     <div className="form-group">
                                         <span className="icon far fa-envelope"></span>
-                                        <input type="email" name="email" defaultValue="" placeholder="Email address ..." required />
+                                        <input type="email" name="email" defaultValue="" placeholder="Email address ..." aria-label="Email Address" required />
                                         <button type="submit" className="theme-btn submit-btn">Submit</button>
                                     </div>
                                 </form>

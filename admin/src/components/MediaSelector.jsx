@@ -15,6 +15,8 @@ export default function MediaSelector({
     const [mediaList, setMediaList] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
     const [customUrl, setCustomUrl] = useState('');
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [altText, setAltText] = useState('');
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -50,12 +52,27 @@ export default function MediaSelector({
         onChange(e.target.value);
     };
 
-    const handleUpload = async (e) => {
+    const handleFileSelect = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file) {
+            setSelectedFile(null);
+            return;
+        }
+        setSelectedFile(file);
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+        
+        const isImage = selectedFile.type.startsWith('image/');
+        if (isImage && !altText.trim()) {
+            toast.error("Alt text is mandatory for images to comply with GIGW guidelines.");
+            return;
+        }
 
         const payload = new FormData();
-        payload.append('file', file);
+        payload.append('file', selectedFile);
+        if (altText) payload.append('altText', altText);
         
         setIsUploading(true);
         try {
@@ -65,6 +82,8 @@ export default function MediaSelector({
             toast.success("File uploaded to Media Library");
             await fetchMedia(); 
             setMediaOpt('LIBRARY');
+            setAltText('');
+            setSelectedFile(null);
             onChange(res.data.url);
         } catch (err) {
             toast.error(err.response?.data?.error || "Failed to upload file");
@@ -117,16 +136,41 @@ export default function MediaSelector({
                 )}
 
                 {mediaOpt === 'UPLOAD' && (
-                    <div className="w-full flex items-center gap-3">
+                    <div className="w-full flex flex-col gap-3 border border-gray-200 bg-white p-3 rounded">
                         <input 
                             type="file" 
                             ref={fileInputRef}
-                            onChange={handleUpload} 
-                            className="admin-input p-1 cursor-pointer w-full bg-white" 
+                            onChange={handleFileSelect} 
+                            className="admin-input p-1 cursor-pointer w-full bg-gray-50" 
                             accept={accept}
                             disabled={isUploading}
                         />
-                        {isUploading && <div className="flex items-center gap-2 text-sm text-[var(--primary)] font-bold whitespace-nowrap"><Loader2 size={18} className="animate-spin" /> Uploading...</div>}
+                        {selectedFile && (
+                            <div className="flex flex-col gap-2 border-t pt-3 mt-1">
+                                {selectedFile.type.startsWith('image/') && (
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                                            Alt Text <span className="text-red-500">*</span> (Required for GIGW)
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            value={altText}
+                                            onChange={(e) => setAltText(e.target.value)}
+                                            placeholder="Describe the image for screen readers"
+                                            className="admin-input w-full bg-white text-sm"
+                                        />
+                                    </div>
+                                )}
+                                <button 
+                                    type="button" 
+                                    onClick={handleUpload}
+                                    disabled={isUploading || (selectedFile.type.startsWith('image/') && !altText.trim())}
+                                    className="admin-btn-primary flex items-center justify-center gap-2 py-2 mt-2 disabled:opacity-50"
+                                >
+                                    {isUploading ? <><Loader2 size={16} className="animate-spin" /> Uploading...</> : <><FileUp size={16} /> Upload to Library</>}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 

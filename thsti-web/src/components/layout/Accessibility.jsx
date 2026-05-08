@@ -37,7 +37,8 @@ const Accessibility = () => {
                 <div className="jsx-4107003866 row g-3 mb-16">
                     <div className="jsx-4107003866 col-lg-6 col-md-12 padd-r-0">
                         <div role="button" tabIndex="0" aria-label="Dark Contrast"
-                            className="jsx-4107003866 false d-flex align-items-center flex-column pointer option-card">
+                            className="jsx-4107003866 false d-flex align-items-center flex-column pointer option-card"
+                            onClick={(e) => { e.preventDefault(); enableHighContrast(); }}>
                             <div className="jsx-4107003866 accessibility-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 -960 960 960"
                                     fill="#5f6368">
@@ -52,7 +53,8 @@ const Accessibility = () => {
                     </div>
                     <div className="jsx-4107003866 col-lg-6 col-md-12">
                         <div role="button" tabIndex="0" aria-label="Invert"
-                            className="jsx-4107003866 false d-flex align-items-center flex-column pointer option-card">
+                            className="jsx-4107003866 false d-flex align-items-center flex-column pointer option-card"
+                            onClick={(e) => { e.preventDefault(); disableHighContrast(); }}>
                             <div className="jsx-4107003866 accessibility-icon">
                                 <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
@@ -251,14 +253,14 @@ const Accessibility = () => {
             <i className="fa fa-search-minus"></i> Decrease Text
           </a>
         </li>
-        <li>
-          <a href="#" onClick={(e) => { e.preventDefault(); enableHighContrast(); }}>
-            <i className="fa fa-moon"></i> High Contrast
+        <li style={{ borderBottom: 'none', padding: '5px 12px' }}>
+          <a href="#" onClick={(e) => { e.preventDefault(); enableHighContrast(); }} style={{ backgroundColor: '#000000', color: '#ffff00', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', borderRadius: '4px', border: '1px solid #000' }}>
+            <i className="fa fa-moon" style={{ color: '#ffff00' }}></i> High Contrast
           </a>
         </li>
-        <li>
-          <a href="#" onClick={(e) => { e.preventDefault(); disableHighContrast(); }}>
-            <i className="fa fa-cog"></i> Normal Contrast
+        <li style={{ borderBottom: 'none', padding: '0 12px 10px 12px' }}>
+          <a href="#" onClick={(e) => { e.preventDefault(); disableHighContrast(); }} style={{ backgroundColor: '#ffffff', color: '#000000', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', borderRadius: '4px', border: '1px solid #cccccc' }}>
+            <i className="fa fa-sun" style={{ color: '#000000' }}></i> Normal Contrast
           </a>
         </li>
       </ul>

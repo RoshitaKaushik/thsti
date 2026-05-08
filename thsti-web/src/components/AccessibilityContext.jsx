@@ -21,8 +21,36 @@ export const AccessibilityProvider = ({ children }) => {
   }, [fontSize]);
 
   useEffect(() => {
-    localStorage.setItem('site_theme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('site_theme', theme);
+    } catch (e) {
+      console.warn("localStorage not available", e);
+    }
+    let imgStyleTag = document.getElementById('high-contrast-images-style');
+    if (theme === 'high-contrast') {
+      document.body.classList.add('high-contrast-mode');
+      document.documentElement.style.setProperty('filter', 'invert(100%) hue-rotate(180deg)', 'important');
+      document.documentElement.style.setProperty('background-color', '#fff', 'important');
+      
+      if (!imgStyleTag) {
+        imgStyleTag = document.createElement('style');
+        imgStyleTag.id = 'high-contrast-images-style';
+        document.head.appendChild(imgStyleTag);
+      }
+      imgStyleTag.innerHTML = `
+        img, video, canvas, svg, iframe, .accessibility-btn {
+            filter: invert(100%) hue-rotate(180deg) !important;
+        }
+      `;
+    } else {
+      document.body.classList.remove('high-contrast-mode');
+      document.documentElement.style.removeProperty('filter');
+      document.documentElement.style.removeProperty('background-color');
+      
+      if (imgStyleTag) {
+        imgStyleTag.remove();
+      }
+    }
   }, [theme]);
 
   useEffect(() => {

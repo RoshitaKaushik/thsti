@@ -9,9 +9,13 @@ public partial class Page
 
     public string Title { get; set; } = null!;
 
+    public string? TitleHi { get; set; }
+
     public string Slug { get; set; } = null!;
 
     public string Content { get; set; } = null!;
+
+    public string? ContentHi { get; set; }
 
     public string? MetaTitle { get; set; }
 

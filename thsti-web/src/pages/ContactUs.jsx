@@ -141,22 +141,22 @@ const ContactUs = () => {
                                     <form onSubmit={handleSubmit}>
                                         <div className="row clearfix">
                                             <div className="col-md-6 form-group" style={{marginBottom: '20px'}}>
-                                                <input type="text" name="name" placeholder="Your Name" required value={formData.name} onChange={handleChange} 
+                                                <input type="text" name="name" placeholder="Your Name" aria-label="Your Name" required value={formData.name} onChange={handleChange} 
                                                     style={{width: '100%', padding: '15px 20px', border: '1px solid #e1e1e1', borderRadius: '5px', background: '#fbfbfb'}} />
                                             </div>
                                             
                                             <div className="col-md-6 form-group" style={{marginBottom: '20px'}}>
-                                                <input type="email" name="email" placeholder="Email Address" required value={formData.email} onChange={handleChange}
+                                                <input type="email" name="email" placeholder="Email Address" aria-label="Email Address" required value={formData.email} onChange={handleChange}
                                                     style={{width: '100%', padding: '15px 20px', border: '1px solid #e1e1e1', borderRadius: '5px', background: '#fbfbfb'}} />
                                             </div>
 
                                             <div className="col-md-12 form-group" style={{marginBottom: '20px'}}>
-                                                <input type="text" name="phone" placeholder="Phone Number (Optional)" value={formData.phone} onChange={handleChange}
+                                                <input type="text" name="phone" placeholder="Phone Number (Optional)" aria-label="Phone Number" value={formData.phone} onChange={handleChange}
                                                     style={{width: '100%', padding: '15px 20px', border: '1px solid #e1e1e1', borderRadius: '5px', background: '#fbfbfb'}} />
                                             </div>
                                             
                                             <div className="col-md-12 form-group" style={{marginBottom: '30px'}}>
-                                                <textarea name="message" placeholder="Write your message here..." required value={formData.message} onChange={handleChange}
+                                                <textarea name="message" placeholder="Write your message here..." aria-label="Message" required value={formData.message} onChange={handleChange}
                                                     style={{width: '100%', padding: '15px 20px', height: '180px', border: '1px solid #e1e1e1', borderRadius: '5px', background: '#fbfbfb'}}></textarea>
                                             </div>
 
@@ -164,7 +164,7 @@ const ContactUs = () => {
                                                 <div style={{display: 'flex', alignItems: 'center', background: '#f4f5f8', padding: '15px', borderRadius: '5px'}}>
                                                     <span style={{fontWeight: 'bold', marginRight: '15px', fontSize: '18px', color: '#1a5fa8'}}>Anti-Spam Check:</span>
                                                     <span style={{fontWeight: 'bold', marginRight: '15px', fontSize: '20px', letterSpacing: '2px'}}>{captcha.num1} + {captcha.num2} = </span>
-                                                    <input type="number" placeholder="?" required value={userCaptcha} onChange={(e) => setUserCaptcha(e.target.value)} 
+                                                    <input type="number" placeholder="?" aria-label="Anti-Spam Captcha Answer" required value={userCaptcha} onChange={(e) => setUserCaptcha(e.target.value)} 
                                                         style={{width: '100px', padding: '10px 15px', border: '2px solid #e1e1e1', borderRadius: '5px', background: '#fff', fontSize: '18px', textAlign: 'center'}} />
                                                 </div>
                                             </div>

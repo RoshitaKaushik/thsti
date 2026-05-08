@@ -6610,7 +6610,7 @@ a.ui-button:active, .ui-button:active,
 	display:block;
 	background-color:#f3f5f9;
 	border-bottom:1px solid #9eaac0;
-	padding:20px 15px 20px 30px;
+	padding:20px 45px 20px 30px;
 	transition:all 500ms ease;
 	-moz-transition:all 500ms ease;
 	-webkit-transition:all 500ms ease;
@@ -6622,7 +6622,8 @@ a.ui-button:active, .ui-button:active,
 	position:absolute;
 	content:'\f105';
 	right:22px;
-	top:22px;
+	top:50%;
+	transform:translateY(-50%);
 	color:#000048;
 	font-size:18px;
 	font-weight:900;

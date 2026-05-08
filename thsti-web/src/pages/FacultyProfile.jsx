@@ -118,12 +118,12 @@ export default function FacultyProfile() {
                                 </a>
                             )}
                             {faculty.cvUrl && (
-                                <a href={`${faculty.cvUrl.startsWith('http') ? '' : 'http://localhost:5000'}${faculty.cvUrl}`} target="_blank" rel="noreferrer" className="fd-btn fd-btn-outline-light">
+                                <a href={`${faculty.cvUrl.startsWith('http') ? '' : 'http://localhost:5000'}${faculty.cvUrl}`} target="_blank" rel="noopener noreferrer" className="fd-btn fd-btn-outline-light">
                                     <i className="fa-solid fa-file-pdf"></i> Download CV
                                 </a>
                             )}
                             {faculty.labWebsiteUrl && (
-                                <a href={faculty.labWebsiteUrl} target="_blank" rel="noreferrer" className="fd-btn fd-btn-outline-light">
+                                <a href={faculty.labWebsiteUrl} target="_blank" rel="noopener noreferrer" className="fd-btn fd-btn-outline-light">
                                     <i className="fa-solid fa-globe"></i> Lab Website
                                 </a>
                             )}
@@ -182,7 +182,7 @@ export default function FacultyProfile() {
                                             <div className="fd-cl-icon"><i className="fa-brands fa-orcid"></i></div>
                                             <div className="fd-cl-text">
                                                 <strong>ORCID</strong>
-                                                <a href={`https://orcid.org/${faculty.orcid}`} target="_blank" rel="noreferrer">{faculty.orcid}</a>
+                                                <a href={`https://orcid.org/${faculty.orcid}`} target="_blank" rel="noopener noreferrer">{faculty.orcid}</a>
                                             </div>
                                         </li>
                                     )}
@@ -198,17 +198,17 @@ export default function FacultyProfile() {
                             <div className="fd-sidebar-card-body">
                                 <div className="fd-social-links">
                                     {faculty.googleScholarUrl && (
-                                        <a href={faculty.googleScholarUrl} target="_blank" rel="noreferrer" className="fd-social-link scholar">
+                                        <a href={faculty.googleScholarUrl} target="_blank" rel="noopener noreferrer" className="fd-social-link scholar">
                                             <i className="fa-brands fa-google"></i> Google Scholar
                                         </a>
                                     )}
                                     {faculty.researchGateUrl && (
-                                        <a href={faculty.researchGateUrl} target="_blank" rel="noreferrer" className="fd-social-link resgate">
+                                        <a href={faculty.researchGateUrl} target="_blank" rel="noopener noreferrer" className="fd-social-link resgate">
                                             <i className="fa-brands fa-researchgate"></i> ResearchGate
                                         </a>
                                     )}
                                     {faculty.linkedinUrl && (
-                                        <a href={faculty.linkedinUrl} target="_blank" rel="noreferrer" className="fd-social-link linkedin">
+                                        <a href={faculty.linkedinUrl} target="_blank" rel="noopener noreferrer" className="fd-social-link linkedin">
                                             <i className="fa-brands fa-linkedin"></i> LinkedIn
                                         </a>
                                     )}

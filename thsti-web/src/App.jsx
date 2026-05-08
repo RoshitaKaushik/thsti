@@ -35,28 +35,54 @@ function App() {
     };
   }, []);
 
+  // GIGW External Link Warning
+  useEffect(() => {
+    const handleExternalLinks = (e) => {
+      const target = e.target.closest('a');
+      if (target && target.href && target.href.startsWith('http')) {
+        try {
+          const url = new URL(target.href);
+          const currentHost = window.location.hostname;
+          if (url.hostname !== currentHost && url.hostname !== 'localhost') {
+            const confirmExit = window.confirm('You are about to leave the THSTI website. This link may take you to an external website. Do you want to proceed?');
+            if (!confirmExit) {
+              e.preventDefault();
+            }
+          }
+        } catch (err) {
+          // ignore invalid urls
+        }
+      }
+    };
+    document.addEventListener('click', handleExternalLinks);
+    return () => document.removeEventListener('click', handleExternalLinks);
+  }, []);
+
   return (
     <div className="page-wrapper" style={{ overflow: 'clip' }}>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[9999] focus:p-4 focus:bg-white focus:text-[var(--primary)] font-bold shadow-lg">Skip to Main Content</a>
       <Header />
       
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* Legacy redirect for /page/ paths */}
-        <Route path="/page/:slug" element={<Page />} />
-        {/* Dynamic CMS Pages (fallback route for any root slug) */}
-        <Route path="/:slug" element={<Page />} />
-        <Route path="/faculty/:slug" element={<FacultyProfile />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/Tender" element={<Tenders />} />
-        <Route path="/News" element={<News />} />
-        <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/galleries" element={<Galleries />} />
-        <Route path="/TheMatic" element={<ResearchCentersIndex />} />
-        <Route path="/research-centers/:slug" element={<ResearchDetails />} />
-        <Route path="/research-facilities/:slug" element={<FacilityDetails />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/about.html" element={<About />} />
-      </Routes>
+      <main id="main-content" tabIndex="-1" className="outline-none">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {/* Legacy redirect for /page/ paths */}
+          <Route path="/page/:slug" element={<Page />} />
+          {/* Dynamic CMS Pages (fallback route for any root slug) */}
+          <Route path="/:slug" element={<Page />} />
+          <Route path="/faculty/:slug" element={<FacultyProfile />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/Tender" element={<Tenders />} />
+          <Route path="/News" element={<News />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/galleries" element={<Galleries />} />
+          <Route path="/TheMatic" element={<ResearchCentersIndex />} />
+          <Route path="/research-centers/:slug" element={<ResearchDetails />} />
+          <Route path="/research-facilities/:slug" element={<FacilityDetails />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/about.html" element={<About />} />
+        </Routes>
+      </main>
 
       <Partners />
       <Footer />

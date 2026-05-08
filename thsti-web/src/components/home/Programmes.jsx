@@ -66,7 +66,7 @@ const Programmes = () => {
 						<div className="title-column col-lg-12 col-md-12 col-sm-12">
 							<div className="programmes">
 								<div className="prog-box">
-									<img src="images/student-1.jpg" alt="" />
+									<img src="images/student-1.jpg" alt="Ph.D. Program Student" />
 									<div className="overlay"></div>
 									<div className="vertical-text">Ph. D. Program</div>
 									<div className="content">
@@ -77,7 +77,7 @@ const Programmes = () => {
 									</div>
 								</div>
 								<div className="prog-box">
-									<img src="images/student-2.png" alt="" />
+									<img src="images/student-2.png" alt="M.Sc. Clinical Research Student" />
 									<div className="overlay"></div>
 									<div className="vertical-text">M.Sc. Clinical Research</div>
 									<div className="content">
@@ -88,7 +88,7 @@ const Programmes = () => {
 									</div>
 								</div>
 								<div className="prog-box">
-									<img src="images/student-3.png" alt="" />
+									<img src="images/student-3.png" alt="Short Term Training Student" />
 									<div className="overlay"></div>
 									<div className="vertical-text">MS-PhD in Biotechnology</div>
 									<div className="content">
@@ -99,7 +99,7 @@ const Programmes = () => {
 									</div>
 								</div>
 								<div className="prog-box">
-									<img src="images/student-4.png" alt="" />
+									<img src="images/student-4.png" alt="Science Setu Program Group" />
 									<div className="overlay"></div>
 									<div className="vertical-text">RCB PhD in Biotechnology</div>
 									<div className="content">

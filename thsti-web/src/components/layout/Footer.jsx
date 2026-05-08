@@ -8,6 +8,7 @@ const Footer = () => {
     const [footerLinks, setFooterLinks] = useState([]);
     const [contactSection, setContactSection] = useState(null);
     const [quickLinksSection, setQuickLinksSection] = useState(null);
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     useEffect(() => {
         api.get('/settings')
@@ -27,6 +28,10 @@ const Footer = () => {
                 }
             })
             .catch(err => console.error("CMS Home Sections Fetch Error:", err));
+
+        api.get('/settings/last-updated')
+            .then(res => setLastUpdated(res.data.lastUpdated))
+            .catch(err => console.error("CMS Last Updated Fetch Error:", err));
     }, []);
 
     const importantLinks = footerLinks.filter(l => l.column === 'IMPORTANT');
@@ -144,15 +149,27 @@ const Footer = () => {
                         <div className="clearfix">
                             <div className="pull-left">
                                 <div className="copyright">Copyright @ {currentYear} {settings?.copyrightText || 'Translational Health Science and Technology Institute. All rights reserved.'}</div>
+                                <div className="footer-policies" style={{ fontSize: '12px', marginTop: '5px', display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
+                                    <a href="/website-policies" className="text-gray-400 hover:text-white transition">Website Policies</a>
+                                    <a href="/privacy-policy" className="text-gray-400 hover:text-white transition">Privacy Policy</a>
+                                    <a href="/copyright-policy" className="text-gray-400 hover:text-white transition">Copyright Policy</a>
+                                    <a href="/terms-of-use" className="text-gray-400 hover:text-white transition">Terms of Use</a>
+                                    <a href="/hyperlinking-policy" className="text-gray-400 hover:text-white transition">Hyperlinking Policy</a>
+                                </div>
+                                {lastUpdated && (
+                                    <div className="mt-2 text-gray-500" style={{ fontSize: '12px' }}>
+                                        <strong>Page Last Updated:</strong> {new Date(lastUpdated).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </div>
+                                )}
                             </div>
                             <div className="pull-right">
                                 {/*  Social Links  */}
                                 <ul className="social-links">
-                                    {settings?.facebookUrl && settings.facebookUrl !== '' && <li><a href={settings.facebookUrl} target="_blank" rel="noreferrer"><span className="fab fa-facebook-f"></span></a></li>}
-                                    {settings?.twitterUrl && settings.twitterUrl !== '' && <li><a href={settings.twitterUrl} target="_blank" rel="noreferrer"><span className="fab fa-twitter"></span></a></li>}
-                                    {settings?.linkedinUrl && settings.linkedinUrl !== '' && <li><a href={settings.linkedinUrl} target="_blank" rel="noreferrer"><span className="fab fa-linkedin-in"></span></a></li>}
-                                    <li><a href="#"><span className="fab fa-google-plus-g"></span></a></li>
-                                    <li><a href="#"><span className="fab fa-youtube"></span></a></li>
+                                    {settings?.facebookUrl && settings.facebookUrl !== '' && <li><a href={settings.facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook"><span className="fab fa-facebook-f"></span></a></li>}
+                                    {settings?.twitterUrl && settings.twitterUrl !== '' && <li><a href={settings.twitterUrl} target="_blank" rel="noreferrer" aria-label="Twitter"><span className="fab fa-twitter"></span></a></li>}
+                                    {settings?.linkedinUrl && settings.linkedinUrl !== '' && <li><a href={settings.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn"><span className="fab fa-linkedin-in"></span></a></li>}
+                                    <li><a href="#" aria-label="Google Plus"><span className="fab fa-google-plus-g"></span></a></li>
+                                    <li><a href="#" aria-label="YouTube"><span className="fab fa-youtube"></span></a></li>
                                 </ul>
                             </div>
                         </div>

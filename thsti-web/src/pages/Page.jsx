@@ -4,12 +4,47 @@ import api from '../api/axios';
 import { ASSETS_BASE_URL } from '../config/env';
 import { useSeo } from '../hooks/useSeo';
 import FacultyGrid from '../components/faculty/FacultyGrid';
+import { useLanguage } from '../components/LanguageContext';
 
 const Page = () => {
     const { slug } = useParams();
+    const { language } = useLanguage();
     const [pageData, setPageData] = useState(null);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [activeSidebarIndex, setActiveSidebarIndex] = useState(0);
+
+    const handleScrollToHeading = (e, targetUrl, label, idx) => {
+        if (targetUrl && targetUrl.startsWith('#')) {
+            e.preventDefault();
+            setActiveSidebarIndex(idx);
+            let element = null;
+
+            if (targetUrl.length > 1 && targetUrl !== '#') {
+                element = document.getElementById(targetUrl.substring(1));
+            }
+
+            if (!element && label) {
+                const headings = document.querySelectorAll('.content-side .text h1, .content-side .text h2, .content-side .text h3, .content-side .text h4, .content-side .text h5, .content-side .text h6');
+                for (let i = 0; i < headings.length; i++) {
+                    if (headings[i].innerText.trim().toLowerCase() === label.trim().toLowerCase()) {
+                        element = headings[i];
+                        break;
+                    }
+                }
+            }
+
+            if (element) {
+                const headerOffset = 150;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+        }
+    };
 
     // Dynamically update document head tags when pageData loads
     useSeo({
@@ -66,116 +101,135 @@ const Page = () => {
         }
     }
 
-    const showSidebar = templateConfig.showSidebar === true;
-    const showTextBox = templateConfig.showTextBox === true;
-    const showStickyNav = templateConfig.showStickyNav === true;
+    // Auto-migrate legacy data for rendering
+    if (!templateConfig.sidebarBlocks) {
+        const blocks = [];
+        if (templateConfig.showSidebar !== false) {
+            // Include legacy fallback links if empty
+            const links = (templateConfig.sidebarLinks && templateConfig.sidebarLinks.length > 0) ? templateConfig.sidebarLinks : [
+                { label: 'Current Page', url: '#' },
+                { label: 'Back to Home', url: '/' }
+            ];
+            blocks.push({
+                id: 'legacy-links',
+                type: 'quickLinks',
+                title: 'QUICK LINKS',
+                links: links
+            });
+        }
+        if (templateConfig.showTextBox !== false) {
+            // Include legacy fallback text if empty
+            const content = templateConfig.textBoxContent || `<h2>Mission</h2><p>By integrating the fields of medicine...</p>`;
+            blocks.push({
+                id: 'legacy-text',
+                type: 'textBox',
+                title: 'Mission Box',
+                content: content
+            });
+        }
+        templateConfig.sidebarBlocks = blocks;
+    }
+
+    if (!templateConfig.stickyNavItems) {
+        if (templateConfig.showStickyNav !== false) {
+            templateConfig.stickyNavItems = [
+                { label: "Mission and Vision", url: "#", icon: "fa-user", isActive: true },
+                { label: "Director's Message", url: "/directors-message", icon: "fa-graduation-cap" },
+                { label: "Former Directors", url: "#", icon: "fa-flask" },
+                { label: "Annual Reports", url: "#", icon: "fa-book-open" },
+                { label: "DBT-THSTI MoU", url: "#", icon: "fa-book" },
+                { label: "Documentary", url: "#", icon: "fa-lightbulb" }
+            ];
+        } else {
+            templateConfig.stickyNavItems = [];
+        }
+    }
 
     return (
         <main className="main-content">
             {/* Standard Page Title Header matching THSTI design templates */}
             <section className="page-banner" style={{ backgroundImage: `url(${pageData.bannerImageUrl ? (pageData.bannerImageUrl.startsWith('http') ? pageData.bannerImageUrl : ASSETS_BASE_URL + pageData.bannerImageUrl) : '/images/background/baby-11.png'})`, position: "relative" }}>
                 <div className="auto-container">
-                    <div className="inner-container clearfix">
-                        <h1>{pageData.title}</h1>
+                    <div className="inner-container clearfix notranslate bhashini-skip-translation">
+                        <h1>{language === 'hi' && pageData.titleHi ? pageData.titleHi : pageData.title}</h1>
                         <ul className="bread-crumb clearfix">
                             <li><Link to="/">Home</Link></li>
-                            <li>{pageData.breadcrumbTitle || pageData.title}</li>
+                            <li>{pageData.breadcrumbTitle || (language === 'hi' && pageData.titleHi ? pageData.titleHi : pageData.title)}</li>
                         </ul>
                     </div>
                 </div>
             </section>
 
             {/* ===== STICKY SCROLL NAV ===== */}
-            {showStickyNav && (
+            {templateConfig.stickyNavItems && templateConfig.stickyNavItems.length > 0 && (
                 <nav className="fp2-sticky-nav">
                     <div className="auto-container">
                         <div className="fp2-sticky-nav-inner">
-                            <Link to="#" className="fp2-nav-link fp2-nav-active"><i className="fa-solid fa-user"></i> Mission and Vision</Link>
-                            <Link to="/directors-message" className="fp2-nav-link"><i className="fa-solid fa-graduation-cap"></i> Director's Message</Link>
-                            <Link to="#" className="fp2-nav-link"><i className="fa-solid fa-flask"></i> Former Directors</Link>
-                            <Link to="#" className="fp2-nav-link"><i className="fa-solid fa-book-open"></i> Annual Reports</Link>
-                            <Link to="#" className="fp2-nav-link"><i className="fa-solid fa-book"></i> DBT-THSTI MoU</Link>
-                            <Link to="#" className="fp2-nav-link"><i className="fa-solid fa-lightbulb"></i> Documentary</Link>
+                            {templateConfig.stickyNavItems.map((item, index) => (
+                                <Link key={index} to={item.url || '#'} className={`fp2-nav-link ${item.isActive ? 'fp2-nav-active' : ''}`}>
+                                    {item.icon && <i className={`fa-solid ${item.icon}`}></i>} {item.label}
+                                </Link>
+                            ))}
                         </div>
                     </div>
                 </nav>
             )}
 
             {/* Render Standard Page Content */}
-            {pageData.pageType === 'Standard' && pageData.content && pageData.content.trim() !== '' && pageData.content.trim() !== '<p></p>' && (
+            {(pageData.pageType === 'Template' || pageData.pageType === 'Standard') && pageData.content && pageData.content.trim() !== '' && pageData.content.trim() !== '<p></p>' && (
                 <div className="sidebar-page-container pt-5 pb-5">
                     <div className="auto-container">
                         <div className="row clearfix">
                             {/* Sidebar Side */}
-                            {showSidebar && (
-                                <div className="col-lg-4 col-md-12 col-sm-12">
-                                    <div className="sidebar-side sidebar">
-                                        <aside className="padding-right">
-                                            {/* Category Widget / Side Menu */}
-                                            <div className="sidebar-widget categories-two">
-                                                <div className="widget-content">
-                                                    <ul className="services-categories">
-                                                        {templateConfig.sidebarLinks && templateConfig.sidebarLinks.length > 0 ? (
-                                                            templateConfig.sidebarLinks.map((link, idx) => (
-                                                                <li key={idx} className={idx === 0 ? "active" : ""}>
-                                                                    {link.url.startsWith('/') ? (
-                                                                        <Link to={link.url}>{link.label}</Link>
-                                                                    ) : (
-                                                                        <a href={link.url}>{link.label}</a>
-                                                                    )}
-                                                                </li>
-                                                            ))
-                                                        ) : (
-                                                            <>
-                                                                <li className="active"><a href="#">Current Page</a></li>
-                                                                <li><Link to="/">Back to Home</Link></li>
-                                                            </>
-                                                        )}
-                                                    </ul>
+                            {templateConfig.sidebarBlocks && templateConfig.sidebarBlocks.length > 0 && (
+                                <div className="sidebar-side col-lg-4 col-md-12 col-sm-12" style={{ position: 'sticky', top: '20px', alignSelf: 'flex-start', zIndex: 10 }}>
+                                    {templateConfig.sidebarBlocks.map((block, index) => {
+                                        if (block.type === 'quickLinks') {
+                                            return (
+                                                <div key={block.id || index} className="sidebar-side sidebar mb-4">
+                                                    <aside className="padding-right">
+                                                        <div className="sidebar-widget categories-two">
+                                                            <div className="widget-content">
+                                                                <ul className="services-categories">
+                                                                    {block.links && block.links.map((link, idx) => (
+                                                                        <li key={idx} className={activeSidebarIndex === idx ? "active" : ""}>
+                                                                            {link.url?.startsWith('#') ? (
+                                                                                <a href={link.url} onClick={(e) => handleScrollToHeading(e, link.url, link.label, idx)}>
+                                                                                    {link.label || link.url}
+                                                                                </a>
+                                                                            ) : link.url?.startsWith('/') ? (
+                                                                                <Link to={link.url}>{link.label || link.url}</Link>
+                                                                            ) : (
+                                                                                <a href={link.url || '#'}>{link.label || link.url || 'Link'}</a>
+                                                                            )}
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </aside>
                                                 </div>
-                                            </div>
-                                        </aside>
-                                    </div>
-                                    
-                                    {/* Text Box Below Sidebar */}
-                                    {showTextBox && (
-                                        <>
-                                            {templateConfig.textBoxContent ? (
-                                                <div className="visionbox-wrapper" dangerouslySetInnerHTML={{ __html: templateConfig.textBoxContent }}></div>
-                                            ) : (
-                                                <>
-                                                    <div className="visionbox">
-                                                        <h2>Mission</h2>
-                                                        <p>
-                                                            By integrating the fields of medicine, science engineering and technology
-                                                            into translational knowledge and making the resulting biomedical innovations
-                                                            accessible to public health, to improve the health of the most disadvantaged
-                                                            people in India and throughout the world.
-                                                        </p>
-                                                    </div>
-                                                    <div className="visionbox">
-                                                        <h2>Vision</h2>
-                                                        <p>
-                                                            As a networked organization linking many centers of excellence, THSTI is envisioned as a collective of scientists, engineers and physicians that will effectively enhance the quality of human life through integrating a culture of shared excellence in research, education
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
+                                            );
+                                        } else if (block.type === 'textBox') {
+                                            return (
+                                                <div key={block.id || index} className="visionbox mb-4" dangerouslySetInnerHTML={{ __html: block.content }}></div>
+                                            );
+                                        }
+                                        return null;
+                                    })}
                                 </div>
                             )}
 
                             {/* Content Side */}
-                            <div className={`content-side ${showSidebar ? 'col-lg-8' : 'col-lg-12'} col-md-12 col-sm-12`}>
+                            <div className={`content-side ${(templateConfig.sidebarBlocks && templateConfig.sidebarBlocks.length > 0) ? 'col-lg-8' : 'col-lg-12'} col-md-12 col-sm-12`}>
                                 <div className="services-detail">
-                                    <div className="inner-box">
+                                    <div className="inner-box notranslate bhashini-skip-translation">
                                         <div className="lower-content pt-0">
                                             <div className="title-box">
-                                                <h2>{pageData.title}</h2>
+                                                <h2>{language === 'hi' && pageData.titleHi ? pageData.titleHi : pageData.title}</h2>
                                             </div>
                                         </div>
-                                        <div className="text" dangerouslySetInnerHTML={{ __html: pageData.content.replace(/&nbsp;/g, ' ') }}></div>
+                                        <div className="text" dangerouslySetInnerHTML={{ __html: (language === 'hi' && pageData.contentHi ? pageData.contentHi : pageData.content).replace(/&nbsp;/g, ' ') }}></div>
                                     </div>
                                 </div>
                             </div>
@@ -185,7 +239,7 @@ const Page = () => {
             )}
 
             {/* Render Dynamic Listing Content */}
-            {pageData.pageType === 'DynamicListing' && (
+            {(pageData.pageType === 'ModuleLinked' || pageData.pageType === 'DynamicListing') && (
                 <div className="dynamic-listing-container pt-5 pb-5">
                     <div className="auto-container">
                         {pageData.slug === 'faculty-and-scientists' && (

@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import api from '../api/axios';
 import { FiEdit2, FiTrash2, FiFileText } from 'react-icons/fi';
 import MediaSelector from '../components/MediaSelector';
+import { BhashiniService } from '../api/BhashiniService';
 
 export default function Tenders() {
     const currentUser = JSON.parse(localStorage.getItem('thsti_admin_user') || '{}');
@@ -43,6 +44,11 @@ export default function Tenders() {
         e.preventDefault();
         try {
             const payload = { ...formData };
+
+            // Auto-translate using Bhashini if Hindi fields are blank
+            if (!payload.titleHi && payload.title) {
+                payload.titleHi = await BhashiniService.translateToHindi(payload.title);
+            }
 
             if (editingTender) {
                 await api.put(`/tenders/${editingTender.id}`, payload);

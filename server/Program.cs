@@ -82,6 +82,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ThstiServer.Services.ICloudStorageService, ThstiServer.Services.MockNicCloudStorageService>();
 builder.Services.AddScoped<ThstiServer.Services.ITranslationService, ThstiServer.Services.GoogleTranslationFallbackService>();
+builder.Services.AddScoped<ThstiServer.Services.IBhashiniTranslationService, ThstiServer.Services.BhashiniTranslationService>();
 
 var app = builder.Build();
 
@@ -92,6 +93,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+
+// GIGW Security Headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    // Flexible CSP for CMS while still being secure
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: http: blob:; connect-src 'self' http://localhost:5000 http://localhost:5001 ws://localhost:* https://demo.1akal.in;");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
 
 app.UseMiddleware<ThstiServer.Middleware.IpWhitelistMiddleware>();
 app.UseMiddleware<ThstiServer.Middleware.EncryptionMiddleware>();

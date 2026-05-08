@@ -39,6 +39,26 @@ namespace ThstiServer.Controllers
             return Ok(settings);
         }
 
+        [HttpGet("last-updated")]
+        public async Task<IActionResult> GetLastUpdated()
+        {
+            try
+            {
+                var pageMax = await _context.Pages.MaxAsync(p => (DateTime?)p.UpdatedAt) ?? DateTime.MinValue;
+                var newsMax = await _context.News.MaxAsync(n => (DateTime?)n.UpdatedAt) ?? DateTime.MinValue;
+                var tendersMax = await _context.Tenders.MaxAsync(t => (DateTime?)t.UpdatedAt) ?? DateTime.MinValue;
+                var maxDate = new[] { pageMax, newsMax, tendersMax }.Max();
+
+                if (maxDate == DateTime.MinValue) maxDate = DateTime.UtcNow;
+
+                return Ok(new { lastUpdated = maxDate });
+            }
+            catch
+            {
+                return Ok(new { lastUpdated = DateTime.UtcNow });
+            }
+        }
+
         [Authorize(Roles = "ADMIN,MANAGER,EXECUTIVE")]
         [HttpPut]
         public async Task<IActionResult> UpdateSettings([FromBody] SettingsRequest req)

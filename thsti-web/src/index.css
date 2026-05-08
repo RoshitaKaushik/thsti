@@ -41,6 +41,9 @@ html {
    padding: 14px 18px;
    position: relative;
    margin-bottom: 40px;
+   word-wrap: break-word;
+   overflow-wrap: break-word;
+   white-space: normal !important;
 }
 
 .visionbox h2 {
@@ -57,6 +60,7 @@ html {
    color: #555555;
    letter-spacing: 0.4px;
    margin-bottom: 6px;
+   white-space: normal !important;
 }
 
 /* Sticky Scroll Nav Styles from director-message template */
@@ -439,4 +443,60 @@ html[data-readable-font="true"] *:not(i):not([class*="fa"]):not([class*="icon"])
   text-align: center !important;
   margin-top: 2.5rem !important;
   margin-bottom: 1.5rem !important;
+}
+
+/* Google Translate Widget Override */
+.google-translate-widget {
+  margin-top: 5px;
+  min-width: 150px;
+}
+.google-translate-widget select {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  height: auto;
+}
+/* Hide the Google Translate branding to save space in the header */
+.goog-te-gadget {
+  font-size: 0px !important;
+  color: transparent !important;
+}
+.goog-te-gadget .goog-te-combo {
+  margin: 0px !important;
+  font-size: 14px !important;
+  color: #113162;
+  font-weight: 500;
+}
+.goog-logo-link {
+  display:none !important;
+}
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+
+/* ========== GIGW Keyboard Accessibility ========== */
+/* Focus styles for keyboard navigability */
+:focus-visible {
+  outline: 3px dashed #0056b3 !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.2) !important;
+  transition: outline-offset 0.1s ease !important;
+}
+
+html[data-theme="high-contrast"] :focus-visible {
+  outline: 3px dashed #ffff00 !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.2) !important;
+}
+
+/* Reverse the filter for images so they aren't negatives */
+html[data-theme="high-contrast"] img,
+html[data-theme="high-contrast"] video,
+html[data-theme="high-contrast"] canvas,
+html[data-theme="high-contrast"] svg,
+html[data-theme="high-contrast"] iframe {
+    filter: invert(100%) hue-rotate(180deg) !important;
 }

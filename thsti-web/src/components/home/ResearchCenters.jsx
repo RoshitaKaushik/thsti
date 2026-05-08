@@ -25,7 +25,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="300ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-1.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-1.jpg" alt="Research Center Facility 1" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Maternal and Child Health</a></h3>
@@ -43,7 +43,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="600ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-2.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-2.jpg" alt="Research Center Facility 2" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Virus Research, Therapeutics and Vaccines</a>
@@ -62,7 +62,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="0ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-3.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-3.jpg" alt="Research Center Facility 3" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Tuberculosis Research</a></h3>
@@ -80,7 +80,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="300ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-4.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-4.jpg" alt="Research Center Facility 4" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Microbial Research</a></h3>
@@ -99,7 +99,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="300ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-5.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-5.jpg" alt="Research Center Facility 5" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Immunobiology and Immunotherapy</a></h3>
@@ -119,7 +119,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="300ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-6.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-6.jpg" alt="Research Center Facility 6" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Drug Discovery</a></h3>
@@ -138,7 +138,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="300ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-7.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-7.jpg" alt="Research Center Facility 7" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Clinical Development Services Agency</a></h3>
@@ -157,7 +157,7 @@ const ResearchCenters = () => {
                                                 <div className="inner-box wow fadeInUp" data-wow-delay="300ms"
                                                     data-wow-duration="1500ms">
                                                     <div className="image">
-                                                        <a href="#"><img src="images/resource/res-8.jpg" alt="" /></a>
+                                                        <a href="#"><img src="images/resource/res-8.jpg" alt="Research Center Facility 8" /></a>
                                                     </div>
                                                     <div className="lower-content">
                                                         <h3><a href="#">Computational and Mathematical Biology</a></h3>

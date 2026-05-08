@@ -17,7 +17,7 @@ const Header = () => {
         return cached ? JSON.parse(cached) : [];
     });
 
-    const { increaseFont, decreaseFont, resetFont } = useAccessibility();
+    const { theme, increaseFont, decreaseFont, resetFont, enableHighContrast, disableHighContrast } = useAccessibility();
     const { toggleLanguage } = useLanguage();
 
     useEffect(() => {
@@ -46,22 +46,33 @@ const Header = () => {
                 if (Array.isArray(data) && data.length > 0) {
                     setLanguages(data);
                     localStorage.setItem('thsti_translation_languages', JSON.stringify(data));
-
-                    // Dispatch a custom event in case external Bhashini script needs to re-initialize
-                    setTimeout(() => {
-                        window.dispatchEvent(new CustomEvent('bhashiniLanguagesLoaded'));
-                    }, 100);
                 }
             })
             .catch(err => console.error("Languages Fetch Error:", err));
+
+        // Inject Google Translate script as a temporary Bhashini fallback
+        if (!document.getElementById('google-translate-script')) {
+            window.googleTranslateElementInit = () => {
+                new window.google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'hi,en' // Restrict to English and Hindi
+                }, 'google_translate_element');
+            };
+            const script = document.createElement('script');
+            script.id = 'google-translate-script';
+            script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            script.async = true;
+            document.body.appendChild(script);
+        }
     }, []);
+
     const renderMenus = () => {
         if (!dynamicMenus || dynamicMenus.length === 0) {
             return (
                 <>
                     <li className="current"><Link to="/">Home</Link></li>
                     <li className="dropdown">
-                        <a href="javascript:void(0);" className="dropdown-toggle">About </a>
+                        <a href="javascript:void(0);" className="dropdown-toggle" aria-haspopup="true" aria-expanded="false">About </a>
                         <ul>
                             <li><Link to="/Info/missio-an-vision">Mission and Vision</Link></li>
                             <li><Link to="/DirectorMessage">Director's Message</Link></li>
@@ -82,7 +93,7 @@ const Header = () => {
                         </ul>
                     </li>
                     <li className="dropdown">
-                        <a href="javascript:void(0);" className="dropdown-toggle">Research and Innovation </a>
+                        <a href="javascript:void(0);" className="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Research and Innovation </a>
                         <ul>
                             <li><Link to="/TheMatic">Research Centers</Link></li>
                             <li><Link to="/publications">Publications</Link></li>
@@ -93,7 +104,7 @@ const Header = () => {
                         </ul>
                     </li>
                     <li className="dropdown">
-                        <a href="javascript:void(0);" className="dropdown-toggle">People </a>
+                        <a href="javascript:void(0);" className="dropdown-toggle" aria-haspopup="true" aria-expanded="false">People </a>
                         <ul>
                             <li><Link to="/faculty-and-scientists">Faculty &amp; Scientists</Link></li>
                             <li><Link to="/research-fellow">Researchers</Link></li>
@@ -103,23 +114,23 @@ const Header = () => {
                         </ul>
                     </li>
                     <li className="dropdown">
-                        <a href="javascript:void(0);" className="dropdown-toggle">Academics </a>
+                        <a href="javascript:void(0);" className="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Academics </a>
                         <ul>
                             <li className="dropdown">
                                 <Link to="/phd-programme">Ph. D. Program</Link>
                                 <ul>
-                                    <li><a href="https://thsti.res.in/public/upload/news/1763726730img.pdf" target="_blank" rel="noreferrer">PH.D. ADMISSION</a></li>
+                                    <li><a href="https://thsti.res.in/public/upload/news/1763726730img.pdf" target="_blank" rel="noopener noreferrer">PH.D. ADMISSION</a></li>
                                     <li><Link to="/phd-students">Ph.D. Students</Link></li>
                                 </ul>
                             </li>
-                            <li><a href="https://msc.thsti.in/" target="_blank" rel="noreferrer">M.Sc. Clinical Research</a></li>
+                            <li><a href="https://msc.thsti.in/" target="_blank" rel="noopener noreferrer">M.Sc. Clinical Research</a></li>
                             <li><Link to="/research-details/16/sib">SIB</Link></li>
                             <li><Link to="/Info/placement">PLACEMENT</Link></li>
                             <li><Link to="/short-term-training-program">Short Term Training Program</Link></li>
                         </ul>
                     </li>
                     <li className="dropdown">
-                        <a href="javascript:void(0);" className="dropdown-toggle">Careers </a>
+                        <a href="javascript:void(0);" className="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Careers </a>
                         <ul>
                             <li><Link to="/Jobs">Jobs</Link></li>
                             <li><Link to="/notification-shortlist">Shortlisted</Link></li>
@@ -128,7 +139,7 @@ const Header = () => {
                         </ul>
                     </li>
                     <li className="dropdown">
-                        <a href="javascript:void(0);" className="dropdown-toggle">Notifications </a>
+                        <a href="javascript:void(0);" className="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Notifications </a>
                         <ul>
                             <li><Link to="/calender">Calendar</Link></li>
                             <li><Link to="/Event">Event</Link></li>
@@ -145,7 +156,7 @@ const Header = () => {
             if (menu.isMegaMenu && menu.subMenus && menu.subMenus.length > 0) {
                 return (
                     <li key={menu.id} className="dropdown mega-menu">
-                        <a href={menu.route} target={menu.targetBlank ? "_blank" : "_self"}>{menu.label}</a>
+                        <a href={menu.route} target={menu.targetBlank ? "_blank" : "_self"} aria-haspopup="true" aria-expanded="false">{menu.label}</a>
                         <ul className="mega-content">
                             {menu.subMenus.map(col => (
                                 <div key={col.id} className="mega-column">
@@ -179,11 +190,11 @@ const Header = () => {
             return (
                 <li key={menu.id} className={menu.subMenus && menu.subMenus.length > 0 ? "dropdown cursor-pointer" : "cursor-pointer"}>
                     {isMenuExternal ? (
-                        <a href={menu.route} className={menu.subMenus && menu.subMenus.length > 0 ? "dropdown-toggle" : ""} target={menu.targetBlank ? "_blank" : "_self"}>
+                        <a href={menu.route} className={menu.subMenus && menu.subMenus.length > 0 ? "dropdown-toggle" : ""} target={menu.targetBlank ? "_blank" : "_self"} aria-haspopup={menu.subMenus && menu.subMenus.length > 0 ? "true" : undefined} aria-expanded={menu.subMenus && menu.subMenus.length > 0 ? "false" : undefined}>
                             {menu.label}
                         </a>
                     ) : (
-                        <Link to={menu.route} className={menu.subMenus && menu.subMenus.length > 0 ? "dropdown-toggle" : ""} target={menu.targetBlank ? "_blank" : "_self"}>
+                        <Link to={menu.route} className={menu.subMenus && menu.subMenus.length > 0 ? "dropdown-toggle" : ""} target={menu.targetBlank ? "_blank" : "_self"} aria-haspopup={menu.subMenus && menu.subMenus.length > 0 ? "true" : undefined} aria-expanded={menu.subMenus && menu.subMenus.length > 0 ? "false" : undefined}>
                             {menu.label}
                         </Link>
                     )}
@@ -194,9 +205,9 @@ const Header = () => {
                                 return (
                                 <li key={sub.id} className={sub.subMenus && sub.subMenus.length > 0 ? "dropdown" : ""}>
                                     {isSubExternal ? (
-                                        <a href={sub.route} target={sub.targetBlank ? "_blank" : "_self"}>{sub.label}</a>
+                                        <a href={sub.route} target={sub.targetBlank ? "_blank" : "_self"} aria-haspopup={sub.subMenus && sub.subMenus.length > 0 ? "true" : undefined} aria-expanded={sub.subMenus && sub.subMenus.length > 0 ? "false" : undefined}>{sub.label}</a>
                                     ) : (
-                                        <Link to={sub.route} target={sub.targetBlank ? "_blank" : "_self"}>{sub.label}</Link>
+                                        <Link to={sub.route} target={sub.targetBlank ? "_blank" : "_self"} aria-haspopup={sub.subMenus && sub.subMenus.length > 0 ? "true" : undefined} aria-expanded={sub.subMenus && sub.subMenus.length > 0 ? "false" : undefined}>{sub.label}</Link>
                                     )}
                                     {sub.subMenus && sub.subMenus.length > 0 && (
                                         <ul>
@@ -232,13 +243,12 @@ const Header = () => {
                     <div className="auto-container clearfix">
                         <div className="top-left clearfix">
 
-                            {/*  Social Links  */}
                             <ul className="social-links clearfix">
-                                <li><a href="#"><span className="fab fa-facebook-f"></span></a></li>
-                                <li><a href="#"><span className="fab fa-google-plus-g"></span></a></li>
-                                <li><a href="#"><span className="fab fa-twitter"></span></a></li>
-                                <li><a href="#"><span className="fab fa-linkedin-in"></span></a></li>
-                                <li><a href="#"><span className="fab fa-youtube"></span></a></li>
+                                <li><a href="#" aria-label="Facebook"><span className="fab fa-facebook-f"></span></a></li>
+                                <li><a href="#" aria-label="Google Plus"><span className="fab fa-google-plus-g"></span></a></li>
+                                <li><a href="#" aria-label="Twitter"><span className="fab fa-twitter"></span></a></li>
+                                <li><a href="#" aria-label="LinkedIn"><span className="fab fa-linkedin-in"></span></a></li>
+                                <li><a href="#" aria-label="YouTube"><span className="fab fa-youtube"></span></a></li>
                             </ul>
                         </div>
                         <div className="top-right clearfix">
@@ -250,6 +260,10 @@ const Header = () => {
                                 <li><a href="#" onClick={(e) => { e.preventDefault(); increaseFont(); }}><span className="txt">A+</span></a></li>
                                 <li><a href="#" onClick={(e) => { e.preventDefault(); resetFont(); }}><span className="txt">A</span></a></li>
                                 <li><a href="#" onClick={(e) => { e.preventDefault(); decreaseFont(); }}><span className="txt">A-</span></a></li>
+                                <li className="theme-toggle" style={{ marginLeft: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <button onClick={() => disableHighContrast()} title="Standard Contrast" style={{ background: '#ffffff', color: '#000000', border: '1px solid #cccccc', padding: '0px 6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', lineHeight: '20px' }}>A</button>
+                                    <button onClick={() => enableHighContrast()} title="High Contrast" style={{ background: '#000000', color: '#ffff00', border: '1px solid #000000', padding: '0px 6px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', lineHeight: '20px' }}>A</button>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -268,10 +282,9 @@ const Header = () => {
 
                                 <div className="col-lg-6">
 
-                                    {/* Logo */}
                                     <div className="logo-outer">
-                                        <div className="logo"><a href="/"><img src="/images/logo.jpg" alt=""
-                                            title="" /></a></div>
+                                        <div className="logo"><a href="/" aria-label="THSTI Home"><img src="/images/logo.jpg" alt="Translational Health Science and Technology Institute Logo"
+                                            title="THSTI Logo" /></a></div>
                                     </div>
 
                                 </div>
@@ -314,8 +327,15 @@ const Header = () => {
 
 
                                             <div className="bhashini-plugin-container">
+                                                {/* Hidden Google Translate Element */}
+                                                <div id="google_translate_element" style={{ display: 'none' }}></div>
+                                                
+                                                {/* Native App Language Toggle */}
                                                 <div className="dont-translate bhashini-skip-translation bhashini-dropdown" id="bhashini-translation" title="Translate this page!">
-                                                    <button className="bhashini-dropdown-btn">
+                                                    <button className="bhashini-dropdown-btn" onClick={(e) => {
+                                                        const dropdown = document.getElementById('bhashiniLanguageDropdown');
+                                                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                                                    }}>
                                                         <div className="bhashini-dropdown-btn-icon">
                                                             <svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                                 <path d="M14.125 3.735V12H12.91V3.735H11.815V2.67H15.685V3.735H14.125ZM8.47 2.52C9.25 2.52 9.845 2.715 10.255 3.105C10.675 3.495 10.885 3.985 10.885 4.575C10.885 5.005 10.77 5.395 10.54 5.745C10.32 6.085 9.99 6.355 9.55 6.555C9.11 6.755 8.56 6.865 7.9 6.885L7.825 5.835C8.505 5.815 8.985 5.695 9.265 5.475C9.555 5.255 9.7 4.96 9.7 4.59C9.7 4.23 9.58 3.97 9.34 3.81C9.11 3.65 8.84 3.57 8.53 3.57C8.16 3.57 7.825 3.62 7.525 3.72C7.225 3.82 6.905 3.955 6.565 4.125L6.19 3.09C6.45 2.95 6.77 2.82 7.15 2.7C7.54 2.58 7.98 2.52 8.47 2.52ZM11.05 8.73C11.05 9.19 10.945 9.575 10.735 9.885C10.525 10.195 10.24 10.425 9.88 10.575C9.53 10.725 9.13 10.8 8.68 10.8C8.11 10.8 7.58 10.66 7.09 10.38C6.61 10.1 6.15 9.655 5.71 9.045C5.28 8.435 4.855 7.64 4.435 6.66L5.5 6.27C5.79 6.98 6.09 7.595 6.4 8.115C6.72 8.625 7.06 9.02 7.42 9.3C7.78 9.57 8.165 9.705 8.575 9.705C8.955 9.705 9.265 9.62 9.505 9.45C9.745 9.27 9.865 8.985 9.865 8.595C9.865 8.115 9.7 7.7 9.37 7.35C9.04 7 8.64 6.68 8.17 6.39L9.055 6.345L9.7 6.21C9.84 6.33 9.995 6.475 10.165 6.645C10.335 6.815 10.47 6.985 10.57 7.155L10.645 7.44C10.775 7.63 10.875 7.83 10.945 8.04C11.015 8.25 11.05 8.48 11.05 8.73ZM11.29 6.75C11.77 6.75 12.185 6.715 12.535 6.645C12.885 6.565 13.295 6.44 13.765 6.27V7.35C13.335 7.54 12.945 7.665 12.595 7.725C12.255 7.785 11.88 7.815 11.47 7.815C11.32 7.815 11.145 7.805 10.945 7.785C10.745 7.755 10.555 7.725 10.375 7.695C10.205 7.655 10.08 7.62 10 7.59L9.295 6.75L9.385 6.525C9.675 6.595 9.98 6.65 10.3 6.69C10.62 6.73 10.95 6.75 11.29 6.75Z" fill="#1D0A69"></path>
@@ -323,15 +343,29 @@ const Header = () => {
                                                             </svg>
                                                         </div>
                                                     </button>
-                                                    <ul className="bhashini-dropdown-content" id="bhashiniLanguageDropdown">
-                                                        {languages.map(lang => (
-                                                            <li key={lang.code} className="dont-translate language-option" data-value={lang.code} onClick={() => toggleLanguage()}>
-                                                                {lang.label}
-                                                            </li>
-                                                        ))}
-                                                        {languages.length === 0 && (
-                                                            <li className="dont-translate language-option" data-value="en" onClick={() => toggleLanguage()}>English / हिंदी</li>
-                                                        )}
+                                                    <ul className="bhashini-dropdown-content" id="bhashiniLanguageDropdown" style={{ display: 'none', position: 'absolute', background: '#fff', border: '1px solid #ccc', zIndex: 1000 }}>
+                                                        <li className="dont-translate language-option p-2 hover:bg-gray-100 cursor-pointer" onClick={() => {
+                                                            toggleLanguage();
+                                                            document.getElementById('bhashiniLanguageDropdown').style.display = 'none';
+                                                            const select = document.querySelector('.goog-te-combo');
+                                                            if (select) {
+                                                                select.value = 'en';
+                                                                select.dispatchEvent(new Event('change', { bubbles: true }));
+                                                            } else {
+                                                                window.location.reload();
+                                                            }
+                                                        }}>English</li>
+                                                        <li className="dont-translate language-option p-2 hover:bg-gray-100 cursor-pointer" onClick={() => {
+                                                            toggleLanguage();
+                                                            document.getElementById('bhashiniLanguageDropdown').style.display = 'none';
+                                                            const select = document.querySelector('.goog-te-combo');
+                                                            if (select) {
+                                                                select.value = 'hi';
+                                                                select.dispatchEvent(new Event('change', { bubbles: true }));
+                                                            } else {
+                                                                window.location.reload();
+                                                            }
+                                                        }}>हिंदी</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -414,9 +448,8 @@ const Header = () => {
                 {/*  Sticky Header   */}
                 <div className="sticky-header">
                     <div className="auto-container clearfix">
-                        {/* Logo */}
                         <div className="logo pull-left">
-                            <a href="/" title=""><img src="/images/logo-small.jpg" alt="" title="" /></a>
+                            <a href="/" title="THSTI Home" aria-label="THSTI Home"><img src="/images/logo-small.jpg" alt="THSTI Small Logo" title="THSTI Logo" /></a>
                         </div>
                         {/* Right Col */}
                         <div className="pull-right">

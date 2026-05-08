@@ -6,6 +6,7 @@ import AdminPageLayout from '../components/AdminPageLayout';
 import SectionSettings from '../components/SectionSettings';
 import AdminModal from '../components/AdminModal';
 import MediaSelector from '../components/MediaSelector';
+import { BhashiniService } from '../api/BhashiniService';
 
 export default function News() {
     const [news, setNews] = useState([]);
@@ -110,6 +111,14 @@ export default function News() {
                 ...formData,
                 publishDate: new Date(formData.publishDate).toISOString()
             };
+
+            // Auto-translate using Bhashini if Hindi fields are blank
+            if (!payload.titleHi && payload.title) {
+                payload.titleHi = await BhashiniService.translateToHindi(payload.title);
+            }
+            if (!payload.contentHi && payload.content) {
+                payload.contentHi = await BhashiniService.translateToHindi(payload.content);
+            }
 
             if (editingNews) {
                 await api.put(`/news/${editingNews.id}`, payload);

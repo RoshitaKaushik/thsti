@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Save, FileText, Search, Filter } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, FileText, Search, Filter, X } from 'lucide-react';
 import api from '../api/axios';
 import AdminPageLayout from '../components/AdminPageLayout';
 import AdminModal from '../components/AdminModal';
 import RichTextEditor from '../components/RichTextEditor';
 import RevisionHistoryModal from '../components/RevisionHistoryModal';
 import { Clock } from 'lucide-react';
+import { BhashiniService } from '../api/BhashiniService';
 
 export default function Pages() {
     const [pages, setPages] = useState([]);
@@ -27,7 +28,7 @@ export default function Pages() {
         pageType: 'Standard',
         bannerImageUrl: '',
         breadcrumbTitle: '',
-        templateConfigJson: JSON.stringify({ showSidebar: true, showSidebarTextBox: true })
+        templateConfigJson: JSON.stringify({ showSidebar: true, showTextBox: true, showStickyNav: true })
     });
 
     const fetchPages = async () => {
@@ -103,19 +104,63 @@ export default function Pages() {
         setEditingPage(page);
         
         let configStr = page.templateConfigJson;
-        if (!configStr) {
-            configStr = JSON.stringify({ showSidebar: true, showTextBox: true });
+        let parsedConfig = {};
+        try {
+            parsedConfig = JSON.parse(configStr || '{}');
+        } catch(e) {}
+        
+        // Auto-migrate legacy format to modular format
+        if (!parsedConfig.sidebarBlocks) {
+            const blocks = [];
+            if (parsedConfig.showSidebar !== false) {
+                blocks.push({
+                    id: 'legacy-links-' + Date.now(),
+                    type: 'quickLinks',
+                    title: 'QUICK LINKS',
+                    links: parsedConfig.sidebarLinks || []
+                });
+            }
+            if (parsedConfig.showTextBox !== false) {
+                blocks.push({
+                    id: 'legacy-text-' + Date.now(),
+                    type: 'textBox',
+                    title: 'Mission Box',
+                    content: parsedConfig.textBoxContent || ''
+                });
+            }
+            parsedConfig.sidebarBlocks = blocks;
+            delete parsedConfig.showSidebar;
+            delete parsedConfig.sidebarLinks;
+            delete parsedConfig.showTextBox;
+            delete parsedConfig.textBoxContent;
         }
+
+        if (!parsedConfig.stickyNavItems) {
+            if (parsedConfig.showStickyNav !== false) {
+                parsedConfig.stickyNavItems = [
+                    { label: "Mission and Vision", url: "#", icon: "fa-user", isActive: true },
+                    { label: "Director's Message", url: "/directors-message", icon: "fa-graduation-cap" },
+                    { label: "Former Directors", url: "#", icon: "fa-flask" }
+                ];
+            } else {
+                parsedConfig.stickyNavItems = [];
+            }
+            delete parsedConfig.showStickyNav;
+        }
+
+        configStr = JSON.stringify(parsedConfig);
 
         setFormData({
             title: page.title,
+            titleHi: page.titleHi || '',
             slug: page.slug,
             content: page.content || '',
+            contentHi: page.contentHi || '',
             metaTitle: page.metaTitle || '',
             metaDescription: page.metaDescription || '',
             ogImage: page.ogImage || '',
             isActive: page.isActive,
-            pageType: page.pageType || 'Standard',
+            pageType: page.pageType === 'Standard' ? 'Template' : page.pageType === 'DynamicListing' ? 'ModuleLinked' : (page.pageType || 'Template'),
             bannerImageUrl: page.bannerImageUrl || '',
             breadcrumbTitle: page.breadcrumbTitle || '',
             templateConfigJson: configStr
@@ -127,16 +172,25 @@ export default function Pages() {
         setEditingPage(null);
         setFormData({ 
             title: '', 
+            titleHi: '',
             slug: '', 
             content: '', 
+            contentHi: '',
             metaTitle: '', 
             metaDescription: '', 
             ogImage: '', 
             isActive: true, 
-            pageType: 'Standard',
+            pageType: 'Template',
             bannerImageUrl: '',
             breadcrumbTitle: '',
-            templateConfigJson: JSON.stringify({ showSidebar: true, showSidebarTextBox: true })
+            templateConfigJson: JSON.stringify({ 
+                sidebarBlocks: [
+                    { id: 'default-links', type: 'quickLinks', title: 'QUICK LINKS', links: [] }
+                ], 
+                stickyNavItems: [
+                    { label: "Mission and Vision", url: "#", icon: "fa-user", isActive: true }
+                ] 
+            })
         });
         setIsModalOpen(false);
     };
@@ -144,10 +198,20 @@ export default function Pages() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const payload = { ...formData };
+            
+            // Auto-translate using Bhashini if Hindi fields are blank
+            if (!payload.titleHi && payload.title) {
+                payload.titleHi = await BhashiniService.translateToHindi(payload.title);
+            }
+            if (!payload.contentHi && payload.content) {
+                payload.contentHi = await BhashiniService.translateToHindi(payload.content);
+            }
+
             if (editingPage) {
-                await api.put(`/pages/${editingPage.id}`, formData);
+                await api.put(`/pages/${editingPage.id}`, payload);
             } else {
-                await api.post('/pages', formData);
+                await api.post('/pages', payload);
             }
             resetForm();
             fetchPages();
@@ -245,7 +309,7 @@ export default function Pages() {
                                                     /{page.slug}
                                                 </div>
                                                 <div className="px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[11px] font-bold uppercase tracking-wider">
-                                                    {page.pageType || 'Standard'}
+                                                    {page.pageType === 'ModuleLinked' ? 'Module Linked' : 'Template'}
                                                 </div>
                                             </div>
                                         </div>
@@ -277,7 +341,7 @@ export default function Pages() {
                                                 <Clock size={16} className="stroke-[2]" />
                                             </button>
                                             <div className="w-px h-6 bg-gray-200 my-auto mx-1 hidden md:block"></div>
-                                            {page.pageType === 'Standard' && (
+                                            {page.pageType !== 'ModuleLinked' && (
                                                 <button onClick={() => handleDelete(page.id)} className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-400 bg-gray-50 hover:text-red-600 hover:bg-red-50 transition-colors border border-transparent hover:border-red-100 shadow-sm" title="Delete">
                                                     <Trash2 size={16} className="stroke-[2]" />
                                                 </button>
@@ -310,23 +374,31 @@ export default function Pages() {
             >
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="md:col-span-1">
-                            <label className="block text-text-main font-bold mb-1">Page Title <span className="text-primary">*</span></label>
-                            <input type="text" name="title" className="admin-input text-lg" value={formData.title} onChange={handleChange} required placeholder="e.g. Terms of Service" />
-                        </div>
-                        <div className="md:col-span-1">
-                            <label className="block text-text-main font-bold mb-1">Page Type</label>
-                            <select name="pageType" className="admin-input text-lg" value={formData.pageType} onChange={handleChange}>
-                                <option value="Standard">Standard Text Page</option>
-                                <option value="DynamicListing">Dynamic Module Page</option>
-                            </select>
-                        </div>
+                        {formData.pageType === 'ModuleLinked' && (
+                            <>
+                                <div className="md:col-span-1">
+                                    <label className="block text-text-main font-bold mb-1">Page Title <span className="text-primary">*</span></label>
+                                    <input type="text" name="title" className="admin-input text-lg" value={formData.title} onChange={handleChange} required placeholder="e.g. Terms of Service" />
+                                </div>
+                                <div className="md:col-span-1">
+                                    <label className="block text-text-main font-bold mb-1">Page Title (Hindi)</label>
+                                    <input type="text" name="titleHi" className="admin-input text-lg" value={formData.titleHi} onChange={handleChange} placeholder="Leave blank to translate" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-text-main font-bold mb-1">Page Type</label>
+                                    <div className="px-3 py-2 bg-blue-50 text-blue-800 border border-blue-200 rounded text-sm font-bold flex items-center">
+                                        <span className="mr-2 text-xl">ℹ️</span>
+                                        This is a Module-Linked Page. Content is managed inside its respective module.
+                                    </div>
+                                </div>
+                            </>
+                        )}
                         <div className="md:col-span-2">
                             <label className="block text-text-main font-bold mb-1">URL Slug <span className="text-primary">*</span></label>
                             <div className="flex">
                                 <span className="bg-gray-100 text-gray-500 border border-border-light border-r-0 px-4 flex items-center rounded-l" style={{ width: 'auto', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>/</span>
-                                <input type="text" name="slug" className="admin-input font-mono flex-1 rounded-none border-l-0 border-r-0" value={formData.slug} onChange={handleChange} required placeholder="terms-of-service" style={{ borderRadius: 0 }} />
-                                {formData.pageType === 'Standard' && (
+                                <input type="text" name="slug" className="admin-input font-mono flex-1 rounded-none border-l-0 border-r-0" value={formData.slug} onChange={handleChange} required placeholder="terms-of-service" style={{ borderRadius: 0 }} readOnly={formData.pageType === 'ModuleLinked'} />
+                                {formData.pageType !== 'ModuleLinked' && (
                                     <button type="button" onClick={handleGenerateSlug} className="px-4 border border-border-light font-bold text-secondary hover:bg-gray-100 rounded-r transition-colors text-sm" style={{ borderTopRightRadius: '4px', borderBottomRightRadius: '4px' }}>Generate</button>
                                 )}
                             </div>
@@ -336,134 +408,299 @@ export default function Pages() {
                             <label className="block text-text-main font-bold mb-1">Hero Banner Image URL</label>
                             <input type="text" name="bannerImageUrl" className="admin-input" value={formData.bannerImageUrl} onChange={handleChange} placeholder="e.g. /images/banner.jpg" />
                         </div>
-                        <div className="md:col-span-1">
-                            <label className="block text-text-main font-bold mb-1">Breadcrumb Title</label>
-                            <input type="text" name="breadcrumbTitle" className="admin-input" value={formData.breadcrumbTitle} onChange={handleChange} placeholder="e.g. Home > About" />
-                        </div>
+                        
+                        {formData.pageType === 'ModuleLinked' && (
+                            <div className="md:col-span-1">
+                                <label className="block text-text-main font-bold mb-1">Breadcrumb Title</label>
+                                <input type="text" name="breadcrumbTitle" className="admin-input" value={formData.breadcrumbTitle} onChange={handleChange} placeholder="e.g. Home > About" />
+                            </div>
+                        )}
                     </div>
 
-                    {formData.pageType === 'Standard' && (
+                    {formData.pageType !== 'ModuleLinked' && (
                         <>
                             <div className="border-t border-border-light pt-4 mt-6">
-                                <h4 className="font-bold text-secondary mb-3">Template: Subpage with Left Panel</h4>
-                                <div className="flex gap-8 items-start bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                    {/* Visual Representation of the Template */}
-                                    <div className="w-48 bg-white border border-gray-300 rounded shadow-sm overflow-hidden flex-shrink-0">
-                                        <div className="h-6 bg-gray-200 border-b border-gray-300 flex items-center px-2">
-                                            <div className="h-2 w-16 bg-gray-400 rounded"></div>
-                                        </div>
-                                        <div className="flex p-2 gap-2 h-32">
-                                            {templateConfig.showSidebar && (
-                                                <div className="w-12 flex flex-col gap-2">
-                                                    <div className="h-full bg-blue-100 border border-blue-200 rounded flex items-center justify-center">
-                                                        <span className="text-[8px] text-blue-800 font-bold rotate-[-90deg] whitespace-nowrap">Side Menu</span>
-                                                    </div>
-                                                    {templateConfig.showTextBox && (
-                                                        <div className="h-10 bg-amber-100 border border-amber-200 rounded flex items-center justify-center">
-                                                            <span className="text-[8px] text-amber-800 font-bold text-center leading-tight px-1">Text Box</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                            <div className="flex-1 bg-gray-100 border border-gray-200 rounded p-1 flex flex-col gap-1">
-                                                <div className="h-2 w-3/4 bg-gray-300 rounded"></div>
-                                                <div className="h-1 w-full bg-gray-200 rounded"></div>
-                                                <div className="h-1 w-full bg-gray-200 rounded"></div>
-                                                <div className="h-1 w-5/6 bg-gray-200 rounded"></div>
-                                                <div className="text-[8px] text-gray-400 text-center mt-auto">Main Content</div>
+                                <h4 className="font-bold text-secondary mb-3 flex items-center justify-between">
+                                    <span>Template: Subpage with Left Panel</span>
+                                    <span className="text-sm font-normal text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">WYSIWYG Editor</span>
+                                </h4>
+                                
+                                <div className="bg-gray-50 p-2 md:p-6 rounded-xl border border-gray-200 mb-6 overflow-x-auto">
+                                    <div className="min-w-[900px] w-full bg-white rounded-lg shadow-[0_4px_20px_rgba(0,0,0,0.08)] overflow-hidden border border-gray-300 font-sans text-sm relative">
+                                        {/* Mock Header (Static) */}
+                                        <div className="h-14 bg-white border-b border-gray-200 flex items-center px-6 justify-between select-none">
+                                            <div className="text-2xl font-black text-blue-900 tracking-tighter">THSTI CMS</div>
+                                            <div className="flex gap-4 font-bold text-gray-500 text-xs uppercase tracking-wider">
+                                                <div>About Us</div><div>Research</div><div>Academics</div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    {/* Toggles */}
-                                    <div className="flex flex-col gap-4 flex-1">
-                                        <p className="text-sm text-gray-500 mb-2">Configure the layout components for this page based on the <code>subpage-with-leftpanel.html</code> template.</p>
-                                        <label className="flex items-center gap-3 cursor-pointer">
-                                            <input type="checkbox" className="w-5 h-5 text-primary rounded border-gray-300" checked={templateConfig.showSidebar} onChange={() => handleTemplateToggle('showSidebar')} />
-                                            <span className="text-sm font-bold text-gray-700">Show Side Menu (Left Panel)</span>
-                                        </label>
-                                        <label className={`flex items-center gap-3 cursor-pointer ${!templateConfig.showSidebar ? 'opacity-50 pointer-events-none' : ''}`}>
-                                            <input type="checkbox" className="w-5 h-5 text-primary rounded border-gray-300" checked={templateConfig.showTextBox} onChange={() => handleTemplateToggle('showTextBox')} disabled={!templateConfig.showSidebar} />
-                                            <span className="text-sm font-bold text-gray-700">Show Text Box (Mission/Vision below menu)</span>
-                                        </label>
-                                        <label className="flex items-center gap-3 cursor-pointer">
-                                            <input type="checkbox" className="w-5 h-5 text-primary rounded border-gray-300" checked={templateConfig.showStickyNav} onChange={() => handleTemplateToggle('showStickyNav')} />
-                                            <span className="text-sm font-bold text-gray-700">Show Horizontal Sticky Navigation Bar (Below Banner)</span>
-                                        </label>
-                                    </div>
-                                </div>
+                                        
+                                        {/* Banner / Breadcrumb Area (Editable) */}
+                                        <div 
+                                            className="h-48 bg-gradient-to-r from-blue-900 to-blue-800 flex flex-col justify-center px-10 relative group"
+                                            style={formData.bannerImageUrl ? { backgroundImage: `url(${formData.bannerImageUrl.startsWith('http') ? formData.bannerImageUrl : 'http://localhost:5000' + formData.bannerImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                                        >
+                                            <div className="absolute inset-0 bg-blue-900/70 mix-blend-multiply"></div>
+                                            
+                                            <div className="relative z-10 w-full max-w-5xl mx-auto">
+                                                <div className="flex gap-4">
+                                                    <input 
+                                                        type="text" 
+                                                        name="title"
+                                                        value={formData.title} 
+                                                        onChange={handleChange}
+                                                        placeholder="Enter Page Title..."
+                                                        required
+                                                        className="w-1/2 bg-transparent border-b border-transparent hover:border-white/30 focus:border-white text-white text-4xl font-extrabold mb-2 placeholder-white/50 outline-none transition-colors py-1"
+                                                    />
+                                                    <input 
+                                                        type="text" 
+                                                        name="titleHi"
+                                                        value={formData.titleHi} 
+                                                        onChange={handleChange}
+                                                        placeholder="Hindi Title..."
+                                                        className="w-1/2 bg-transparent border-b border-transparent hover:border-white/30 focus:border-white text-white text-3xl font-extrabold mb-2 placeholder-white/50 outline-none transition-colors py-1"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center text-white/80 font-medium text-sm">
+                                                    <span className="opacity-70 mr-2">Home &gt;</span>
+                                                    <input 
+                                                        type="text" 
+                                                        name="breadcrumbTitle"
+                                                        value={formData.breadcrumbTitle} 
+                                                        onChange={handleChange}
+                                                        placeholder="Breadcrumb Title (Optional, defaults to Page Title)"
+                                                        className="bg-transparent border-b border-transparent hover:border-white/30 focus:border-white text-white placeholder-white/50 outline-none transition-colors w-64"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                {/* Dynamic Content Fields for Template */}
-                                {templateConfig.showSidebar && (
-                                    <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-white">
-                                        <h5 className="font-bold text-sm text-gray-800 mb-3">Sidebar Links</h5>
-                                        {(templateConfig.sidebarLinks || []).map((link, index) => (
-                                            <div key={index} className="flex gap-2 mb-2">
-                                                <input 
-                                                    type="text" 
-                                                    className="w-full p-2 border border-gray-300 rounded text-sm" 
-                                                    placeholder="Link Label (e.g. Contents)" 
-                                                    value={link.label}
-                                                    onChange={(e) => {
-                                                        const newLinks = [...(templateConfig.sidebarLinks || [])];
-                                                        newLinks[index].label = e.target.value;
-                                                        handleTemplateDataChange('sidebarLinks', newLinks);
-                                                    }}
-                                                />
-                                                <input 
-                                                    type="text" 
-                                                    className="w-full p-2 border border-gray-300 rounded text-sm" 
-                                                    placeholder="URL (e.g. # or /route)" 
-                                                    value={link.url}
-                                                    onChange={(e) => {
-                                                        const newLinks = [...(templateConfig.sidebarLinks || [])];
-                                                        newLinks[index].url = e.target.value;
-                                                        handleTemplateDataChange('sidebarLinks', newLinks);
-                                                    }}
-                                                />
+                                        {/* Sticky Nav Area */}
+                                        <div className="relative bg-[#e5f1f8] border-b border-blue-100 p-3">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">Sticky Navigation Bar</span>
                                                 <button 
                                                     type="button" 
-                                                    className="px-3 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200"
+                                                    className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center gap-1 shadow-sm transition-colors"
                                                     onClick={() => {
-                                                        const newLinks = (templateConfig.sidebarLinks || []).filter((_, i) => i !== index);
-                                                        handleTemplateDataChange('sidebarLinks', newLinks);
+                                                        const newItems = [...(templateConfig.stickyNavItems || []), { label: 'New Link', url: '', icon: 'fa-link' }];
+                                                        handleTemplateDataChange('stickyNavItems', newItems);
                                                     }}
                                                 >
-                                                    <i className="fa-solid fa-trash"></i>
+                                                    <Plus size={14} /> Add Nav Item
                                                 </button>
                                             </div>
-                                        ))}
-                                        <button 
-                                            type="button" 
-                                            className="text-sm text-primary font-bold mt-2 flex items-center gap-1 hover:underline"
-                                            onClick={() => {
-                                                const newLinks = [...(templateConfig.sidebarLinks || []), { label: '', url: '' }];
-                                                handleTemplateDataChange('sidebarLinks', newLinks);
-                                            }}
-                                        >
-                                            <i className="fa-solid fa-plus"></i> Add Link
-                                        </button>
-                                    </div>
-                                )}
+                                            <div className="flex flex-wrap gap-2">
+                                                {(templateConfig.stickyNavItems || []).map((navItem, index) => (
+                                                    <div key={index} className="flex flex-col bg-white border border-blue-200 rounded p-2 shadow-sm relative group w-64 hover:border-blue-400 transition-colors">
+                                                        <button 
+                                                            type="button"
+                                                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow"
+                                                            onClick={() => {
+                                                                const newItems = [...(templateConfig.stickyNavItems || [])];
+                                                                newItems.splice(index, 1);
+                                                                handleTemplateDataChange('stickyNavItems', newItems);
+                                                            }}
+                                                        >
+                                                            <X size={12} strokeWidth={3} />
+                                                        </button>
+                                                        <div className="flex items-center border-b border-gray-100 pb-1 mb-1">
+                                                            <i className={`fa-solid ${navItem.icon || 'fa-link'} text-blue-400 text-[10px] w-4 text-center mr-1`}></i>
+                                                            <input 
+                                                                type="text" 
+                                                                className="w-12 text-blue-400 font-mono outline-none text-[10px] border-r border-gray-100 pr-1 mr-1" 
+                                                                placeholder="fa-icon" 
+                                                                value={navItem.icon || ''}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...templateConfig.stickyNavItems];
+                                                                    newItems[index].icon = e.target.value;
+                                                                    handleTemplateDataChange('stickyNavItems', newItems);
+                                                                }}
+                                                                title="FontAwesome class (e.g. fa-user)"
+                                                            />
+                                                            <input 
+                                                                type="text" 
+                                                                className="flex-1 text-sm font-bold text-blue-900 outline-none placeholder-gray-400" 
+                                                                placeholder="Nav Label" 
+                                                                value={navItem.label}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...templateConfig.stickyNavItems];
+                                                                    newItems[index].label = e.target.value;
+                                                                    handleTemplateDataChange('stickyNavItems', newItems);
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <input 
+                                                            type="text" 
+                                                            className="w-full text-xs text-gray-500 outline-none placeholder-gray-300 bg-transparent" 
+                                                            placeholder="URL (e.g. /about)" 
+                                                            value={navItem.url}
+                                                            onChange={(e) => {
+                                                                const newItems = [...templateConfig.stickyNavItems];
+                                                                newItems[index].url = e.target.value;
+                                                                handleTemplateDataChange('stickyNavItems', newItems);
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ))}
+                                                {!(templateConfig.stickyNavItems?.length > 0) && (
+                                                    <div className="text-xs text-blue-800/50 italic py-2">No sticky nav items. The sticky nav bar will be hidden.</div>
+                                                )}
+                                            </div>
+                                        </div>
 
-                                {templateConfig.showSidebar && templateConfig.showTextBox && (
-                                    <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-white">
-                                        <h5 className="font-bold text-sm text-gray-800 mb-3">Left Text Box HTML Content</h5>
-                                        <p className="text-xs text-gray-500 mb-2">You can write HTML here directly (e.g. &lt;h2&gt;Mission&lt;/h2&gt;&lt;p&gt;...&lt;/p&gt;).</p>
-                                        <textarea 
-                                            className="w-full p-3 border border-gray-300 rounded text-sm font-mono h-32"
-                                            value={templateConfig.textBoxContent || ''}
-                                            onChange={(e) => handleTemplateDataChange('textBoxContent', e.target.value)}
-                                            placeholder="<h2>Mission</h2><p>Text here</p>"
-                                        />
-                                    </div>
-                                )}
-                            </div>
+                                        {/* Main Content & Sidebar Grid */}
+                                        <div className="flex p-8 gap-8 min-h-[600px] max-w-6xl mx-auto">
+                                            {/* Sidebar Side */}
+                                            <div className={`w-[30%] flex flex-col gap-6 relative transition-all duration-300 ${!templateConfig.sidebarBlocks?.length ? 'hidden' : ''}`}>
+                                                {(templateConfig.sidebarBlocks || []).map((block, blockIndex) => {
+                                                    if (block.type === 'quickLinks') {
+                                                        return (
+                                                            <div key={block.id} className="border border-gray-200 rounded p-0 bg-[#f9f9f9] shadow-sm relative group overflow-hidden hover:border-blue-300 transition-colors">
+                                                                <button type="button" onClick={() => {
+                                                                    const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                    newBlocks.splice(blockIndex, 1);
+                                                                    handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                }} className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity z-10 shadow">
+                                                                    <Trash2 size={12} />
+                                                                </button>
+                                                                <div className="bg-[#113162] p-4 font-bold text-white flex justify-between items-center rounded-t border-b-2 border-red-600">
+                                                                    <input type="text" className="bg-transparent border-b border-transparent hover:border-white/30 focus:border-white text-sm outline-none w-32 uppercase" value={block.title || ''} onChange={(e) => {
+                                                                        const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                        newBlocks[blockIndex].title = e.target.value;
+                                                                        handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                    }} placeholder="MENU TITLE" />
+                                                                    <button type="button" className="text-xs text-white/80 hover:text-white flex items-center gap-1 mr-8" onClick={() => {
+                                                                        const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                        newBlocks[blockIndex].links = [...(block.links || []), { label: '', url: '#' }];
+                                                                        handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                    }}>
+                                                                        <Plus size={12} /> Add Link
+                                                                    </button>
+                                                                </div>
+                                                                <div className="p-0 flex flex-col">
+                                                                    {(block.links || []).map((link, linkIndex) => (
+                                                                        <div key={linkIndex} className="flex flex-col border-b border-gray-200 bg-white group/link hover:bg-gray-50 relative">
+                                                                            <div className="flex p-3 items-center">
+                                                                                <div className="w-2 h-2 bg-red-600 rounded-full mr-3 shrink-0"></div>
+                                                                                <input type="text" className="flex-1 bg-transparent text-sm font-bold text-[#113162] outline-none placeholder-gray-300" placeholder="Link Label" value={link.label} onChange={(e) => {
+                                                                                    const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                                    newBlocks[blockIndex].links[linkIndex].label = e.target.value;
+                                                                                    handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                                }} />
+                                                                                <button type="button" className="text-gray-300 hover:text-red-500 ml-2 opacity-0 group-hover/link:opacity-100 transition-opacity" onClick={() => {
+                                                                                    const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                                    newBlocks[blockIndex].links.splice(linkIndex, 1);
+                                                                                    handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                                }}>
+                                                                                    <X size={12} strokeWidth={3} />
+                                                                                </button>
+                                                                            </div>
+                                                                            <div className="px-3 pb-3 pt-0 ml-5 flex items-center">
+                                                                                <span className="text-[10px] text-gray-400 font-mono mr-2">URL:</span>
+                                                                                <input type="text" className="flex-1 text-[11px] text-gray-500 outline-none font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1" placeholder="# or /url-route" value={link.url} onChange={(e) => {
+                                                                                    const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                                    newBlocks[blockIndex].links[linkIndex].url = e.target.value;
+                                                                                    handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                                }} />
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                    {(!block.links || block.links.length === 0) && (
+                                                                        <div className="text-xs text-gray-400 text-center py-4 bg-white">No links.</div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    } else if (block.type === 'textBox') {
+                                                        return (
+                                                            <div key={block.id} className="relative border border-gray-200 rounded p-1 bg-white flex-1 transition-all duration-300 shadow-sm flex flex-col group hover:border-blue-300">
+                                                                <button type="button" onClick={() => {
+                                                                    const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                    newBlocks.splice(blockIndex, 1);
+                                                                    handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                }} className="absolute -top-3 -right-3 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity z-20 shadow">
+                                                                    <X size={12} strokeWidth={3} />
+                                                                </button>
+                                                                <div className="bg-gray-50 border-b border-gray-100 p-2 flex justify-between items-center">
+                                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Side Text Box</span>
+                                                                </div>
+                                                                <RichTextEditor 
+                                                                    value={block.content || ''} 
+                                                                    onChange={(val) => {
+                                                                        const newBlocks = [...templateConfig.sidebarBlocks];
+                                                                        newBlocks[blockIndex].content = val;
+                                                                        handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                                    }}
+                                                                    placeholder="e.g. <h2>Mission</h2><p>...</p>"
+                                                                    heightClass="min-h-[200px]"
+                                                                />
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })}
+                                                
+                                                <div className="flex flex-col gap-2 p-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50 hover:bg-blue-50 transition-colors">
+                                                    <div className="text-xs font-bold text-blue-800 text-center uppercase tracking-wider mb-1">Add Sidebar Block</div>
+                                                    <div className="flex gap-2">
+                                                        <button type="button" onClick={() => {
+                                                            const newBlocks = [...(templateConfig.sidebarBlocks || []), { id: Date.now().toString(), type: 'quickLinks', title: 'NEW MENU', links: [] }];
+                                                            handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                        }} className="flex-1 text-xs bg-white text-blue-600 border border-blue-200 rounded py-2 font-bold hover:bg-blue-600 hover:text-white transition-colors shadow-sm">
+                                                            + Link Menu
+                                                        </button>
+                                                        <button type="button" onClick={() => {
+                                                            const newBlocks = [...(templateConfig.sidebarBlocks || []), { id: Date.now().toString(), type: 'textBox', title: '', content: '' }];
+                                                            handleTemplateDataChange('sidebarBlocks', newBlocks);
+                                                        }} className="flex-1 text-xs bg-white text-blue-600 border border-blue-200 rounded py-2 font-bold hover:bg-blue-600 hover:text-white transition-colors shadow-sm">
+                                                            + Text Box
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                            
-                            <div className="mb-8 mt-6">
-                                <label className="block text-text-main font-bold mb-1">Page Content <span className="text-primary">*</span></label>
-                                <RichTextEditor value={formData.content} onChange={(val) => setFormData({...formData, content: val})} />
+                                            {/* Content Side */}
+                                            <div className={`flex-1 transition-all duration-500 ${!templateConfig.sidebarBlocks?.length ? 'w-full' : ''}`}>
+                                                <div className="border border-gray-200 rounded p-1 bg-white shadow-sm h-full flex flex-col relative">
+                                                    {!templateConfig.sidebarBlocks?.length && (
+                                                        <div className="absolute -top-4 -left-4 z-10 flex gap-2">
+                                                            <button type="button" onClick={() => {
+                                                                handleTemplateDataChange('sidebarBlocks', [{ id: Date.now().toString(), type: 'quickLinks', title: 'QUICK LINKS', links: [] }]);
+                                                            }} className="bg-white px-3 py-1.5 rounded shadow border border-gray-200 hover:bg-gray-50 transition-colors text-xs font-bold text-blue-600 uppercase tracking-wider">
+                                                                + Add Sidebar
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    <div className="bg-gray-50 border-b border-gray-100 p-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center px-4">
+                                                        <span>Main Page Content <span className="text-red-500">*</span></span>
+                                                    </div>
+                                                    <div className="flex-1 flex flex-col gap-4">
+                                                        <div>
+                                                            <div className="bg-blue-50 text-blue-800 px-3 py-1 text-xs font-bold rounded-t border border-blue-100 border-b-0">English Content</div>
+                                                            <RichTextEditor 
+                                                                value={formData.content} 
+                                                                onChange={(val) => setFormData({...formData, content: val})} 
+                                                                placeholder="Write the main article content here..."
+                                                                heightClass="min-h-[400px]"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <div className="bg-orange-50 text-orange-800 px-3 py-1 text-xs font-bold rounded-t border border-orange-100 border-b-0">Hindi Content</div>
+                                                            <RichTextEditor 
+                                                                value={formData.contentHi} 
+                                                                onChange={(val) => setFormData({...formData, contentHi: val})} 
+                                                                placeholder="Write the Hindi translated content here (Leave blank to use auto-translation)..."
+                                                                heightClass="min-h-[400px]"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </>
                     )}

@@ -40,11 +40,56 @@ namespace ThstiServer.Controllers
             return Request.Headers["User-Agent"].ToString() ?? "unknown";
         }
 
+        [HttpGet("captcha")]
+        public IActionResult GetCaptcha()
+        {
+            var rng = new Random();
+            int num1 = rng.Next(1, 10);
+            int num2 = rng.Next(1, 10);
+            string question = $"{num1} + {num2} = ?";
+            int answer = num1 + num2;
+
+            var jwtSecret = _config["JWT_SECRET"] ?? "supersecret_thsticms_key_at_least_32_chars_long!!";
+            
+            var expires = DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds();
+            var rawData = $"{answer}:{expires}";
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(jwtSecret));
+            var hash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(rawData)));
+            
+            var captchaToken = $"{rawData}|{hash}";
+
+            return Ok(new { question, captchaToken });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
                 return BadRequest(new { success = false, message = "Email and password are required." });
+
+            // GIGW CAPTCHA Validation
+            if (string.IsNullOrEmpty(request.CaptchaToken) || string.IsNullOrEmpty(request.CaptchaAnswer))
+                return BadRequest(new { success = false, message = "Captcha is required." });
+
+            var parts = request.CaptchaToken.Split('|');
+            if (parts.Length != 2) return BadRequest(new { success = false, message = "Invalid captcha." });
+
+            var rawData = parts[0];
+            var hash = parts[1];
+            var jwtSecretAuth = _config["JWT_SECRET"] ?? "supersecret_thsticms_key_at_least_32_chars_long!!";
+            using var hmacAuth = new HMACSHA256(Encoding.UTF8.GetBytes(jwtSecretAuth));
+            var expectedHash = Convert.ToBase64String(hmacAuth.ComputeHash(Encoding.UTF8.GetBytes(rawData)));
+            if (hash != expectedHash) return BadRequest(new { success = false, message = "Invalid captcha format." });
+
+            var dataParts = rawData.Split(':');
+            var expectedAnswer = dataParts[0];
+            var expires = long.Parse(dataParts[1]);
+
+            if (DateTimeOffset.UtcNow.ToUnixTimeSeconds() > expires)
+                return BadRequest(new { success = false, message = "Captcha expired." });
+
+            if (request.CaptchaAnswer.Trim() != expectedAnswer)
+                return BadRequest(new { success = false, message = "Incorrect captcha answer." });
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 

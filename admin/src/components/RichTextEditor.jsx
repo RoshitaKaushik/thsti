@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -26,17 +26,21 @@ const formats = [
   'link', 'image', 'video'
 ];
 
-export default function RichTextEditor({ value, onChange, placeholder = 'Write your content here...' }) {
+export default function RichTextEditor({ value, onChange, placeholder = 'Write your content here...', heightClass = 'h-[300px]' }) {
+
+
   return (
-    <div className="rich-text-editor-wrapper bg-white border border-gray-300 rounded overflow-hidden">
-      <ReactQuill 
-        theme="snow"
+    <div className={`rich-text-editor-wrapper flex flex-col ${heightClass}`}>
+
+      <div className="flex-1 bg-white border border-gray-300 rounded overflow-hidden flex flex-col min-h-[200px]">
+        <ReactQuill 
+          theme="snow"
         value={value || ''}
         onChange={onChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder}
-        className="h-[300px] [&>.ql-container]:border-none [&>.ql-container]:h-[258px] [&>.ql-toolbar]:border-none [&>.ql-toolbar]:border-b [&>.ql-toolbar]:border-gray-200"
+        className="flex-1 flex flex-col [&>.ql-container]:flex-1 [&>.ql-container]:border-none [&>.ql-toolbar]:border-none [&>.ql-toolbar]:border-b [&>.ql-toolbar]:border-gray-200"
       />
       <style>{`
         /* Tailwind custom styles to adjust Quill */
@@ -44,6 +48,7 @@ export default function RichTextEditor({ value, onChange, placeholder = 'Write y
         .ql-snow .ql-picker-options { z-index: 100; }
         .ql-snow .ql-tooltip { z-index: 100; left: 0 !important; }
       `}</style>
+      </div>
     </div>
   );
 }

@@ -43,11 +43,11 @@ const Facilities = () => {
         const url = facility.routeUrl || `/research-facilities/${facility.slug}`;
 
         if (facility.isExternal && facility.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer" className={linkClass}>{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer" className={linkClass}>{children}</a>;
         } else if (facility.isExternal && !facility.openInNewTab) {
             return <a href={url} className={linkClass}>{children}</a>;
         } else if (!facility.isExternal && facility.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer" className={linkClass}>{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer" className={linkClass}>{children}</a>;
         } else {
             return <Link to={url} className={linkClass}>{children}</Link>;
         }
@@ -56,11 +56,11 @@ const Facilities = () => {
     const renderTitleLink = (facility, children) => {
         const url = facility.routeUrl || `/research-facilities/${facility.slug}`;
         if (facility.isExternal && facility.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer">{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
         } else if (facility.isExternal && !facility.openInNewTab) {
             return <a href={url}>{children}</a>;
         } else if (!facility.isExternal && facility.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer">{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
         } else {
             return <Link to={url}>{children}</Link>;
         }
@@ -81,7 +81,7 @@ const Facilities = () => {
                             <div className="row clearfix">
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/19.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/19.jpg" alt="Research Facility Interior" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Medical Research Center</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -91,7 +91,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/18.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/18.jpg" alt="Laboratory Equipment" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Translational Research Facility</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -101,7 +101,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/20.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/20.jpg" alt="Microscopes and Workstations" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Bio Foundry</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -111,7 +111,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/11.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/11.jpg" alt="Advanced Testing Facility" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Bioassay Laboratory</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -121,7 +121,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/16.png" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/16.png" alt="Clean Room Setup" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Biorepository</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -131,7 +131,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/15.png" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/15.png" alt="Research Station" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Biosafety Level-3 Lab</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -141,7 +141,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/21.png" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/21.png" alt="Chemical Hood Area" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Data Management Centre</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>
@@ -151,7 +151,7 @@ const Facilities = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/photo/14.png" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/photo/14.png" alt="Storage and Analysis Area" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Multi-Omics Facility</a></h3>
                                             <div className="text">Auis nostrud exercitation ullamc laboris nisitm aliquip ex bea sed consequat duis autes ure dolor. dolore...</div>

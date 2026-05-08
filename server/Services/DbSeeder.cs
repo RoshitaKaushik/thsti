@@ -124,6 +124,77 @@ namespace ThstiServer.Services
                     context.SaveChanges();
                 }
             }
+
+            // 7. Update Legacy Page Types
+            var legacyPages = context.Pages.Where(p => p.PageType == "Standard" || p.PageType == "DynamicListing").ToList();
+            foreach(var p in legacyPages) {
+                if (p.PageType == "Standard") p.PageType = "Template";
+                if (p.PageType == "DynamicListing") p.PageType = "ModuleLinked";
+            }
+            if (legacyPages.Any()) context.SaveChanges();
+
+            // 8. Seed ModuleLinked Pages for Core Modules
+            var coreModules = new[] {
+                new { Title = "Faculty and Scientists", Slug = "faculty-and-scientists" },
+                new { Title = "Tenders", Slug = "tenders" },
+                new { Title = "News and Events", Slug = "news-and-events" },
+                new { Title = "Notifications", Slug = "notifications" },
+                new { Title = "Research Centers", Slug = "research-centers" },
+                new { Title = "Research Facilities", Slug = "research-facilities" },
+                new { Title = "Programmes", Slug = "programmes" },
+                new { Title = "International Collaboration", Slug = "international-collaboration" },
+                new { Title = "Life at THSTI", Slug = "life-at-thsti" }
+            };
+
+            bool pagesAdded = false;
+            foreach (var mod in coreModules)
+            {
+                if (!context.Pages.Any(p => p.Slug == mod.Slug))
+                {
+                    context.Pages.Add(new Page
+                    {
+                        Title = mod.Title,
+                        Slug = mod.Slug,
+                        Content = "",
+                        IsActive = true,
+                        PageType = "ModuleLinked",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                    pagesAdded = true;
+                }
+            }
+            if (pagesAdded) context.SaveChanges();
+
+            // 9. Seed Standard Policy Pages
+            var policyPages = new[] {
+                new { Title = "Privacy Policy", Slug = "privacy-policy" },
+                new { Title = "Copyright Policy", Slug = "copyright-policy" },
+                new { Title = "Terms of Use", Slug = "terms-of-use" },
+                new { Title = "Hyperlinking Policy", Slug = "hyperlinking-policy" },
+                new { Title = "Website Policies", Slug = "website-policies" }
+            };
+
+            bool policiesAdded = false;
+            foreach (var pol in policyPages)
+            {
+                if (!context.Pages.Any(p => p.Slug == pol.Slug))
+                {
+                    context.Pages.Add(new Page
+                    {
+                        Title = pol.Title,
+                        Slug = pol.Slug,
+                        Content = $"<h2>{pol.Title}</h2><p>Content for {pol.Title} goes here. Please edit in CMS.</p>",
+                        IsActive = true,
+                        PageType = "Template",
+                        TemplateConfigJson = "{}",
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                    policiesAdded = true;
+                }
+            }
+            if (policiesAdded) context.SaveChanges();
         }
     }
 }

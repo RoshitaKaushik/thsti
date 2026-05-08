@@ -60,11 +60,11 @@ export default function News() {
                                                 <span className="date text-muted d-block mb-2" style={{ fontSize: '0.9rem' }}>
                                                     <i className="fa fa-calendar-alt text-primary mr-1"></i> {new Date(item.publishDate).toLocaleDateString()}
                                                 </span>
-                                                <h4 className="title mb-3" style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#2c3e50' }}>
+                                                <h4 className="title mb-3 notranslate bhashini-skip-translation" style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#2c3e50' }}>
                                                     {language === 'hi' && item.titleHi ? item.titleHi : item.title}
                                                 </h4>
-                                                <div className="text-muted mb-3" style={{ fontSize: '0.95rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                                    <div dangerouslySetInnerHTML={{ __html: language === 'hi' && item.bodyHi ? item.bodyHi : item.body }} />
+                                                <div className="text-muted mb-3 notranslate bhashini-skip-translation" style={{ fontSize: '0.95rem', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                    <div dangerouslySetInnerHTML={{ __html: language === 'hi' && item.contentHi ? item.contentHi : item.content }} />
                                                 </div>
                                                 {item.documentUrl && (
                                                     <a href={item.documentUrl} target="_blank" rel="noopener noreferrer" className="read-more font-weight-bold" style={{ color: '#0056b3' }}>
@@ -96,11 +96,11 @@ export default function News() {
                                             <span className="date text-muted d-block mb-2" style={{ fontSize: '0.85rem' }}>
                                                 <i className="fa fa-clock text-primary mr-1"></i> {new Date(item.publishDate).toLocaleDateString()}
                                             </span>
-                                            <h5 className="title mb-2" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
+                                            <h5 className="title mb-2 notranslate bhashini-skip-translation" style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
                                                 {language === 'hi' && item.titleHi ? item.titleHi : item.title}
                                             </h5>
-                                            <div className="text-muted mb-3" style={{ fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                                <div dangerouslySetInnerHTML={{ __html: language === 'hi' && item.bodyHi ? item.bodyHi : item.body }} />
+                                            <div className="text-muted mb-3 notranslate bhashini-skip-translation" style={{ fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                                <div dangerouslySetInnerHTML={{ __html: language === 'hi' && item.contentHi ? item.contentHi : item.content }} />
                                             </div>
                                             {item.documentUrl && (
                                                 <a href={item.documentUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary" style={{ fontSize: '0.8rem' }}>

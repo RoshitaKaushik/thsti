@@ -103,9 +103,20 @@ const ResearchDetails = () => {
         { id: 'admissions', label: 'Admissions', content: center.admissionsContent }
     ].filter(t => t.content && t.content.trim() !== '' && t.content.trim() !== '<p></p>');
 
-    if (!tabs.find(t => t.id === activeTab) && tabs.length > 0) {
-        setActiveTab(tabs[0].id);
-    }
+    const scrollToSection = (e, id) => {
+        e.preventDefault();
+        setActiveTab(id);
+        const element = document.getElementById(id);
+        if (element) {
+            const headerOffset = 150; // Adjust for sticky header
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+        }
+    };
 
     return (
         <>
@@ -135,7 +146,7 @@ const ResearchDetails = () => {
                                         <ul className="services-categories">
                                             {tabs.map(tab => (
                                                 <li key={tab.id} className={activeTab === tab.id ? 'active' : ''}>
-                                                    <a href="#" onClick={(e) => { e.preventDefault(); setActiveTab(tab.id); }}>{tab.label}</a>
+                                                    <a href={`#${tab.id}`} onClick={(e) => scrollToSection(e, tab.id)}>{tab.label}</a>
                                                 </li>
                                             ))}
                                         </ul>
@@ -149,16 +160,34 @@ const ResearchDetails = () => {
                             <div className="services-detail">
                                 <div className="inner-box">
                                     <div className="lower-content pt-0">
-                                        <div className="title-box mb-4" style={{ paddingBottom: '10px', borderBottom: '1px solid #eee' }}>
-                                            <h2 style={{ fontSize: '2.4rem', color: '#002147', fontWeight: '800', margin: 0, paddingBottom: '15px' }}>{center.title}</h2>
+                                        <div className="title-box">
+                                            <h2>{center.title}</h2>
                                         </div>
-                                        
-                                        <div className="mt-4">
+                                        {center.excerpt && (
+                                            <div className="bold-text" style={{ fontSize: '18px', color: '#000', fontWeight: '600', marginBottom: '20px' }}>{center.excerpt}</div>
+                                        )}
+                                    </div>
+                                    
+                                    {center.imageUrl && (
+                                        <div className="image mb-4" style={{ borderRadius: '15px', overflow: 'hidden' }}>
+                                            <img src={getImageUrl(center.imageUrl)} alt={center.title} style={{ width: '100%', display: 'block' }} />
+                                        </div>
+                                    )}
+                                    
+                                    <div className="lower-content pt-2">
+                                        <div className="text">
                                             {tabs.length > 0 ? (
                                                 tabs.map(tab => (
-                                                    activeTab === tab.id && (
-                                                        <div key={tab.id} className="text cms-rich-text" dangerouslySetInnerHTML={{ __html: tab.content }} />
-                                                    )
+                                                    <div key={tab.id} id={tab.id} style={{ marginBottom: '40px' }}>
+                                                        {tab.id !== 'contents' && <h3 style={{ color: '#001e57', fontSize: '24px', marginBottom: '24px', paddingBottom: '10px', borderBottom: '1px solid #eee', fontWeight: '800' }}>{tab.label}</h3>}
+                                                        {tab.id === 'contents' ? (
+                                                            <div>
+                                                                <div dangerouslySetInnerHTML={{ __html: tab.content }}></div>
+                                                            </div>
+                                                        ) : (
+                                                            <div dangerouslySetInnerHTML={{ __html: tab.content }}></div>
+                                                        )}
+                                                    </div>
                                                 ))
                                             ) : (
                                                 <p>No detailed content available for this research center yet.</p>

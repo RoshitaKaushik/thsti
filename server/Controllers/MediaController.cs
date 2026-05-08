@@ -28,6 +28,16 @@ namespace ThstiServer.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest(new { error = "No file uploaded or invalid file format" });
 
+            // GIGW Strict MIME-type and extension validation
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".mp4" };
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "video/mp4" };
+            
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(extension) || !allowedMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
+            {
+                return BadRequest(new { error = "Invalid file type for security reasons. Uploads are restricted to images, PDFs, standard documents, and mp4." });
+            }
+
             try
             {
                 var cloudVaultUrl = await _cloudStorage.UploadFileAsync(file, "thsti-vault");

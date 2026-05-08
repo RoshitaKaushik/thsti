@@ -36,12 +36,12 @@ const ResearchCentersSection = () => {
         const url = center.routeUrl || `/research-centers/${center.slug}`;
 
         if (center.isExternal && center.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer" className={linkClass}>{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer" className={linkClass}>{children}</a>;
         } else if (center.isExternal && !center.openInNewTab) {
             return <a href={url} className={linkClass}>{children}</a>;
         } else if (!center.isExternal && center.openInNewTab) {
             // Edge case: Internal link but admin forced new tab
-            return <a href={url} target="_blank" rel="noreferrer" className={linkClass}>{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer" className={linkClass}>{children}</a>;
         } else {
             return <Link to={url} className={linkClass}>{children}</Link>;
         }
@@ -50,11 +50,11 @@ const ResearchCentersSection = () => {
     const renderTitleLink = (center, children) => {
         const url = center.routeUrl || `/research-centers/${center.slug}`;
         if (center.isExternal && center.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer">{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
         } else if (center.isExternal && !center.openInNewTab) {
             return <a href={url}>{children}</a>;
         } else if (!center.isExternal && center.openInNewTab) {
-            return <a href={url} target="_blank" rel="noreferrer">{children}</a>;
+            return <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
         } else {
             return <Link to={url}>{children}</Link>;
         }
@@ -75,7 +75,7 @@ const ResearchCentersSection = () => {
                             <div className="row clearfix">
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-1.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-1.jpg" alt="Research Center Facility 1" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Maternal and Child Health</a></h3>
                                             <div className="text">Pregnancy (fetal life) and the first two years of life are the most critical periods that shape a person's health...</div>
@@ -85,7 +85,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-2.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-2.jpg" alt="Research Center Facility 2" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Virus Research, Therapeutics and Vaccines</a></h3>
                                             <div className="text">The centre is dedicated to understand how the tools, technologies platforms and knowledge can be harnessed to...</div>
@@ -95,7 +95,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-3.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-3.jpg" alt="Research Center Facility 3" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Tuberculosis Research</a></h3>
                                             <div className="text">Center for Tuberculosis Research has pioneered in designing the CRISPRi tool for conditional silencing of genes...</div>
@@ -105,7 +105,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-4.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-4.jpg" alt="Research Center Facility 4" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Microbial Research</a></h3>
                                             <div className="text">The Centre for Microbial Research (CMR) was created as a niche Centre of THSTI to explore the interactions...</div>
@@ -115,7 +115,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-5.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-5.jpg" alt="Research Center Facility 5" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Immunobiology and Immunotherapy</a></h3>
                                             <div className="text">Understanding effector and regulatory T cell response in autoimmune, inflammatory diseases and cancer...</div>
@@ -125,7 +125,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="0ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-6.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-6.jpg" alt="Research Center Facility 6" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Drug Discovery</a></h3>
                                             <div className="text">The Center for Drug Discovery (CDD) is a multi-disciplinary unit that integrates basic with translational research to...</div>
@@ -135,7 +135,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="300ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-7.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-7.jpg" alt="Research Center Facility 7" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Clinical Development Services Agency</a></h3>
                                             <div className="text">The Clinical Development Services Agency (CDSA) functions as an academic research unit established...</div>
@@ -145,7 +145,7 @@ const ResearchCentersSection = () => {
                                 </div>
                                 <div className="services-block-three col-xl-3 col-lg-6 col-md-6 col-sm-12">
                                     <div className="inner-box wow fadeInUp" data-wow-delay="600ms" data-wow-duration="1500ms">
-                                        <div className="image"><a href="#"><img src="images/resource/res-8.jpg" alt="" /></a></div>
+                                        <div className="image"><a href="#"><img src="images/resource/res-8.jpg" alt="Research Center Facility 8" /></a></div>
                                         <div className="lower-content">
                                             <h3><a href="#">Computational and Mathematical Biology</a></h3>
                                             <div className="text">Develop novel computational tools and mathematical models to address biological problems...</div>

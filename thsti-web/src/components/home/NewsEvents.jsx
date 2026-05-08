@@ -29,7 +29,7 @@ const NewsEvents = () => {
                                     <h2>Latest News/ Events</h2>
                                 </div>
                                 <div className="camp-outer-box12 sub-campis-box">
-                                    <img className="campis-img" alt="" src="/images/news-bg.png" style={{ height: '400px', objectFit: 'cover', width: '100%', borderRadius: '8px' }} />
+                                    <img className="campis-img" alt="THSTI Campus Highlight" src="/images/news-bg.png" style={{ height: '400px', objectFit: 'cover', width: '100%', borderRadius: '8px' }} />
                                     <div className="camp-text-outer-box12 news-title-text">
                                         <div className="announcements-tags">
                                             <span><i className="fa fa-calendar" aria-hidden="true"></i> 11 MAR 2024</span>
@@ -58,7 +58,7 @@ const NewsEvents = () => {
                                         <div className="research-highlights-card">
                                             <div className="research-highlights-card-item hover-effect">
                                                 <div className="card-item-icon1" style={{ width: '150px', flexShrink: 0 }}>
-                                                    <img src="/images/resource/news-1.jpg" alt="" style={{ height: '120px', width: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                                    <img src="/images/resource/news-1.jpg" alt="News Headline Thumbnail" style={{ height: '120px', width: '100%', objectFit: 'cover', borderRadius: '4px' }} />
                                                 </div>
                                                 <div className="card-content">
                                                     <div className="announcements-tags">
@@ -76,7 +76,7 @@ const NewsEvents = () => {
                                         <div className="research-highlights-card">
                                             <div className="research-highlights-card-item hover-effect">
                                                 <div className="card-item-icon1" style={{ width: '150px', flexShrink: 0 }}>
-                                                    <img src="/images/resource/news-2.jpg" alt="" style={{ height: '120px', width: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                                    <img src="/images/resource/news-2.jpg" alt="News Headline Thumbnail" style={{ height: '120px', width: '100%', objectFit: 'cover', borderRadius: '4px' }} />
                                                 </div>
                                                 <div className="card-content">
                                                     <div className="announcements-tags">
@@ -94,7 +94,7 @@ const NewsEvents = () => {
                                         <div className="research-highlights-card">
                                             <div className="research-highlights-card-item hover-effect">
                                                 <div className="card-item-icon1" style={{ width: '150px', flexShrink: 0 }}>
-                                                    <img src="/images/resource/news-3.jpg" alt="" style={{ height: '120px', width: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                                    <img src="/images/resource/news-3.jpg" alt="News Headline Thumbnail" style={{ height: '120px', width: '100%', objectFit: 'cover', borderRadius: '4px' }} />
                                                 </div>
                                                 <div className="card-content">
                                                     <div className="announcements-tags">

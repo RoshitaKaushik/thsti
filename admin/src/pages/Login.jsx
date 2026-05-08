@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -6,13 +6,36 @@ export default function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [captchaToken, setCaptchaToken] = useState('');
+    const [captchaQuestion, setCaptchaQuestion] = useState('');
+    const [captchaAnswer, setCaptchaAnswer] = useState('');
     const [error, setError] = useState('');
+
+    const fetchCaptcha = async () => {
+        try {
+            const res = await api.get('/auth/captcha');
+            setCaptchaQuestion(res.data.question);
+            setCaptchaToken(res.data.captchaToken);
+            setCaptchaAnswer('');
+        } catch (err) {
+            console.error('Failed to load captcha', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchCaptcha();
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         try {
-            const res = await api.post('/auth/login', { email, password });
+            const res = await api.post('/auth/login', { 
+                email, 
+                password,
+                captchaToken,
+                captchaAnswer
+            });
             localStorage.setItem('thsti_admin_token', res.data.accessToken);
             localStorage.setItem('thsti_admin_refresh', res.data.refreshToken);
             localStorage.setItem('thsti_admin_user', JSON.stringify(res.data.user));
@@ -20,6 +43,7 @@ export default function Login() {
         } catch (err) {
             const msg = err.response?.data?.message || 'Invalid email or password';
             setError(msg);
+            fetchCaptcha(); // Refresh captcha on failure
         }
     };
 
@@ -75,6 +99,28 @@ export default function Login() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                 />
+                            </div>
+                            
+                            <div>
+                                <label className="block text-gray-700 font-semibold mb-1 text-sm">Security Question (CAPTCHA)</label>
+                                <div className="flex gap-3">
+                                    <div className="flex-1 bg-gray-100 border border-gray-300 rounded flex items-center justify-center font-mono font-bold text-lg text-gray-800 select-none px-4" title="Solve this math problem">
+                                        {captchaQuestion || 'Loading...'}
+                                    </div>
+                                    <input
+                                        type="number"
+                                        className="admin-input flex-1"
+                                        placeholder="Answer"
+                                        value={captchaAnswer}
+                                        onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                        required
+                                    />
+                                    <button type="button" onClick={fetchCaptcha} className="px-3 bg-gray-200 hover:bg-gray-300 rounded border border-gray-300 transition-colors" title="Reload CAPTCHA">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             
                             <div className="pt-2">
